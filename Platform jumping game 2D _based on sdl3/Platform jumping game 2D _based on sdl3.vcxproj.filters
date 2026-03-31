@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\Core">
+      <UniqueIdentifier>{8714f397-0e2b-4084-9728-21020e339149}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Entity">
+      <UniqueIdentifier>{a674d0c5-e186-4738-9059-e0a5f17657da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\World">
+      <UniqueIdentifier>{809b9b02-c307-47d1-b5bd-505bff09fa70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\State">
+      <UniqueIdentifier>{63a00c8a-6bed-40b6-a415-b7b51a35755c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Game">
+      <UniqueIdentifier>{d224a8dd-b938-427d-83cb-c7ed4fbec56f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Asset">
+      <UniqueIdentifier>{33405626-a5b2-42d8-b7b5-7303a09df078}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Core">
+      <UniqueIdentifier>{73079071-0dc6-4696-ae0d-04338e070550}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Entity">
+      <UniqueIdentifier>{7de8f0e5-724e-40b8-a808-257c481f3ec6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Game">
+      <UniqueIdentifier>{ca77ccb2-663e-4afa-bdbe-a7ebe567195b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Asset">
+      <UniqueIdentifier>{b2c69cb0-351c-40ad-bc67-d4b03525dbf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\State">
+      <UniqueIdentifier>{48af7c6a-d0e1-43ec-8e52-9590c5a51381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\World">
+      <UniqueIdentifier>{859213ad-b8c0-4dcd-aa69-cbff667fa2b9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Game.cpp">
+      <Filter>源文件\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="StateMachine.cpp">
+      <Filter>源文件\State</Filter>
+    </ClCompile>
+    <ClCompile Include="State.cpp">
+      <Filter>源文件\State</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Config.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EventManager.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectPool.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Net.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>头文件\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>头文件\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>头文件\World</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>头文件\State</Filter>
+    </ClInclude>
+    <ClInclude Include="StateMachine.h">
+      <Filter>头文件\State</Filter>
+    </ClInclude>
+    <ClInclude Include="UIManager.h">
+      <Filter>头文件\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>头文件\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
