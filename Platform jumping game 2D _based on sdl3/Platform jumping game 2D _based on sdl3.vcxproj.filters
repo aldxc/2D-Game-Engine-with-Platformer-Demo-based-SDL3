@@ -49,6 +49,12 @@
     <Filter Include="源文件\World">
       <UniqueIdentifier>{859213ad-b8c0-4dcd-aa69-cbff667fa2b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\State\SpecificState">
+      <UniqueIdentifier>{a9082f70-4c20-4e81-a9b7-feaeb0d3985b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\State\SpecificState">
+      <UniqueIdentifier>{bce26d68-0cb0-4f60-9477-54c7e590f93f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -63,8 +69,8 @@
     <ClCompile Include="StateMachine.cpp">
       <Filter>源文件\State</Filter>
     </ClCompile>
-    <ClCompile Include="State.cpp">
-      <Filter>源文件\State</Filter>
+    <ClCompile Include="MenuState.cpp">
+      <Filter>源文件\State\SpecificState</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +139,18 @@
     </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuState.h">
+      <Filter>头文件\State\SpecificState</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseState.h">
+      <Filter>头文件\State\SpecificState</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayingState.h">
+      <Filter>头文件\State\SpecificState</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultState.h">
+      <Filter>头文件\State\SpecificState</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

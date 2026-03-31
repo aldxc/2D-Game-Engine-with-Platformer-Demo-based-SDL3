@@ -24,16 +24,18 @@ bool Renderer::init() noexcept{
 	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 	if (!window) {
 		SDL_Log("Failed to create window: %s", SDL_GetError());
-		return;
+		return false;
 	}
 	window_.reset(window);
 
-	SDL_Renderer* renderer = SDL_CreateRenderer(window_.get(), "render");
+	SDL_Renderer* renderer = SDL_CreateRenderer(window_.get(), nullptr);
 	if (!renderer) {
 		SDL_Log("Failed to create renderer: %s", SDL_GetError());
-		return;
+		return false;
 	}
 	renderer_.reset(renderer);
+
+	return true;
 }
 
 void Renderer::beginRender() const noexcept{
@@ -44,5 +46,10 @@ void Renderer::beginRender() const noexcept{
 void Renderer::restoreDefaultAndPresent() const noexcept {
 	//重置字体
 	SDL_RenderPresent(renderer_.get());//更新屏幕
+}
+
+void Renderer::renderRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept{
+	SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
+	SDL_RenderRect(renderer_.get(), &rect);
 }
 

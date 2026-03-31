@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -132,8 +132,8 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="State.cpp" />
     <ClCompile Include="StateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -145,12 +145,15 @@
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="MenuState.h" />
     <ClInclude Include="Net.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="ObjectPool.h" />
+    <ClInclude Include="PauseState.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayingState.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="State.h" />
@@ -159,6 +162,7 @@
     <ClInclude Include="Tile.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="UIManager.h" />
+    <ClInclude Include="ResultState.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -35,5 +35,8 @@ bool Game::init() noexcept{
 		SDL_Log("Failed to initialize SDL_ttf: %s", SDL_GetError());
 		return false;
 	}
+	//包含所有单例的初始化，后续增加事件管理器的初始化
+	//状态机的初始化
+	stateMachine_ = std::make_unique<StateMachine>();
 	return true;
 }

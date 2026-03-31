@@ -6,7 +6,7 @@
 //µ¥ÀýÄ£Ê½
 class Renderer {
 public:
-	Renderer& getInstance() {
+	static Renderer& getInstance() {
 		static Renderer instance;
 		return instance;
 	}
@@ -19,10 +19,7 @@ public:
 	void beginRender() const noexcept;
 	void restoreDefaultAndPresent() const noexcept;
 
-	void renderRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept {
-		SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
-		SDL_RenderFillRect(renderer_.get(), &rect);
-	}
+	void renderRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept;
 
 private:
 	Renderer();
