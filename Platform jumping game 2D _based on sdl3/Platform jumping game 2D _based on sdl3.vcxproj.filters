@@ -55,6 +55,15 @@
     <Filter Include="源文件\State\SpecificState">
       <UniqueIdentifier>{bce26d68-0cb0-4f60-9477-54c7e590f93f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\UI">
+      <UniqueIdentifier>{bb3ddf11-523e-4907-8841-06a9dc8c2352}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\UI\SpecificUI">
+      <UniqueIdentifier>{0230ce80-f933-4246-a832-48054b3b4c00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\UI">
+      <UniqueIdentifier>{d3527f26-99dd-4791-9d44-82bd1919072d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -71,6 +80,27 @@
     </ClCompile>
     <ClCompile Include="MenuState.cpp">
       <Filter>源文件\State\SpecificState</Filter>
+    </ClCompile>
+    <ClCompile Include="EventManager.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuUI.cpp">
+      <Filter>源文件\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UIManager.cpp">
+      <Filter>源文件\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Botton.cpp">
+      <Filter>源文件\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayingState.cpp">
+      <Filter>源文件\State\SpecificState</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayingUI.cpp">
+      <Filter>源文件\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +181,24 @@
     </ClInclude>
     <ClInclude Include="ResultState.h">
       <Filter>头文件\State\SpecificState</Filter>
+    </ClInclude>
+    <ClInclude Include="EventType.h">
+      <Filter>头文件\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Botton.h">
+      <Filter>头文件\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuUI.h">
+      <Filter>头文件\UI\SpecificUI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>头文件\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SubscriptionId.h">
+      <Filter>头文件\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayingUI.h">
+      <Filter>头文件\UI\SpecificUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

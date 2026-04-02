@@ -1,9 +1,21 @@
 #include "StateMachine.h"
 #include "MenuState.h"
 #include "Renderer.h"
+#include "UI.h"
+#include "EventManager.h"
+#include "PlayingState.h"
 
 StateMachine::StateMachine() : currentState_(createState(StateType::MENU)) {
+	stateTransitionSubscriptionId_ = EventManager::getInstance().subscribe(EventType::State_Transition, [this](const Event& event) {
+		if (event.hasData<StateType>()) {
+			StateType newStateType = event.getData<StateType>();
+			currentState_ = createState(newStateType);
+		}
+		});
+}
 
+StateMachine::~StateMachine(){
+	EventManager::getInstance().unsubscribe(stateTransitionSubscriptionId_);
 }
 
 void StateMachine::update(){
@@ -11,19 +23,15 @@ void StateMachine::update(){
 }
 
 void StateMachine::render(){
-	Renderer::getInstance().beginRender();
-
 	currentState_->render();
-
-	Renderer::getInstance().restoreDefaultAndPresent();
 }
 
 inline std::unique_ptr<State> StateMachine::createState(StateType type){
 	switch (type){	
 	case StateType::MENU:
 		return std::make_unique<MenuState>();
-	//case StateType::Playing:
-	//	return std::make_unique<PlayingState>(info);
+	case StateType::PLAYING:
+		return std::make_unique<PlayingState>();
 	//case StateType::Won:
 	//case StateType::Lost:
 	//	return std::make_unique<EndState>(info);

@@ -2,6 +2,8 @@
 #include <memory>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <string>
+#include "Config.h"
 
 //单例模式
 class Renderer {
@@ -10,6 +12,8 @@ public:
 		static Renderer instance;
 		return instance;
 	}
+
+	bool init() noexcept;
 
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
@@ -20,11 +24,11 @@ public:
 	void restoreDefaultAndPresent() const noexcept;
 
 	void renderRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept;
+	void renderText(const std::string text, const SDL_FRect& rect, const SDL_Color color = SDL_Color({ 100, 100, 100, 255 }), const int t_size = Config::DEFAULT_TEXT_SIZE) const noexcept;
 
 private:
 	Renderer();
 	~Renderer();
-	bool init() noexcept;
 private:
 	struct SDL_Deleter {
 		void operator()(SDL_Window* window) const {
@@ -36,7 +40,25 @@ private:
 			SDL_DestroyRenderer(renderer);
 		}
 	};
+	struct SDL_TextEngineDeleter {
+		void operator()(TTF_TextEngine* engine) const {
+			TTF_DestroyRendererTextEngine(engine);
+		}
+	};
+	struct SDL_FontDeleter {
+		void operator()(TTF_Font* font) const {
+			TTF_CloseFont(font);
+		}
+	};
+	struct TTF_TEXTDeleter {
+		void operator()(TTF_Text* text) const noexcept {
+			if (text) TTF_DestroyText(text); // SDL_ttf 文本对象销毁
+		}
+	};
 private:
 	std::unique_ptr<SDL_Window, SDL_Deleter> window_;
 	std::unique_ptr<SDL_Renderer, SDL_RendererDeleter> renderer_;
+	std::unique_ptr<TTF_TextEngine, SDL_TextEngineDeleter> textEngine_;
+	std::unique_ptr<TTF_Font, SDL_FontDeleter> font_;
+	mutable std::unique_ptr<TTF_Text, TTF_TEXTDeleter> text_; 
 };

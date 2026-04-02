@@ -2,10 +2,6 @@
 #include "Config.h"
 
 Renderer::Renderer() {
-	if (!init()) {
-		SDL_Log("Failed to initialize renderer.");
-		return;
-	}
 
 }
 
@@ -21,7 +17,12 @@ Renderer::~Renderer(){
 }
 
 bool Renderer::init() noexcept{
-	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+	if (!TTF_Init()) {
+		SDL_Log("Failed to init TTF: %s", SDL_GetError());
+		return false;
+	}
+
+	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, 0);
 	if (!window) {
 		SDL_Log("Failed to create window: %s", SDL_GetError());
 		return false;
@@ -35,6 +36,20 @@ bool Renderer::init() noexcept{
 	}
 	renderer_.reset(renderer);
 
+	TTF_TextEngine* textEngine = TTF_CreateRendererTextEngine(renderer_.get());
+	if (!textEngine) {
+		SDL_Log("Failed to create TextEngine: %s", SDL_GetError());
+		return false;
+	}
+	textEngine_.reset(textEngine);
+
+	TTF_Font* font = TTF_OpenFont(Config::PATH_FONT.c_str(), Config::DEFAULT_TEXT_SIZE);
+	if (!font) {
+		SDL_Log("Failed to open font: %s", SDL_GetError());
+		return false;
+	}
+	font_.reset(font);
+
 	return true;
 }
 
@@ -45,11 +60,30 @@ void Renderer::beginRender() const noexcept{
 
 void Renderer::restoreDefaultAndPresent() const noexcept {
 	//重置字体
+	TTF_SetFontSize(font_.get(), Config::DEFAULT_TEXT_SIZE);
 	SDL_RenderPresent(renderer_.get());//更新屏幕
 }
 
 void Renderer::renderRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept{
 	SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
 	SDL_RenderRect(renderer_.get(), &rect);
+}
+
+void Renderer::renderText(const std::string text, const SDL_FRect& rect, const SDL_Color color, const int t_size) const noexcept{
+	TTF_SetFontSize(font_.get(), t_size);
+
+	TTF_Text* t = TTF_CreateText(textEngine_.get(), font_.get(), text.c_str(), text.size());
+	if (!t) {
+		SDL_Log("Fail to create text : %s", SDL_GetError());
+		return;
+	}
+	text_.reset(t);
+	TTF_SetTextColor(t, color.r, color.g, color.b, color.a);
+	int w = 0, h = 0;
+	TTF_GetTextSize(text_.get(), &w, &h);
+	//居中绘制
+	float x = rect.x + (rect.w - w) / 2.0f;
+	float y = rect.y + (rect.h - h) / 2.0f;
+	TTF_DrawRendererText(t, x, y);
 }
 
