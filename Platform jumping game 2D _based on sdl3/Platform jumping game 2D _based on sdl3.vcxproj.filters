@@ -1,204 +1,187 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="源文件">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="头文件">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="头文件\Core">
-      <UniqueIdentifier>{8714f397-0e2b-4084-9728-21020e339149}</UniqueIdentifier>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{ba9ae43c-2d76-46ac-8a4a-f2dee049c386}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\Entity">
-      <UniqueIdentifier>{a674d0c5-e186-4738-9059-e0a5f17657da}</UniqueIdentifier>
+    <Filter Include="Engine\render">
+      <UniqueIdentifier>{0d4c5e5b-b6cb-47e7-9c52-3f0266ea674d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\World">
-      <UniqueIdentifier>{809b9b02-c307-47d1-b5bd-505bff09fa70}</UniqueIdentifier>
+    <Filter Include="Engine\core">
+      <UniqueIdentifier>{d4003ee8-2184-41cc-8211-d293aba45fb2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\State">
-      <UniqueIdentifier>{63a00c8a-6bed-40b6-a415-b7b51a35755c}</UniqueIdentifier>
+    <Filter Include="Engine\input">
+      <UniqueIdentifier>{76df60f5-2af0-4bc6-8a4b-3a85f6114280}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\Game">
-      <UniqueIdentifier>{d224a8dd-b938-427d-83cb-c7ed4fbec56f}</UniqueIdentifier>
+    <Filter Include="Engine\pool">
+      <UniqueIdentifier>{e3a3d930-9b5f-4ef0-9a99-947b56c3fe7d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\Asset">
-      <UniqueIdentifier>{33405626-a5b2-42d8-b7b5-7303a09df078}</UniqueIdentifier>
+    <Filter Include="src">
+      <UniqueIdentifier>{045bc3a5-4fdc-4e80-b6de-270bf0b548dc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Core">
-      <UniqueIdentifier>{73079071-0dc6-4696-ae0d-04338e070550}</UniqueIdentifier>
+    <Filter Include="src\state">
+      <UniqueIdentifier>{e37449d2-771a-49f5-bb4c-e419fecb45d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Entity">
-      <UniqueIdentifier>{7de8f0e5-724e-40b8-a808-257c481f3ec6}</UniqueIdentifier>
+    <Filter Include="src\UI">
+      <UniqueIdentifier>{38c1461a-8a6a-478e-9b98-34fb6121c7df}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Game">
-      <UniqueIdentifier>{ca77ccb2-663e-4afa-bdbe-a7ebe567195b}</UniqueIdentifier>
+    <Filter Include="src\Object">
+      <UniqueIdentifier>{06b3e83d-5fa7-4d85-ab2e-adbd65322b1e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Asset">
-      <UniqueIdentifier>{b2c69cb0-351c-40ad-bc67-d4b03525dbf1}</UniqueIdentifier>
+    <Filter Include="src\Config">
+      <UniqueIdentifier>{7623560b-e5b2-4c5f-acd0-ef9fad7bf737}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\State">
-      <UniqueIdentifier>{48af7c6a-d0e1-43ec-8e52-9590c5a51381}</UniqueIdentifier>
+    <Filter Include="Engine\Net">
+      <UniqueIdentifier>{1a34db79-6c1e-4660-9e4f-daa46ff9cbe3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\World">
-      <UniqueIdentifier>{859213ad-b8c0-4dcd-aa69-cbff667fa2b9}</UniqueIdentifier>
+    <Filter Include="src\Game">
+      <UniqueIdentifier>{fb63a977-5b28-449d-b522-a8412ae1bbee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\State\SpecificState">
+    <Filter Include="src\state\SpecificState">
       <UniqueIdentifier>{a9082f70-4c20-4e81-a9b7-feaeb0d3985b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\State\SpecificState">
-      <UniqueIdentifier>{bce26d68-0cb0-4f60-9477-54c7e590f93f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\UI">
-      <UniqueIdentifier>{bb3ddf11-523e-4907-8841-06a9dc8c2352}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\UI\SpecificUI">
+    <Filter Include="src\UI\SpecificUI">
       <UniqueIdentifier>{0230ce80-f933-4246-a832-48054b3b4c00}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\UI">
-      <UniqueIdentifier>{d3527f26-99dd-4791-9d44-82bd1919072d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\engine\render\Renderer.cpp">
+      <Filter>Engine\render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\core\EventManager.cpp">
+      <Filter>Engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\input\Input.cpp">
+      <Filter>Engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>src\Object</Filter>
+    </ClCompile>
     <ClCompile Include="Game.cpp">
-      <Filter>源文件\Game</Filter>
+      <Filter>src\Game</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>源文件\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>源文件\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="StateMachine.cpp">
-      <Filter>源文件\State</Filter>
+      <Filter>src\Game</Filter>
     </ClCompile>
     <ClCompile Include="MenuState.cpp">
-      <Filter>源文件\State\SpecificState</Filter>
-    </ClCompile>
-    <ClCompile Include="EventManager.cpp">
-      <Filter>源文件\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="MenuUI.cpp">
-      <Filter>源文件\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="UIManager.cpp">
-      <Filter>源文件\State</Filter>
-    </ClCompile>
-    <ClCompile Include="Botton.cpp">
-      <Filter>源文件\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>源文件\Core</Filter>
+      <Filter>src\state\SpecificState</Filter>
     </ClCompile>
     <ClCompile Include="PlayingState.cpp">
-      <Filter>源文件\State\SpecificState</Filter>
+      <Filter>src\state\SpecificState</Filter>
+    </ClCompile>
+    <ClCompile Include="Botton.cpp">
+      <Filter>src\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuUI.cpp">
+      <Filter>src\UI\SpecificUI</Filter>
     </ClCompile>
     <ClCompile Include="PlayingUI.cpp">
-      <Filter>源文件\UI</Filter>
+      <Filter>src\UI\SpecificUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Config.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="EventManager.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPool.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectPool.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Net.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>头文件\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>头文件\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Enemy.h">
-      <Filter>头文件\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Tile.h">
-      <Filter>头文件\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics.h">
-      <Filter>头文件\World</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>头文件\World</Filter>
-    </ClInclude>
-    <ClInclude Include="Map.h">
-      <Filter>头文件\World</Filter>
-    </ClInclude>
-    <ClInclude Include="State.h">
-      <Filter>头文件\State</Filter>
-    </ClInclude>
-    <ClInclude Include="StateMachine.h">
-      <Filter>头文件\State</Filter>
-    </ClInclude>
-    <ClInclude Include="UIManager.h">
-      <Filter>头文件\State</Filter>
-    </ClInclude>
-    <ClInclude Include="Game.h">
-      <Filter>头文件\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>头文件\Entity</Filter>
-    </ClInclude>
     <ClInclude Include="MenuState.h">
-      <Filter>头文件\State\SpecificState</Filter>
+      <Filter>src\state\SpecificState</Filter>
     </ClInclude>
     <ClInclude Include="PauseState.h">
-      <Filter>头文件\State\SpecificState</Filter>
+      <Filter>src\state\SpecificState</Filter>
     </ClInclude>
     <ClInclude Include="PlayingState.h">
-      <Filter>头文件\State\SpecificState</Filter>
+      <Filter>src\state\SpecificState</Filter>
     </ClInclude>
     <ClInclude Include="ResultState.h">
-      <Filter>头文件\State\SpecificState</Filter>
-    </ClInclude>
-    <ClInclude Include="EventType.h">
-      <Filter>头文件\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Botton.h">
-      <Filter>头文件\UI</Filter>
+      <Filter>src\state\SpecificState</Filter>
     </ClInclude>
     <ClInclude Include="MenuUI.h">
-      <Filter>头文件\UI\SpecificUI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI.h">
-      <Filter>头文件\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="SubscriptionId.h">
-      <Filter>头文件\Game</Filter>
+      <Filter>src\UI\SpecificUI</Filter>
     </ClInclude>
     <ClInclude Include="PlayingUI.h">
-      <Filter>头文件\UI\SpecificUI</Filter>
+      <Filter>src\UI\SpecificUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\Renderer.h">
+      <Filter>Engine\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\EventManager.h">
+      <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\EventType.h">
+      <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\SubscriptionId.h">
+      <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\Timer.h">
+      <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\input\Input.h">
+      <Filter>Engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\render\Animation.h">
+      <Filter>Engine\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\render\Camera.h">
+      <Filter>Engine\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\StateMachine.h">
+      <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>src\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\net\Net.h">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>src\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>src\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>src\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
+      <Filter>src\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>src\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Botton.h">
+      <Filter>src\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>src\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="GameStateFactory.h">
+      <Filter>src\state</Filter>
+    </ClInclude>
+    <ClInclude Include="StateType.h">
+      <Filter>src\state</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\State.h">
+      <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="UIType.h">
+      <Filter>src\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UIStateFactory.h">
+      <Filter>src\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\pool\ObjectPool.h">
+      <Filter>Engine\pool</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\pool\ThreadPool.h">
+      <Filter>Engine\pool</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\UI.h">
+      <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\UIManager.h">
+      <Filter>Engine\core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,10 +1,11 @@
 #pragma once
 #include <array>
-#include "UI.h"
+#include "core/UI.h"
+#include "UIType.h"
 #include "Botton.h"
 #include "Config.h"
 
-class MenuUI : public UI {
+class MenuUI : public UI<UIType> {
 public:
 	MenuUI();
 	~MenuUI() override;

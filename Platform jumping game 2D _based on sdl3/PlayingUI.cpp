@@ -1,6 +1,6 @@
 #include "PlayingUI.h"
-#include "Renderer.h"
-
+#include "render/Renderer.h"
+#include "Config.h"
 
 
 PlayingUI::PlayingUI() : UI(UIType::PLAYING){

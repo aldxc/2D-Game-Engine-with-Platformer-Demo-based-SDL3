@@ -1,8 +1,9 @@
 #pragma once
 #include <array>
-#include "State.h"
+#include "core/State.h"
+#include "StateType.h"
 
-class MenuState : public State {
+class MenuState : public State<StateType> {
 public:
 	MenuState() noexcept;
 	~MenuState() noexcept override = default;

@@ -12,6 +12,11 @@ namespace Config {
 
 	constexpr int MENU_BUTTON_WIDTH = 200;
 	constexpr int MENU_BUTTON_HEIGHT = 50;
+
+	constexpr int PLAYER_WIDTH = 50;
+	constexpr int PLAYER_HEIGHT = 50;
+
+	constexpr float DELTAFREAM = 0.016f; // ºŸ…Ë√ø÷°16ms£¨‘º60FPS
 }
 
 

@@ -1,7 +1,8 @@
 #pragma once
-#include "UI.h"
+#include "core/UI.h"
+#include "UIType.h"
 
-class PlayingUI : public UI {
+class PlayingUI : public UI<UIType> {
 public:
 	PlayingUI();
 	~PlayingUI() override;

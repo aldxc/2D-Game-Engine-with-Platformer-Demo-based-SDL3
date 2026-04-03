@@ -1,18 +1,20 @@
 #include "Botton.h"
-#include "Renderer.h"
+#include "render/Renderer.h"
 
 Botton::Botton() : rect_{0, 0, 0, 0}, color_{100, 100, 100, 255}, text_(""), tsize_(Config::DEFAULT_TEXT_SIZE) {
-	clickCallback_ = nullptr;
+	clickCallbacks_ = {};
 }
 
-Botton::Botton(SDL_FRect rect, std::string text, SDL_Color color, int t_size, ClickCallback callBack)
-	: clickCallback_(callBack), rect_(rect), color_(color), text_(text), tsize_(t_size) {
+Botton::Botton(SDL_FRect rect, std::string text, SDL_Color color, int t_size, std::vector<ClickCallback> callBacks)
+	: clickCallbacks_(callBacks), rect_(rect), color_(color), text_(text), tsize_(t_size) {
 
 }
 
 void Botton::clickBottom() noexcept{
-	if (clickCallback_) {
-		clickCallback_();
+	for(const auto& callback : clickCallbacks_) {
+		if (callback) {
+			callback();
+		}
 	}
 
 }

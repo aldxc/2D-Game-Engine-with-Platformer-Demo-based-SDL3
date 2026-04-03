@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "Config.h"
 
 Renderer::Renderer() {
 
@@ -16,13 +15,13 @@ Renderer::~Renderer(){
 	SDL_Quit();
 }
 
-bool Renderer::init() noexcept{
+bool Renderer::init(int w, int h) noexcept{
 	if (!TTF_Init()) {
 		SDL_Log("Failed to init TTF: %s", SDL_GetError());
 		return false;
 	}
 
-	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, 0);
+	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", 800, 600, 0);
 	if (!window) {
 		SDL_Log("Failed to create window: %s", SDL_GetError());
 		return false;
@@ -43,7 +42,8 @@ bool Renderer::init() noexcept{
 	}
 	textEngine_.reset(textEngine);
 
-	TTF_Font* font = TTF_OpenFont(Config::PATH_FONT.c_str(), Config::DEFAULT_TEXT_SIZE);
+	std::string path = "font.ttf";
+	TTF_Font* font = TTF_OpenFont(path.c_str(), 30);
 	if (!font) {
 		SDL_Log("Failed to open font: %s", SDL_GetError());
 		return false;
@@ -60,7 +60,7 @@ void Renderer::beginRender() const noexcept{
 
 void Renderer::restoreDefaultAndPresent() const noexcept {
 	//重置字体
-	TTF_SetFontSize(font_.get(), Config::DEFAULT_TEXT_SIZE);
+	TTF_SetFontSize(font_.get(), 30);
 	SDL_RenderPresent(renderer_.get());//更新屏幕
 }
 

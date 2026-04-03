@@ -2,14 +2,15 @@
 #include <string>
 #include <functional>
 #include <SDL3/SDL.h>
-#include "State.h"
+#include <vector>
+#include "core/State.h"
 #include "Config.h"
 
 class Botton {
 public:
 	using ClickCallback = std::function<void()>;
 	Botton();
-	Botton(SDL_FRect rect, std::string text, SDL_Color color = SDL_Color({ 100, 100, 100, 255 }), int t_size = Config::DEFAULT_TEXT_SIZE, ClickCallback callBack = nullptr);
+	Botton(SDL_FRect rect, std::string text, SDL_Color color = SDL_Color({ 100, 100, 100, 255 }), int t_size = Config::DEFAULT_TEXT_SIZE, std::vector<ClickCallback> callBacks = {});
 	~Botton() = default;
 
 	void clickBottom() noexcept;
@@ -20,5 +21,5 @@ private:
     SDL_Color color_;
 	std::string text_;
 	int tsize_;
-	ClickCallback clickCallback_;
+	std::vector<ClickCallback> clickCallbacks_;
 };

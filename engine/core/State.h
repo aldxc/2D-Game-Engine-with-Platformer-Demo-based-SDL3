@@ -1,10 +1,9 @@
 #pragma once
 
-enum class StateType { MENU, PLAYING, PAUSE, WON, LOST};
-
+template<class TStateType>
 class State {
 public:
-	State(StateType init = StateType::MENU) noexcept : type_(init) {}
+	explicit State(TStateType init) noexcept : type_(init) {}
 	virtual ~State() = default;
 
 	//禁用拷贝
@@ -15,8 +14,8 @@ public:
 
 	virtual void update(float dt) noexcept = 0;
 	virtual void render() const noexcept = 0;
-	bool isType(StateType type) const noexcept { return type_ == type; } // 比较接口
-	StateType getType() const noexcept { return type_; } // 获取状态类型接口
+	bool isType(TStateType type) const noexcept { return type_ == type; } // 比较接口
+	TStateType getType() const noexcept { return type_; } // 获取状态类型接口
 private:
-	StateType type_;
+	TStateType type_;
 };

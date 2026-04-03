@@ -3,7 +3,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <string>
-#include "Config.h"
 
 //µ¥ÀýÄ£Ê½
 class Renderer {
@@ -13,7 +12,7 @@ public:
 		return instance;
 	}
 
-	bool init() noexcept;
+	bool init(int w, int h) noexcept;
 
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
@@ -24,7 +23,7 @@ public:
 	void restoreDefaultAndPresent() const noexcept;
 
 	void renderRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept;
-	void renderText(const std::string text, const SDL_FRect& rect, const SDL_Color color = SDL_Color({ 100, 100, 100, 255 }), const int t_size = Config::DEFAULT_TEXT_SIZE) const noexcept;
+	void renderText(const std::string text, const SDL_FRect& rect, const SDL_Color color = SDL_Color({ 100, 100, 100, 255 }), const int t_size = 30) const noexcept;
 
 private:
 	Renderer();

@@ -108,6 +108,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>..\engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,52 +131,52 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\engine\core\EventManager.cpp" />
+    <ClCompile Include="..\engine\input\Input.cpp" />
+    <ClCompile Include="..\engine\render\Renderer.cpp" />
     <ClCompile Include="Botton.cpp" />
-    <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayingState.cpp" />
     <ClCompile Include="PlayingUI.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="MenuUI.cpp" />
-    <ClCompile Include="UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animation.h" />
-    <ClInclude Include="Audio.h" />
+    <ClInclude Include="..\engine\core\EventManager.h" />
+    <ClInclude Include="..\engine\core\EventType.h" />
+    <ClInclude Include="..\engine\core\Renderer.h" />
+    <ClInclude Include="..\engine\core\State.h" />
+    <ClInclude Include="..\engine\core\StateMachine.h" />
+    <ClInclude Include="..\engine\core\SubscriptionId.h" />
+    <ClInclude Include="..\engine\core\Timer.h" />
+    <ClInclude Include="..\engine\core\UI.h" />
+    <ClInclude Include="..\engine\core\UIManager.h" />
+    <ClInclude Include="..\engine\input\Input.h" />
+    <ClInclude Include="..\engine\net\Net.h" />
+    <ClInclude Include="..\engine\pool\ObjectPool.h" />
+    <ClInclude Include="..\engine\pool\ThreadPool.h" />
+    <ClInclude Include="..\engine\render\Animation.h" />
+    <ClInclude Include="..\engine\render\Camera.h" />
     <ClInclude Include="Botton.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Enemy.h" />
-    <ClInclude Include="EventManager.h" />
-    <ClInclude Include="EventType.h" />
-    <ClInclude Include="Input.h" />
+    <ClInclude Include="GameStateFactory.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="MenuUI.h" />
-    <ClInclude Include="Net.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="PauseState.h" />
-    <ClInclude Include="Physics.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayingState.h" />
     <ClInclude Include="PlayingUI.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="State.h" />
-    <ClInclude Include="StateMachine.h" />
-    <ClInclude Include="SubscriptionId.h" />
-    <ClInclude Include="ThreadPool.h" />
+    <ClInclude Include="StateType.h" />
     <ClInclude Include="Tile.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="UI.h" />
-    <ClInclude Include="UIManager.h" />
     <ClInclude Include="ResultState.h" />
+    <ClInclude Include="UIStateFactory.h" />
+    <ClInclude Include="UIType.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

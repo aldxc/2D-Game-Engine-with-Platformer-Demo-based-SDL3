@@ -1,7 +1,7 @@
 #include "MenuState.h"
-#include "Renderer.h"
+#include "render/Renderer.h"
 
-MenuState::MenuState() noexcept : State(StateType::MENU){
+MenuState::MenuState() noexcept : State<StateType>(StateType::MENU){
 
 }
 

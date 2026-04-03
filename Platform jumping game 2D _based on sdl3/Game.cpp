@@ -1,44 +1,67 @@
 #include "Game.h"
-#include "Renderer.h"
-#include "EventManager.h"
-#include "Input.h"
+#include "Config.h"
+#include "core/EventManager.h"
+#include "input/Input.h"
+#include "render/Renderer.h"
 
-Game::Game(){
+Game::Game() {
 	if (!init()) {
 		SDL_Log("Failed to initialize game.");
 		return;
 	}
 }
 
-Game::~Game(){
+Game::~Game() {
 	EventManager::getInstance().unsubscribe(quitSubscriptionId_);
-
 }
 
-void Game::Run() noexcept{
+void Game::Run() noexcept {
 	while (isRunning_) {
-		Input::getInstance().resetInputState(); // 每帧开始时重置输入状态
+		auto now = std::chrono::high_resolution_clock::now();
+		double frameDt = std::chrono::duration<double>(now - lastFrameTime_).count();
+		lastFrameTime_ = now;
 
-		SDL_Event event;
-		while(SDL_PollEvent(&event)) {
-			if (event.type == SDL_EVENT_QUIT) {
-				isRunning_ = false;
-			}
-			Input::getInstance().processInput(event);
+		if (frameDt > 0.25) {
+			frameDt = 0.25;
 		}
 
-		//更新游戏状态，后续增加固定更新频率
+		accumulator_ += frameDt;
 
-		uiMananger_->handleInput();
-		EventManager::getInstance().update(); // 处理事件队列，调用回调函数
-		stateMachine_->update();
+		handleInput();
+		update();
 		uiMananger_->update();
-
 		renderer();
+
+		SDL_Delay(12);// 简单的帧率控制，避免CPU占用过高，后续可以改进为更精确的帧率控制机制
 	}
 }
 
-void Game::renderer() const noexcept{
+void Game::handleInput() noexcept {
+	Input::getInstance().resetInputState();
+
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_EVENT_QUIT) {
+			isRunning_ = false;
+			continue;
+		}
+
+		Input::getInstance().processInput(event);
+	}
+
+	uiMananger_->handleInput();
+	EventManager::getInstance().update();
+}
+
+void Game::update() noexcept {
+	while (accumulator_ >= Config::DELTAFREAM) {
+		stateMachine_->update(Config::DELTAFREAM);
+		GlobalTime_ += Config::DELTAFREAM;
+		accumulator_ -= Config::DELTAFREAM;
+	}
+}
+
+void Game::renderer() const noexcept {
 	Renderer::getInstance().beginRender();
 
 	stateMachine_->render();
@@ -47,8 +70,7 @@ void Game::renderer() const noexcept{
 	Renderer::getInstance().restoreDefaultAndPresent();
 }
 
-bool Game::init() noexcept{
-	//注意各系统的初始化顺序
+bool Game::init() noexcept {
 	if (!SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO)) {
 		SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
 		return false;
@@ -58,12 +80,11 @@ bool Game::init() noexcept{
 		return false;
 	}
 
-	//包含所有单例的初始化，后续增加事件管理器的初始化
-	if (!Renderer::getInstance().init()) {//渲染器的初始化
+	if (!Renderer::getInstance().init(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT)) {
 		SDL_Log("Failed to initialize renderer.");
 		return false;
 	}
-	if(!EventManager::getInstance().init()) {
+	if (!EventManager::getInstance().init()) {
 		SDL_Log("Failed to initialize event manager.");
 		return false;
 	}
@@ -72,12 +93,12 @@ bool Game::init() noexcept{
 		return false;
 	}
 
-	quitSubscriptionId_ = EventManager::getInstance().subscribe(EventType::App_Quit, [this](const Event& event) {
+	quitSubscriptionId_ = EventManager::getInstance().subscribe(EventType::App_Quit, [this](const Event&) {
 		isRunning_ = false;
-		});
+	});
 
-	//状态机的初始化
-	stateMachine_ = std::make_unique<StateMachine>();
-	uiMananger_ = std::make_unique<UIManager>();
+	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU);
+	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU);
+	lastFrameTime_ = std::chrono::high_resolution_clock::now();
 	return true;
 }
