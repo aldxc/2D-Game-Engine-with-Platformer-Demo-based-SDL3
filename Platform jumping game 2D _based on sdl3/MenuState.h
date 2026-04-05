@@ -5,7 +5,7 @@
 
 class MenuState : public State<StateType> {
 public:
-	MenuState() noexcept;
+	explicit MenuState() noexcept;
 	~MenuState() noexcept override = default;
 	void update(float dt) noexcept override final;
 	void render() const noexcept override final;

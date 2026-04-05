@@ -1,2 +1,4 @@
 #pragma once
-enum class StateType { MENU, PLAYING, PAUSE, WON, LOST };
+#include <cstdint>
+
+enum class StateType : uint8_t { MENU, PLAYING, PAUSE, WON, LOSE};

@@ -35,7 +35,7 @@ void MenuUI::handleInput() noexcept {
 	if (Input::getInstance().isMousePressed()) {
 		auto [mouseX, mouseY] = Input::getInstance().getMousePosition();
 		SDL_FPoint mousePoint{ mouseX, mouseY };
-		for(auto& botton : bottons_) {
+		for(const auto& botton : bottons_) {
 			if (SDL_PointInRectFloat(&mousePoint, &botton.getRect())) {
 				botton.clickBottom();
 			 }

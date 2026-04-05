@@ -30,6 +30,21 @@ void Input::processInput(const SDL_Event& event) noexcept{
 				break;
 		}
 		break;
+	case SDL_EVENT_KEY_UP:
+		switch (keyBindings_[event.key.scancode]){
+		case InputAction::MOVE_LEFT:
+			isMoveLeftPressed_ = false;
+			break;
+		case InputAction::MOVE_RIGHT:
+			isMoveRightPressed_ = false;
+			break;
+		case InputAction::JUMP:
+			isJumpPressed_ = false;
+			break;
+		default:
+			break;
+		}
+		break;
 	default:
 		break;
 	}
@@ -39,6 +54,4 @@ void Input::resetInputState() noexcept{
 	isKeyPressed_ = false;
 	isMousePressed_ = false;
 	mousePos_ = { 0, 0 };
-	isMoveLeftPressed_ = false;
-	isMoveRightPressed_ = false;
 }

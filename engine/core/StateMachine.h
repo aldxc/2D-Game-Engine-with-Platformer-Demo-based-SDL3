@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "render/Renderer.h"
 #include "SubscriptionId.h"
 #include "EventManager.h"
 #include "State.h"
@@ -46,9 +47,14 @@ void StateMachine<TStateType, TFactory>::update(float dt) {
 
 template<class TStateType, class TFactory>
 void StateMachine<TStateType, TFactory>::render() const {
+	Renderer::getInstance().clearDynamicTexture(); // 每帧开始前清除动态纹理内容，准备渲染当前状态的动态元素，后续可优化为根据状态类型选择性清除
+
 	if (currentState_) {
 		currentState_->render();
 	}
+
+	Renderer::getInstance().resetRenderTarget(); // 渲染状态的动态元素后重置渲染目标为默认，准备将动态纹理内容呈现到屏幕
+	Renderer::getInstance().renderDynamicTexture(); // 将动态纹理渲染到默认渲染目标，呈现当前状态的动态元素，后续可优化为根据状态类型选择性渲染
 }
 
 template<class TStateType, class TFactory>

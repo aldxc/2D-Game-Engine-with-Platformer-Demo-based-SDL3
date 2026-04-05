@@ -1,19 +1,17 @@
 #pragma once
-//test
 #include <array>
-#include "Botton.h"
-
 #include "core/UI.h"
+#include "Botton.h"
+#include "Config.h"
 #include "UIType.h"
 
-class PlayingUI : public UI<UIType> {
+class LoseUI : public UI<UIType> {
 public:
-	explicit PlayingUI();
-	~PlayingUI() override;
+	explicit LoseUI();
+	~LoseUI() override;
 	void handleInput() noexcept override final;
 	void update() noexcept override final;
 	void render() const noexcept override final;
 private:
-	//test
-	std::array<Botton, 2> bottons_; // ≤‚ ‘∞¥≈•
+	std::array<Botton, Config::WON_BUTTONS_NUM> bottons_; // lose  back to menu
 };

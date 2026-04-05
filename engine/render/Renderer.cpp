@@ -5,9 +5,9 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer(){
-	//text_.reset();
-	//textEngine_.reset();
-	//font_.reset();
+	text_.reset();
+	textEngine_.reset();
+	font_.reset();
 	renderer_.reset();
 	window_.reset();
 
@@ -21,7 +21,7 @@ bool Renderer::init(int w, int h) noexcept{
 		return false;
 	}
 
-	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", 800, 600, 0);
+	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", w, h, 0);
 	if (!window) {
 		SDL_Log("Failed to create window: %s", SDL_GetError());
 		return false;
@@ -50,6 +50,20 @@ bool Renderer::init(int w, int h) noexcept{
 	}
 	font_.reset(font);
 
+	SDL_Texture* staticTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+	if(!staticTexture) {
+		SDL_Log("Failed to create static texture: %s", SDL_GetError());
+		return false;
+	}
+	staticTexture_.reset(staticTexture);
+
+	SDL_Texture* dynamicTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+	if(!dynamicTexture) {
+		SDL_Log("Failed to create dynamic texture: %s", SDL_GetError());
+		return false;
+	}
+	dynamicTexture_.reset(dynamicTexture);
+
 	return true;
 }
 
@@ -69,6 +83,11 @@ void Renderer::renderRect(const SDL_FRect& rect, const SDL_Color& color) const n
 	SDL_RenderRect(renderer_.get(), &rect);
 }
 
+void Renderer::renderFillRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept{
+	SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
+	SDL_RenderFillRect(renderer_.get(), &rect);
+}
+
 void Renderer::renderText(const std::string text, const SDL_FRect& rect, const SDL_Color color, const int t_size) const noexcept{
 	TTF_SetFontSize(font_.get(), t_size);
 
@@ -85,5 +104,30 @@ void Renderer::renderText(const std::string text, const SDL_FRect& rect, const S
 	float x = rect.x + (rect.w - w) / 2.0f;
 	float y = rect.y + (rect.h - h) / 2.0f;
 	TTF_DrawRendererText(t, x, y);
+}
+
+void Renderer::resetRenderTarget() noexcept{
+	SDL_SetRenderTarget(renderer_.get(), nullptr);
+}
+
+void Renderer::clearStaticTexture(const SDL_Color color) noexcept{
+	SDL_SetRenderTarget(renderer_.get(), staticTexture_.get());
+	SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
+	SDL_RenderClear(renderer_.get());
+}
+
+void Renderer::clearDynamicTexture(const SDL_Color color) noexcept{
+	SDL_SetRenderTarget(renderer_.get(), dynamicTexture_.get());
+	SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
+	SDL_RenderClear(renderer_.get());
+}
+
+void Renderer::renderStaticTexture() const noexcept{
+	SDL_RenderTexture(renderer_.get(), staticTexture_.get(), nullptr, nullptr);
+}
+
+void Renderer::renderDynamicTexture() const noexcept{
+	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
+	SDL_RenderTexture(renderer_.get(), dynamicTexture_.get(), nullptr, nullptr);
 }
 

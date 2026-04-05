@@ -135,6 +135,10 @@
     <ClCompile Include="..\engine\input\Input.cpp" />
     <ClCompile Include="..\engine\render\Renderer.cpp" />
     <ClCompile Include="Botton.cpp" />
+    <ClCompile Include="LoseState.cpp" />
+    <ClCompile Include="LoseUI.cpp" />
+    <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="WonState.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
@@ -142,11 +146,11 @@
     <ClCompile Include="PlayingState.cpp" />
     <ClCompile Include="PlayingUI.cpp" />
     <ClCompile Include="MenuUI.cpp" />
+    <ClCompile Include="WonUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\engine\core\EventManager.h" />
     <ClInclude Include="..\engine\core\EventType.h" />
-    <ClInclude Include="..\engine\core\Renderer.h" />
     <ClInclude Include="..\engine\core\State.h" />
     <ClInclude Include="..\engine\core\StateMachine.h" />
     <ClInclude Include="..\engine\core\SubscriptionId.h" />
@@ -159,11 +163,18 @@
     <ClInclude Include="..\engine\pool\ThreadPool.h" />
     <ClInclude Include="..\engine\render\Animation.h" />
     <ClInclude Include="..\engine\render\Camera.h" />
+    <ClInclude Include="..\engine\render\Renderer.h" />
+    <ClInclude Include="..\engine\resource\Resource.h" />
     <ClInclude Include="Botton.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="LoseState.h" />
+    <ClInclude Include="LoseUI.h" />
+    <ClInclude Include="MapLoader.h" />
+    <ClInclude Include="TextureAtlas.h" />
+    <ClInclude Include="WonState.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameStateFactory.h" />
-    <ClInclude Include="Map.h" />
+    <ClInclude Include="TileMap.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="MenuUI.h" />
     <ClInclude Include="Object.h" />
@@ -174,9 +185,9 @@
     <ClInclude Include="PlayingUI.h" />
     <ClInclude Include="StateType.h" />
     <ClInclude Include="Tile.h" />
-    <ClInclude Include="ResultState.h" />
     <ClInclude Include="UIStateFactory.h" />
     <ClInclude Include="UIType.h" />
+    <ClInclude Include="WonUI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,7 +10,7 @@ public:
 		//后续增加更多命令，如攻击、特殊技能等
 		PlayerCommand() = default;
 	};
-	Player() = default;
+	explicit Player() = default;
 	~Player() override = default;
 
 	void setCommand(const PlayerCommand& command) noexcept { command_ = command; } // 设置玩家命令接口

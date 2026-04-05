@@ -4,7 +4,7 @@
 
 class SubscriptionId {
 public:
-    SubscriptionId() : id_(0), type_(EventType::Custom) {}
+    explicit SubscriptionId() : id_(0), type_(EventType::Custom) {}
     SubscriptionId(uint64_t id, EventType type) : id_(id), type_(type) {}
 
     uint64_t getId() const { return id_; }

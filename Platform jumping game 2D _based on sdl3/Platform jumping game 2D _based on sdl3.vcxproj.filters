@@ -47,6 +47,9 @@
     <Filter Include="src\UI\SpecificUI">
       <UniqueIdentifier>{0230ce80-f933-4246-a832-48054b3b4c00}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\resource">
+      <UniqueIdentifier>{e8c16316-ff28-4a50-b3cb-ac7abe5bf92b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\engine\render\Renderer.cpp">
@@ -82,6 +85,21 @@
     <ClCompile Include="PlayingUI.cpp">
       <Filter>src\UI\SpecificUI</Filter>
     </ClCompile>
+    <ClCompile Include="WonState.cpp">
+      <Filter>src\state\SpecificState</Filter>
+    </ClCompile>
+    <ClCompile Include="LoseState.cpp">
+      <Filter>src\state\SpecificState</Filter>
+    </ClCompile>
+    <ClCompile Include="WonUI.cpp">
+      <Filter>src\UI\SpecificUI</Filter>
+    </ClCompile>
+    <ClCompile Include="LoseUI.cpp">
+      <Filter>src\UI\SpecificUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource.cpp">
+      <Filter>Engine\resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
@@ -93,17 +111,11 @@
     <ClInclude Include="PlayingState.h">
       <Filter>src\state\SpecificState</Filter>
     </ClInclude>
-    <ClInclude Include="ResultState.h">
-      <Filter>src\state\SpecificState</Filter>
-    </ClInclude>
     <ClInclude Include="MenuUI.h">
       <Filter>src\UI\SpecificUI</Filter>
     </ClInclude>
     <ClInclude Include="PlayingUI.h">
       <Filter>src\UI\SpecificUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\core\Renderer.h">
-      <Filter>Engine\render</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\core\EventManager.h">
       <Filter>Engine\core</Filter>
@@ -153,7 +165,7 @@
     <ClInclude Include="Botton.h">
       <Filter>src\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Map.h">
+    <ClInclude Include="TileMap.h">
       <Filter>src\Object</Filter>
     </ClInclude>
     <ClInclude Include="GameStateFactory.h">
@@ -182,6 +194,30 @@
     </ClInclude>
     <ClInclude Include="..\engine\core\UIManager.h">
       <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="WonState.h">
+      <Filter>src\state\SpecificState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\render\Renderer.h">
+      <Filter>Engine\render</Filter>
+    </ClInclude>
+    <ClInclude Include="LoseState.h">
+      <Filter>src\state\SpecificState</Filter>
+    </ClInclude>
+    <ClInclude Include="WonUI.h">
+      <Filter>src\UI\SpecificUI</Filter>
+    </ClInclude>
+    <ClInclude Include="LoseUI.h">
+      <Filter>src\UI\SpecificUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\resource\Resource.h">
+      <Filter>Engine\resource</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureAtlas.h">
+      <Filter>Engine\render</Filter>
+    </ClInclude>
+    <ClInclude Include="MapLoader.h">
+      <Filter>src\Object</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

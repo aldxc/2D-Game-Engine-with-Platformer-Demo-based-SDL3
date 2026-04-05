@@ -5,7 +5,7 @@
 //游戏对象基类
 class Object {
 public:
-	Object() = default;
+	explicit Object() = default;
 	virtual ~Object() = default;
 
 	//禁用拷贝与移动

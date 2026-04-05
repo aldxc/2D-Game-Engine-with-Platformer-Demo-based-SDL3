@@ -7,7 +7,7 @@
 
 class MenuUI : public UI<UIType> {
 public:
-	MenuUI();
+	explicit MenuUI();
 	~MenuUI() override;
 	void handleInput() noexcept override final;
 	void update() noexcept override final;

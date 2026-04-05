@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include "UI.h"
+#include "render/Renderer.h"
 #include "SubscriptionId.h"
 #include "EventManager.h"
 
@@ -60,9 +61,15 @@ void UIManager<TUIType, TFactory>::handleInput() noexcept {
 
 template<class TUIType, class TFactory>
 void UIManager<TUIType, TFactory>::render() const noexcept {
+	//后续可以考虑UI分组渲染等优化
+	Renderer::getInstance().clearStaticTexture(); // 每帧切换渲染对象同时清除静态纹理，避免残影问题，后续可优化为按需清除
+
 	if (currentUI_) {
 		currentUI_->render();
 	}
+
+	Renderer::getInstance().resetRenderTarget();
+	Renderer::getInstance().renderStaticTexture();
 }
 
 template<class TUIType, class TFactory>

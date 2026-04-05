@@ -3,6 +3,7 @@
 #include "core/EventManager.h"
 #include "input/Input.h"
 #include "render/Renderer.h"
+#include "resource/Resource.h"
 
 Game::Game() {
 	if (!init()) {
@@ -64,8 +65,8 @@ void Game::update() noexcept {
 void Game::renderer() const noexcept {
 	Renderer::getInstance().beginRender();
 
-	stateMachine_->render();
 	uiMananger_->render();
+	stateMachine_->render();
 
 	Renderer::getInstance().restoreDefaultAndPresent();
 }
@@ -90,6 +91,10 @@ bool Game::init() noexcept {
 	}
 	if (!Input::getInstance().init()) {
 		SDL_Log("Failed to initialize input manager.");
+		return false;
+	}
+	if(!Resource::getInstance().init()) {
+		SDL_Log("Failed to initialize resource manager.");
 		return false;
 	}
 

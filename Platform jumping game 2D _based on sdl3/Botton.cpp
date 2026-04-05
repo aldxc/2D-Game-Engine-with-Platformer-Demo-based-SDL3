@@ -10,7 +10,7 @@ Botton::Botton(SDL_FRect rect, std::string text, SDL_Color color, int t_size, st
 
 }
 
-void Botton::clickBottom() noexcept{
+void Botton::clickBottom() const noexcept {
 	for(const auto& callback : clickCallbacks_) {
 		if (callback) {
 			callback();
@@ -21,4 +21,5 @@ void Botton::clickBottom() noexcept{
 
 void Botton::render() const noexcept {
 	Renderer::getInstance().renderText(text_, rect_, color_, tsize_);
+	//Renderer::getInstance().renderRect(rect_, color_);
 }

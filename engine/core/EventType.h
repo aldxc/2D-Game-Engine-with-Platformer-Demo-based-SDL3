@@ -2,12 +2,13 @@
 #include <variant>
 #include <string>
 #include <any>
+#include <cstdint>
 #include <SDL3/SDL.h>
 
 //后续可设计成更通用的事件系统，支持更多类型的事件和数据，甚至可以增加事件优先级、事件过滤等功能
 
 // 强枚举：事件类型
-enum class EventType {
+enum class EventType : uint8_t {
     //UI事件
     UI_ButtonClicked,
     UI_SliderChanged,

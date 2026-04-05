@@ -10,7 +10,7 @@
 
 class Game {
 public:
-	Game();
+	explicit Game();
 	~Game();
 	void Run() noexcept;
 	void renderer() const noexcept;
