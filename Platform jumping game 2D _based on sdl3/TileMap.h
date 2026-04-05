@@ -1,18 +1,27 @@
 #pragma once
 #include <vector>
+#include <string>
+#include <SDL3/SDL.h>
 #include "Tile.h"
 
 class TileMap {
 public:
-	struct Tile {
-		TileType type; // 瓦片类型，如陆地、空中等
-		CollisionType collision; // 碰撞类型，如无碰撞、完全碰撞、半碰撞等
-		uint32_t flags; // 其他属性标志位，如是否可破坏、是否有特殊效果等，后续可以根据需要定义具体的标志位含义
+	struct CollisionResult {
+		SDL_FRect hitbox; // 碰撞后的碰撞盒位置和大小
+		float velocityX; // 碰撞后的水平速度
+		float velocityY; // 碰撞后的垂直速度
+		//bool hitLeft; // 是否碰撞到左侧
+		//bool hitRight; // 是否碰撞到右侧
+		//bool hitTop; // 是否碰撞到顶部
+		//bool hitBottom; // 是否碰撞到底部
+		bool isLanded; // 是否着陆，表示玩家是否站在地面上
 	};
 	explicit TileMap() = default;
 	~TileMap() = default;
 	void update(float dt) noexcept;
 	void render() const noexcept;
+	void setTile(const std::vector<std::vector<Tile>>& tiles) noexcept { tiles_ = tiles; }
+	CollisionResult tileCollision(const SDL_FRect& hitBox, float velocityX, float velocityY, bool isLanded, float dt) const noexcept;
 private:
-	std::vector<std::vector<Tile>> tiles_; // 2D瓦片地图数据，tiles_[y][x]表示第y行第x列的瓦片
+	std::vector<std::vector<Tile>> tiles_ = {}; // 2D瓦片地图数据，tiles_[y][x]表示第y行第x列的瓦片
 };

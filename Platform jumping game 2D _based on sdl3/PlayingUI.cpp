@@ -42,7 +42,7 @@ void PlayingUI::update() noexcept{
 void PlayingUI::render() const noexcept{
 
 	//test ÊÇ·ñ±»¸²¸Ç
-	Renderer::getInstance().renderFillRect(SDL_FRect{ 0, 0, 200, 200 }, SDL_Color({ 0, 0, 255, 255 }));
+	//Renderer::getInstance().renderFillRect(SDL_FRect{ 0, 0, 200, 200 }, SDL_Color({ 0, 0, 255, 255 }));
 
 	for(const auto& botton : bottons_) {
 		botton.render();

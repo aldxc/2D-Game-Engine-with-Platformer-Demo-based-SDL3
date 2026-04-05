@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <string>
+#include <unordered_map>
 
 //单例模式
 class Renderer {
@@ -73,7 +74,8 @@ private:
 	std::unique_ptr<SDL_Renderer, SDL_RendererDeleter> renderer_;
 	std::unique_ptr<TTF_TextEngine, SDL_TextEngineDeleter> textEngine_;
 	std::unique_ptr<TTF_Font, SDL_FontDeleter> font_;
-	mutable std::unique_ptr<TTF_Text, TTF_TEXTDeleter> text_;  // 使用智能缓存文本对象，避免频繁创建销毁带来的性能问题，同时确保线程安全，后续可使用文字图集等优化方案
+	//mutable std::unique_ptr<TTF_Text, TTF_TEXTDeleter> text_;  // 使用智能缓存文本对象，避免频繁创建销毁带来的性能问题，同时确保线程安全，后续可使用文字图集等优化方案
 	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> staticTexture_; // 用于静态纹理渲染，避免每帧创建销毁纹理带来的性能问题，包括UI、map等 // 后续可依据更新频率分离
 	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> dynamicTexture_; // 用于动态纹理渲染，适用于玩家、敌人等频繁更新的元素，优化性能同时保持渲染质量
+	mutable std::unordered_map<std::string, std::unique_ptr<TTF_Text, TTF_TEXTDeleter>> textCache_; // 文本缓存，键为文本内容和属性的组合，值为对应的TTF_Text对象，避免重复创建相同文本对象带来的性能问题
 };

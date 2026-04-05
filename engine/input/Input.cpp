@@ -3,7 +3,7 @@
 bool Input::init() noexcept {
 	keyBindings_[SDL_SCANCODE_A] = InputAction::MOVE_LEFT;
 	keyBindings_[SDL_SCANCODE_D] = InputAction::MOVE_RIGHT;
-	keyBindings_[SDL_SCANCODE_SPACE] = InputAction::JUMP;
+	keyBindings_[SDL_SCANCODE_W] = InputAction::JUMP;
 	resetInputState();
 	return true;
 }
@@ -16,6 +16,9 @@ void Input::processInput(const SDL_Event& event) noexcept{
 		break;
 	case SDL_EVENT_KEY_DOWN:
 		isKeyPressed_ = true;
+		if(keyBindings_.find(event.key.scancode) == keyBindings_.end()) {
+			break; // 如果按键没有绑定任何动作，直接返回
+		}
 		switch (keyBindings_[event.key.scancode]) {
 			case InputAction::MOVE_LEFT:
 				isMoveLeftPressed_ = true;
@@ -31,6 +34,9 @@ void Input::processInput(const SDL_Event& event) noexcept{
 		}
 		break;
 	case SDL_EVENT_KEY_UP:
+		if (keyBindings_.find(event.key.scancode) == keyBindings_.end()) {
+			break; // 如果按键没有绑定任何动作，直接返回
+		}
 		switch (keyBindings_[event.key.scancode]){
 		case InputAction::MOVE_LEFT:
 			isMoveLeftPressed_ = false;

@@ -5,7 +5,7 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer(){
-	text_.reset();
+	textCache_.clear();
 	textEngine_.reset();
 	font_.reset();
 	renderer_.reset();
@@ -90,20 +90,29 @@ void Renderer::renderFillRect(const SDL_FRect& rect, const SDL_Color& color) con
 
 void Renderer::renderText(const std::string text, const SDL_FRect& rect, const SDL_Color color, const int t_size) const noexcept{
 	TTF_SetFontSize(font_.get(), t_size);
+	std::unique_ptr<TTF_Text, TTF_TEXTDeleter> text_;
 
-	TTF_Text* t = TTF_CreateText(textEngine_.get(), font_.get(), text.c_str(), text.size());
-	if (!t) {
-		SDL_Log("Fail to create text : %s", SDL_GetError());
-		return;
+	auto it = textCache_.find(text);
+	if(it == textCache_.end()) {
+		// 没有找到缓存，创建新的文本对象
+		TTF_Text* t = TTF_CreateText(textEngine_.get(), font_.get(), text.c_str(), text.size());
+		if (!t) {
+			SDL_Log("Fail to create text : %s", SDL_GetError());
+			return;
+		}
+		text_.reset(t);
+	} else {
+		text_ = std::move(it->second);
 	}
-	text_.reset(t);
-	TTF_SetTextColor(t, color.r, color.g, color.b, color.a);
+	
+	TTF_SetTextColor(text_.get(), color.r, color.g, color.b, color.a);
 	int w = 0, h = 0;
 	TTF_GetTextSize(text_.get(), &w, &h);
 	//居中绘制
 	float x = rect.x + (rect.w - w) / 2.0f;
 	float y = rect.y + (rect.h - h) / 2.0f;
-	TTF_DrawRendererText(t, x, y);
+	TTF_DrawRendererText(text_.get(), x, y);
+	textCache_[text] = std::move(text_);
 }
 
 void Renderer::resetRenderTarget() noexcept{

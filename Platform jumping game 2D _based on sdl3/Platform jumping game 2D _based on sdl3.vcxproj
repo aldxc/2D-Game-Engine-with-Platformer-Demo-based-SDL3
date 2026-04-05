@@ -138,6 +138,7 @@
     <ClCompile Include="LoseState.cpp" />
     <ClCompile Include="LoseUI.cpp" />
     <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="WonState.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="..\engine\core\UIManager.h" />
     <ClInclude Include="..\engine\input\Input.h" />
     <ClInclude Include="..\engine\net\Net.h" />
+    <ClInclude Include="..\engine\physics\Physics.h" />
     <ClInclude Include="..\engine\pool\ObjectPool.h" />
     <ClInclude Include="..\engine\pool\ThreadPool.h" />
     <ClInclude Include="..\engine\render\Animation.h" />

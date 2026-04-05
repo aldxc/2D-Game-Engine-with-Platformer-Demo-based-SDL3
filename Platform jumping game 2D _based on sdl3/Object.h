@@ -23,6 +23,7 @@ protected:
 		hitBox_.x += dx;
 		hitBox_.y += dy;
 	}
+	void setHitBox(const SDL_FRect& rect) noexcept { hitBox_ = rect; } // 设置碰撞盒位置和大小接口
 private:
 	SDL_FRect hitBox_ = SDL_FRect{ 0,0, Config::PLAYER_WIDTH, Config::PLAYER_HEIGHT }; // 碰撞盒 同时也可以用来表示对象的位置和大小
 
