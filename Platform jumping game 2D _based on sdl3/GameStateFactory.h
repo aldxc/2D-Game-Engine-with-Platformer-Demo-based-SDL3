@@ -9,12 +9,12 @@
 
 
 struct GameStateFactory {
-	static std::unique_ptr<State<StateType>> create(StateType stateType) {
+	static std::unique_ptr<State<StateType>> create(Animation& animation, StateType stateType) {
 		switch (stateType) {
 		case StateType::MENU:
 			return std::make_unique<MenuState>();
 		case StateType::PLAYING:
-			return std::make_unique<PlayingState>();
+			return std::make_unique<PlayingState>(animation);
 		case StateType::PAUSE:
 			return std::make_unique<MenuState>();//暂时用菜单状态来表示暂停状态，后续增加专门的暂停状态
 		case StateType::WON:

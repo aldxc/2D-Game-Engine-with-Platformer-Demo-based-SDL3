@@ -134,6 +134,7 @@
     <ClCompile Include="..\engine\core\EventManager.cpp" />
     <ClCompile Include="..\engine\input\Input.cpp" />
     <ClCompile Include="..\engine\render\Renderer.cpp" />
+    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Botton.cpp" />
     <ClCompile Include="LoseState.cpp" />
     <ClCompile Include="LoseUI.cpp" />

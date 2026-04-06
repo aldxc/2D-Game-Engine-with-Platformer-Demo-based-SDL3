@@ -1,10 +1,15 @@
 ﻿#pragma once
 #include <string>
+#include <array>
+#include <cstdint>
 
 namespace Config {
 	// 窗口尺寸 tile 32×32 - 32×18瓦片
-	constexpr int WINDOW_WIDTH = 1024;
-	constexpr int WINDOW_HEIGHT = 576;
+	constexpr int WINDOW_WIDTH = 1920;
+	constexpr int WINDOW_HEIGHT = 1080;
+
+	constexpr int LOGIC_WIDTH = 1024;
+	constexpr int LOGIC_HEIGHT = 576;
 
 	constexpr int MENU_BOTTOMS_NUM = 4;
 	constexpr int WON_BUTTONS_NUM = 3;
@@ -30,6 +35,40 @@ namespace Config {
 	constexpr float JUMP_VELOCITY = -300.0f; // 玩家跳跃初始速度，单位像素/秒
 	constexpr float TILE_SIZE = 32.0f; // 瓦片大小，单位像素
 	constexpr float EPSILON = 0.001f; // 碰撞检测中的微小偏移量，避免浮点数精度问题
+
+	inline static const std::array<std::string, 3> LEVEL_PATH = {
+		"resource/level1.bin",
+		"resource/level2.bin",
+		"resource/level3.bin"
+	};
+
+	inline static const std::array<std::array<int, 4>, 8> TILE_LAND_SRC = { {
+		{ 160, 0, 16 - 1, 16 - 1 }, // 左侧陆地瓦片在瓦片图中的位置和大小
+		{ 176, 0, 16 - 1, 16 - 1 }, // 陆地中间瓦片在瓦片图中的位置和大小
+		{ 192, 0, 16 - 1, 16 - 1 }, // 右侧陆地瓦片在瓦片图中的位置和大小
+		{ 160, 16, 16 - 1, 16 - 1},	// 地下左侧瓦片在瓦片图中的位置和大小
+		{ 176, 16, 16 - 1, 16 - 1},	// 地下中间瓦片在瓦片图中的位置和大小
+		{ 192, 16, 16 - 1, 16 - 1},	// 地下右侧瓦片在瓦片图中的位置和大小
+		{ 208, 0, 16 - 1, 16 - 1 }, // 单独地面瓦片在瓦片图中的位置和大小
+		{ 208, 16, 16 - 1, 16 - 1}	// 单独地下瓦片在瓦片图中的位置和大小
+	} };
+
+	inline static const std::array<int, 4> BK_SRC = { 0, 0, 112 - 1, 128 - 1 }; // 背景瓦片在瓦片图中的位置和大小
+	inline static const std::array<int, 4> PLAYER_IDLE_SRC = { 0,0, 32 - 1, 32 - 1 }; // 玩家静止状态下的动画帧在纹理图中的位置和大小
+	inline static const std::array<std::array<int, 4>, 4> PLAYER_RUN_SRC = { {
+		{ 32, 0, 32 - 1, 32 - 1 }, // 玩家跑动动画帧1在纹理图中的位置和大小
+		{ 64, 0, 32 - 1, 32 - 1 }, // 玩家跑动动画帧2在纹理图中的位置和大小
+		{ 96, 0, 32 - 1, 32 - 1 }, // 玩家跑动动画帧3在纹理图中的位置和大小
+		{ 0, 0, 32 - 1, 32 - 1 }, // 玩家跑动动画帧4在纹理图中的位置和大小
+	} };
+	inline static const std::array<std::array<int, 4>, 2> PLAYER_JUMP_SRC = { {
+		{ 32 * 4, 0, 32 - 1, 32 - 1 }, // 玩家跳跃动画帧1在纹理图中的位置和大小 // 起跳帧
+		{ 32 * 5, 0, 32 - 1, 32 - 1 }, // 玩家跳跃动画帧2在纹理图中的位置和大小	// 上升帧
+	} };
+	inline static const std::array<std::array<int, 4>, 2> PLAYER_FALL_SRC = { {
+		{ 32 * 6, 0, 32 - 1, 32 - 1 }, // 玩家跳跃动画帧3在纹理图中的位置和大小 // 最高点帧
+		{ 32 * 7, 0, 32 - 1, 32 - 1 }, // 玩家跳跃动画帧4在纹理图中的位置和大小 // 下降帧
+	} };
 }
 
 

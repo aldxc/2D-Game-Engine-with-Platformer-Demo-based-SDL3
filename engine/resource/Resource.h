@@ -2,6 +2,9 @@
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <unordered_map>
+#include <memory>
+#include <SDL3/SDL.h>
 #include "Tile.h"
 
 //最好单例
@@ -32,6 +35,9 @@ public:
 	// 地图 level 文件读写
 	bool loadLevel(const std::string& filePath, std::vector<std::vector<Tile>>& Tiles) const;
 	bool saveLevel(const std::string& filePath, const LevelData& level) const;
-private:
 
+	//	瓦片纹理读取
+	std::shared_ptr<SDL_Texture> loadTexture(const std::string& filePath, SDL_Renderer* renderer);
+private:
+	std::unordered_map<std::string, std::shared_ptr<SDL_Texture>> textureCache_; // 资源缓存，可以根据实际需求定义具体的资源类型和管理方式
 };

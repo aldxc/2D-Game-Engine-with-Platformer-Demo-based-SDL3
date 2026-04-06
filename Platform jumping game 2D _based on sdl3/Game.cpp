@@ -4,6 +4,7 @@
 #include "input/Input.h"
 #include "render/Renderer.h"
 #include "resource/Resource.h"
+#include "render/Animation.h"
 
 Game::Game() {
 	if (!init()) {
@@ -65,8 +66,9 @@ void Game::update() noexcept {
 void Game::renderer() const noexcept {
 	Renderer::getInstance().beginRender();
 
-	uiMananger_->render();
 	stateMachine_->render();
+	uiMananger_->render();
+	//stateMachine_->render();
 
 	Renderer::getInstance().restoreDefaultAndPresent();
 }
@@ -98,11 +100,17 @@ bool Game::init() noexcept {
 		return false;
 	}
 
+	animation_ = std::make_unique<Animation>();
+	if(!animation_->init()) {
+		SDL_Log("Failed to initialize animation.");
+		return false;
+	}
+
 	quitSubscriptionId_ = EventManager::getInstance().subscribe(EventType::App_Quit, [this](const Event&) {
 		isRunning_ = false;
 	});
 
-	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU);
+	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU, *animation_);
 	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU);
 	lastFrameTime_ = std::chrono::high_resolution_clock::now();
 	return true;

@@ -1,6 +1,7 @@
 #include "TileMap.h"
 #include "Config.h"
 #include "render/Renderer.h"
+#include "resource/Resource.h"
 
 void TileMap::update(float dt) noexcept {
 	// 这里可以添加地图更新逻辑，例如动画、动态元素等
@@ -8,20 +9,21 @@ void TileMap::update(float dt) noexcept {
 
 void TileMap::render() const noexcept {
 
+	auto texture = Resource::getInstance().loadTexture("resource/sheet.png", Renderer::getInstance().getSDLRenderer());
+	const auto& bkrect = Config::BK_SRC;
+	SDL_FRect bksrcRect = { bkrect[0], bkrect[1], bkrect[2], bkrect[3] };
+	Renderer::getInstance().renderTexture(texture.get(), bksrcRect, SDL_FRect{ 0,0,Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT });
+
 	if(tiles_.empty() || tiles_[0].empty()) {
 		return; // 如果地图数据为空，直接返回
 	}
-	//test
+	
 	for (int i = 0; i < tiles_.size(); ++i) {
 		for (int j = 0; j < tiles_[0].size(); ++j) {
-			if(tiles_[i][j].collision == CollisionType::NONE) {
-				//Renderer::getInstance().renderRect(SDL_FRect{ 0, 0, 32, 32 }, SDL_Color({ 200, 200, 200, 255 })); // 空地不渲染
-			} else if(tiles_[i][j].collision == CollisionType::FULL) {
-				Renderer::getInstance().renderFillRect(SDL_FRect{ float(j * 32), float(i * 32), 32, 32 }, SDL_Color({ 200, 200, 150, 255 })); // 用深灰色矩形表示完全碰撞的地面
-				Renderer::getInstance().renderRect(SDL_FRect{ float(j * 32), float(i * 32), 32, 32 }, SDL_Color({ 150, 150, 150, 255 })); // 用深灰色矩形表示完全碰撞的地面
-
-			} else if (tiles_[i][j].collision == CollisionType::HALF) {
-				Renderer::getInstance().renderRect(SDL_FRect{ float(j * 32), float(i * 32), 32, 32 }, SDL_Color({ 100, 200, 100, 255 })); // 用绿色矩形表示瓦片
+			if (tiles_[i][j].type == TileType::LAND) {
+				const auto& rect = Config::TILE_LAND_SRC[tileTypeToTextureIndex_[i][j]];
+				SDL_FRect srcRect = { rect[0], rect[1], rect[2], rect[3] };
+				Renderer::getInstance().renderTexture(texture.get(), srcRect, SDL_FRect{ float(j * 32), float(i * 32), 32, 32 });
 			}
 		}
 	}
@@ -144,3 +146,51 @@ TileMap::CollisionResult TileMap::tileCollision(const SDL_FRect& srcBox, float v
 
 	return result;
 }
+
+void TileMap::calculateTileTypeToTextureIndexMapping() noexcept{
+	auto isLandTile = [&](int row, int col) {
+		if (row < 0 || row >= static_cast<int>(tiles_.size())) {
+			return false;
+		}
+		if (col < 0 || col >= static_cast<int>(tiles_[row].size())) {
+			return false;
+		}
+		return tiles_[row][col].type == TileType::LAND;
+		};
+
+	const int rows = tiles_.size(), cols = tiles_.empty() ? 0 : tiles_[0].size();
+	tileTypeToTextureIndex_.assign(rows, std::vector<uint8_t>(cols, 0));
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			//根据瓦片位置周围的瓦片类型计算出当前瓦片的纹理索引
+			//land
+			const bool left = isLandTile(i, j - 1); // true 表示左侧是陆地瓦片，false 表示左侧不是陆地瓦片
+			const bool right = isLandTile(i, j + 1); // true 表示右侧是陆地瓦片，false 表示右侧不是陆地瓦片
+			const bool up = isLandTile(i - 1, j); // true 表示上方是陆地瓦片，false 表示上方不是陆地瓦片
+			if (!up) {
+				if (!left && right) {
+					tileTypeToTextureIndex_[i][j] = 0;
+				}else if (left && !right) {
+					tileTypeToTextureIndex_[i][j] = 2;
+				}
+				else if (left && right) {
+					tileTypeToTextureIndex_[i][j] = 1;
+				}
+				else if (!left && !right) {
+					tileTypeToTextureIndex_[i][j] = 6;
+				}
+			} else {
+				if (!left && right) {
+					tileTypeToTextureIndex_[i][j] = 3;
+				}else if (left && !right) {
+					tileTypeToTextureIndex_[i][j] = 5;
+				}else if(left && right) {
+					tileTypeToTextureIndex_[i][j] = 4;
+				}else if (!left && !right) {
+					tileTypeToTextureIndex_[i][j] = 7;
+				}
+			}
+		}
+	}
+}
+

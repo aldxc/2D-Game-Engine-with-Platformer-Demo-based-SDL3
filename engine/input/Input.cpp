@@ -1,4 +1,5 @@
 #include "Input.h"
+#include "render/Renderer.h"
 
 bool Input::init() noexcept {
 	keyBindings_[SDL_SCANCODE_A] = InputAction::MOVE_LEFT;
@@ -9,35 +10,40 @@ bool Input::init() noexcept {
 }
 
 void Input::processInput(const SDL_Event& event) noexcept{
-	switch (event.type){
-	case SDL_EVENT_MOUSE_BUTTON_DOWN:
+	switch (event.type) {
+	case SDL_EVENT_MOUSE_BUTTON_DOWN: {
 		isMousePressed_ = true;
-		mousePos_ = { event.button.x, event.button.y };
+		float mouseX = 0.0f, mouseY = 0.0f;
+		SDL_RenderCoordinatesFromWindow(Renderer::getInstance().getSDLRenderer(), event.button.x, event.button.y, &mouseX, &mouseY);
+		//SDL_Log("MousePos,%f, %f", mouseX, mouseY);
+		mousePos_ = { mouseX, mouseY };
 		break;
-	case SDL_EVENT_KEY_DOWN:
+	}
+	case SDL_EVENT_KEY_DOWN: {
 		isKeyPressed_ = true;
-		if(keyBindings_.find(event.key.scancode) == keyBindings_.end()) {
-			break; // 如果按键没有绑定任何动作，直接返回
-		}
-		switch (keyBindings_[event.key.scancode]) {
-			case InputAction::MOVE_LEFT:
-				isMoveLeftPressed_ = true;
-				break;
-			case InputAction::MOVE_RIGHT:
-				isMoveRightPressed_ = true;
-				break;
-			case InputAction::JUMP:
-				isJumpPressed_ = true;
-				break;
-			default:
-				break;
-		}
-		break;
-	case SDL_EVENT_KEY_UP:
 		if (keyBindings_.find(event.key.scancode) == keyBindings_.end()) {
 			break; // 如果按键没有绑定任何动作，直接返回
 		}
-		switch (keyBindings_[event.key.scancode]){
+		switch (keyBindings_[event.key.scancode]) {
+		case InputAction::MOVE_LEFT:
+			isMoveLeftPressed_ = true;
+			break;
+		case InputAction::MOVE_RIGHT:
+			isMoveRightPressed_ = true;
+			break;
+		case InputAction::JUMP:
+			isJumpPressed_ = true;
+			break;
+		default:
+			break;
+		}
+		break;
+	}
+	case SDL_EVENT_KEY_UP: {
+		if (keyBindings_.find(event.key.scancode) == keyBindings_.end()) {
+			break; // 如果按键没有绑定任何动作，直接返回
+		}
+		switch (keyBindings_[event.key.scancode]) {
 		case InputAction::MOVE_LEFT:
 			isMoveLeftPressed_ = false;
 			break;
@@ -53,6 +59,7 @@ void Input::processInput(const SDL_Event& event) noexcept{
 		break;
 	default:
 		break;
+	}
 	}
 }
 

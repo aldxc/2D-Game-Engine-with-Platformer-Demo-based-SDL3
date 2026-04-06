@@ -1,5 +1,7 @@
 #pragma once
+#include <memory>
 #include "Object.h"
+#include "render/Animation.h"
 
 class Player : public Object {
 public:
@@ -9,7 +11,8 @@ public:
 		bool jump = false;
 	};
 
-	explicit Player() = default;
+	//explicit Player() = default;
+	explicit Player(Animation& animation);
 	~Player() override = default;
 
 	void setCommand(const PlayerCommand& command) noexcept { command_ = command; }
@@ -39,6 +42,9 @@ public:
 		}
 	}
 	void reset() noexcept;
+
+	bool isStateChanged() noexcept;
+	void updateAnimationState(float dt) noexcept;
 private:
 	float speed_ = 200.0f;
 	float velocityX_ = 0.0f;
@@ -48,4 +54,7 @@ private:
 	bool isJumping_ = false;
 
 	PlayerCommand command_ = {};
+	PlayerAnimationState currentAnimationState_ = PlayerAnimationState::IDLE;
+	Animation& animation_;
+	std::shared_ptr<SDL_Texture> playerTexture_ = nullptr;
 };

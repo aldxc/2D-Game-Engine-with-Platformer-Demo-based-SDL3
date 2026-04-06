@@ -15,6 +15,7 @@ namespace Maploader {
 
 		auto tileMap = std::make_unique<TileMap>();
 		tileMap->setTile(tiles);
+		tileMap->calculateTileTypeToTextureIndexMapping(); // 计算瓦片类型到纹理索引的映射关系
 
 		//生成一个测试地图，32列18行瓦片，底部一行是完全碰撞的陆地，其他都是空地
 		//std::vector<std::vector<Tile>> testTiles;
@@ -23,6 +24,18 @@ namespace Maploader {
 		//	testTiles[17][i] = Tile{ TileType::LAND, CollisionType::FULL, 0 };
 		//}
 		//rm.saveLevel("resource/level2.bin", Resource::LevelData{ 32, 18, testTiles }); // 将测试地图保存到文件，后续可以删除这行代码
+		//for (auto& row : tiles) {
+		//	for (auto& tile : row) {
+		//		if (tile.collision == CollisionType::NONE) {
+		//			tile.type = TileType::EMPTY;
+		//		}
+		//		else {
+		//			tile.type = TileType::LAND;
+		//		}
+		//	}
+		//}
+		//rm.saveLevel("resource/level1.bin", Resource::LevelData{ 32, 18, tiles }); // 将测试地图保存到文件，后续可以删除这行代码
+
 
 		return tileMap;
 	}

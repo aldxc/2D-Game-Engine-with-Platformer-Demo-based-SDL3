@@ -21,7 +21,7 @@ bool Renderer::init(int w, int h) noexcept{
 		return false;
 	}
 
-	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", w, h, 0);
+	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", 1920, 1080, 0);
 	if (!window) {
 		SDL_Log("Failed to create window: %s", SDL_GetError());
 		return false;
@@ -34,6 +34,8 @@ bool Renderer::init(int w, int h) noexcept{
 		return false;
 	}
 	renderer_.reset(renderer);
+	SDL_SetRenderTarget(renderer_.get(), nullptr);
+	SDL_SetRenderLogicalPresentation(renderer_.get(), 1024, 576, SDL_LOGICAL_PRESENTATION_LETTERBOX); // 后续根据返回值添加判断，后续抽象为成员方法
 
 	TTF_TextEngine* textEngine = TTF_CreateRendererTextEngine(renderer_.get());
 	if (!textEngine) {
@@ -50,19 +52,21 @@ bool Renderer::init(int w, int h) noexcept{
 	}
 	font_.reset(font);
 
-	SDL_Texture* staticTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+	SDL_Texture* staticTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1024, 576);
 	if(!staticTexture) {
 		SDL_Log("Failed to create static texture: %s", SDL_GetError());
 		return false;
 	}
 	staticTexture_.reset(staticTexture);
 
-	SDL_Texture* dynamicTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+	SDL_Texture* dynamicTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1024, 576);
 	if(!dynamicTexture) {
 		SDL_Log("Failed to create dynamic texture: %s", SDL_GetError());
 		return false;
 	}
 	dynamicTexture_.reset(dynamicTexture);
+
+	//SDL_SetRenderTarget(renderer_.get(), nullptr); // 切换回默认渲染目标，准备进行后续的渲染操作
 
 	return true;
 }
@@ -73,6 +77,8 @@ void Renderer::beginRender() const noexcept{
 }
 
 void Renderer::restoreDefaultAndPresent() const noexcept {
+	SDL_SetRenderTarget(renderer_.get(), nullptr);
+
 	//重置字体
 	TTF_SetFontSize(font_.get(), 30);
 	SDL_RenderPresent(renderer_.get());//更新屏幕
@@ -115,28 +121,47 @@ void Renderer::renderText(const std::string text, const SDL_FRect& rect, const S
 	textCache_[text] = std::move(text_);
 }
 
+void Renderer::renderTexture(SDL_Texture* texture, const SDL_FRect srcrect, const SDL_FRect dstrect) const noexcept {
+	SDL_RenderTexture(renderer_.get(), texture, &srcrect, &dstrect);
+}
+
 void Renderer::resetRenderTarget() noexcept{
 	SDL_SetRenderTarget(renderer_.get(), nullptr);
+	SDL_SetRenderLogicalPresentation(renderer_.get(), 1024, 576, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 }
 
 void Renderer::clearStaticTexture(const SDL_Color color) noexcept{
 	SDL_SetRenderTarget(renderer_.get(), staticTexture_.get());
+
 	SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
 	SDL_RenderClear(renderer_.get());
 }
 
 void Renderer::clearDynamicTexture(const SDL_Color color) noexcept{
 	SDL_SetRenderTarget(renderer_.get(), dynamicTexture_.get());
+
 	SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
 	SDL_RenderClear(renderer_.get());
 }
 
 void Renderer::renderStaticTexture() const noexcept{
+	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
+	const SDL_FRect dstRect{ 0.0f, 0.0f, 1024.0f, 576.0f };
+	//SDL_RenderTexture(renderer_.get(), staticTexture_.get(), nullptr, &dstRect);
 	SDL_RenderTexture(renderer_.get(), staticTexture_.get(), nullptr, nullptr);
+
 }
 
 void Renderer::renderDynamicTexture() const noexcept{
-	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
+	//SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
+	const SDL_FRect dstRect{ 0.0f, 0.0f, 1024.0f, 576.0f };
+	//SDL_RenderTexture(renderer_.get(), dynamicTexture_.get(), nullptr, &dstRect);
 	SDL_RenderTexture(renderer_.get(), dynamicTexture_.get(), nullptr, nullptr);
+
+}
+
+void Renderer::reversePlayerFaceTexture(SDL_Texture* texture, SDL_FRect srcRect, SDL_FRect dstRect) const noexcept{
+	//左右反转纹理
+	SDL_RenderTextureRotated(renderer_.get(), texture, &srcRect, &dstRect, 0, nullptr, SDL_FLIP_HORIZONTAL);
 }
 

@@ -3,16 +3,19 @@
 #include "render/Renderer.h"
 #include "input/Input.h"
 #include "resource/Resource.h"
+#include "render/Animation.h"
 
-PlayingState::PlayingState() noexcept : State<StateType>(StateType::PLAYING) {
-	player_ = std::make_unique<Player>();//状态开始时创建玩家实例，后续增加地图、敌人等元素的创建
-	loadLevel("resource/level1.bin"); // 加载初始关卡数据，后续增加地图资源管理等功能
+PlayingState::PlayingState(Animation& animation) noexcept : State<StateType>(StateType::PLAYING) {
+	currentLevel_ = 0; // 初始关卡编号，后续增加关卡管理等功能
+
+	player_ = std::make_unique<Player>(animation);//状态开始时创建玩家实例，后续增加地图、敌人等元素的创建
+	loadLevel(Config::LEVEL_PATH[currentLevel_]); // 加载初始关卡数据，后续增加地图资源管理等功能
 	//tileMap_ = Maploader::loadMap("resource/level1.bin", Resource::getInstance()); // 从文件加载地图数据，后续增加地图资源管理等功能
 }
 
 void PlayingState::render() const noexcept{
-	player_->render();
 	tileMap_->render();
+	player_->render();
 }
 
 void PlayingState::update(float dt) noexcept{
@@ -23,15 +26,18 @@ void PlayingState::update(float dt) noexcept{
 		Input::getInstance().getJumpPressed()
 		});
 	player_->update(dt);
-	if(!player_->isLanded()) player_->applyGravity(500.0f, dt); 
+	//if(!player_->isLanded()) player_->applyGravity(500.0f, dt); 
+	player_->applyGravity(500.0f, dt);
 	// 碰撞检测和修正
 	const TileMap::CollisionResult result = tileMap_->tileCollision(player_->getHitBox(), player_->getVelocityX(), player_->getVelocityY(), player_->isLanded(), dt);
 	player_->applyResolvedMovement(result.hitbox, result.velocityX, result.velocityY, result.isLanded);
 
+	player_->updateAnimationState(dt);
+
 	//test 切换关卡
-	//if (player_->getHitBox().x > 800) {
-	//	loadLevel("resource/level2.bin");
-	//}
+	if (player_->getHitBox().x > 800) {
+		loadLevel(Config::LEVEL_PATH[++currentLevel_]);
+	}
 }
 
 void PlayingState::loadLevel(const std::string& filePath){

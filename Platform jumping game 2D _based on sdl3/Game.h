@@ -4,9 +4,11 @@
 #include "core/StateMachine.h"
 #include "core/UIManager.h"
 #include "core/State.h"
+#include "render/Animation.h"
 #include "GameStateFactory.h"
 #include "UIType.h"
 #include "UIStateFactory.h"
+
 
 class Game {
 public:
@@ -28,4 +30,7 @@ private:
 	float GlobalTime_ = 0.0f; //全局时间，单位秒
 	float accumulator_ = 0.0f; //时间累积器，用于固定时间步长更新
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastFrameTime_; //上次帧时间点
+
+	//系统资源去除单例，维护在此处，后续增加资源管理器等功能
+	std::unique_ptr<Animation> animation_;
 };

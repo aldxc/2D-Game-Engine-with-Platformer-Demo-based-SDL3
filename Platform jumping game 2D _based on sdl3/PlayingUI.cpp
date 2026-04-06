@@ -13,7 +13,7 @@ PlayingUI::PlayingUI() : UI(UIType::PLAYING){
 		[]() { EventManager::getInstance().sendEvent(Event{ EventType::State_Transition, StateType::WON }); },
 		[]() { EventManager::getInstance().sendEvent(Event{ EventType::UI_Show, UIType::WON }); }
 	} };
-	SDL_FRect bottonRect2{ Config::WINDOW_WIDTH - 100, 300, 100, 100 };
+	SDL_FRect bottonRect2{ Config::LOGIC_WIDTH - 100, 300, 100, 100 };
 	bottons_[1] = { bottonRect2, "Lose", SDL_Color({ 200, 100, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
 		[]() { EventManager::getInstance().sendEvent(Event{ EventType::State_Transition, StateType::LOSE }); },
 		[]() { EventManager::getInstance().sendEvent(Event{ EventType::UI_Show, UIType::LOSE }); }

@@ -1,5 +1,6 @@
 #include "resource/Resource.h"
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include <fstream>
 #include <cstdint>
 
@@ -59,4 +60,25 @@ bool Resource::saveLevel(const std::string& filePath, const LevelData& level) co
 	}
 	SDL_Log("Level saved successfully to: %s", filePath.c_str());
 	return true;
+}
+
+std::shared_ptr<SDL_Texture> Resource::loadTexture(const std::string& filePath, SDL_Renderer* renderer) {
+	auto it = textureCache_.find(filePath);
+	if(it != textureCache_.end()) {
+		return it->second; // 如果缓存中已经存在该纹理，直接返回
+	}
+
+	SDL_Texture* texture = IMG_LoadTexture(renderer, filePath.c_str());
+	if(!texture) {
+		SDL_Log("Failed to load texture: %s, error: %s", filePath.c_str(), SDL_GetError());
+		return nullptr;
+	}
+
+	std::shared_ptr<SDL_Texture> texturePtr(texture, [](SDL_Texture* tex) {
+		if(tex) SDL_DestroyTexture(tex);
+		});
+	textureCache_[filePath] = texturePtr; // 将新加载的纹理添加到缓存中
+	SDL_SetTextureScaleMode(texturePtr.get(), SDL_SCALEMODE_NEAREST);//就近采样
+
+	return texturePtr;
 }
