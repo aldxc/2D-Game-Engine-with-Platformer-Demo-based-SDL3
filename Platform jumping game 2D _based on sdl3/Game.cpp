@@ -1,3 +1,4 @@
+#include <string>
 #include "Game.h"
 #include "Config.h"
 #include "core/EventManager.h"
@@ -31,10 +32,13 @@ void Game::Run() noexcept {
 
 		handleInput();
 		update();
-		uiMananger_->update();
+		uiMananger_->update(frameDt);
+
+		updateCurrentFPS(frameDt);
+
 		renderer();
 
-		SDL_Delay(12);// 简单的帧率控制，避免CPU占用过高，后续可以改进为更精确的帧率控制机制
+		LogicUpdateFrequencyControl(now);
 	}
 }
 
@@ -56,6 +60,7 @@ void Game::handleInput() noexcept {
 }
 
 void Game::update() noexcept {
+	// 使用固定时间步长更新游戏逻辑，确保游戏在不同帧率下的行为一致
 	while (accumulator_ >= Config::DELTAFREAM) {
 		stateMachine_->update(Config::DELTAFREAM);
 		GlobalTime_ += Config::DELTAFREAM;
@@ -68,7 +73,7 @@ void Game::renderer() const noexcept {
 
 	stateMachine_->render();
 	uiMananger_->render();
-	//stateMachine_->render();
+	Renderer::getInstance().renderText("FPS: " + std::to_string(currentFPS_) + "/" + std::to_string(MAX_FPS_), SDL_FRect{10, 10, 100, 30}, SDL_Color({255, 255, 255, 255}), 20);
 
 	Renderer::getInstance().restoreDefaultAndPresent();
 }
@@ -83,7 +88,7 @@ bool Game::init() noexcept {
 		return false;
 	}
 
-	if (!Renderer::getInstance().init(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT)) {
+	if (!Renderer::getInstance().init(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT, Config::DEFAULT_TEXT_SIZE)) {
 		SDL_Log("Failed to initialize renderer.");
 		return false;
 	}
@@ -100,18 +105,45 @@ bool Game::init() noexcept {
 		return false;
 	}
 
-	animation_ = std::make_unique<Animation>();
-	if(!animation_->init()) {
-		SDL_Log("Failed to initialize animation.");
-		return false;
-	}
 
 	quitSubscriptionId_ = EventManager::getInstance().subscribe(EventType::App_Quit, [this](const Event&) {
 		isRunning_ = false;
 	});
 
-	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU, *animation_);
+	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU);
 	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU);
 	lastFrameTime_ = std::chrono::high_resolution_clock::now();
+	auto mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
+	MAX_FPS_ = !mode ? 60 : std::min(Config::TARGET_RENDER_FPS, static_cast<int>(mode->refresh_rate)); // 如果无法获取显示模式信息，默认使用较低的帧率限制
+
+	currentFPS_ = 0;
+	fpsAccumulatedTime_ = 0;
+	fpsAccumulatedTime_ = 0;
+
 	return true;
 }
+
+void Game::LogicUpdateFrequencyControl(const std::chrono::time_point<std::chrono::high_resolution_clock>& frameStartTime){
+	const auto targetFrameTime = std::chrono::duration<double>(1.0 / Config::TARGET_RENDER_FPS);
+	const auto frameElapsed = std::chrono::high_resolution_clock::now() - frameStartTime;
+
+	if (frameElapsed < targetFrameTime) {
+		const auto remainingTime = std::chrono::duration_cast<std::chrono::milliseconds>(targetFrameTime - frameElapsed);
+		if (remainingTime.count() > 0) {
+			SDL_Delay(static_cast<Uint32>(remainingTime.count()));
+		}
+	}
+}
+
+void Game::updateCurrentFPS(double frameDt) noexcept {
+	// 平滑统计FPS，避免过于频繁的波动，使用指数移动平均平滑FPS值
+	++fpsFrameCount_;
+	fpsAccumulatedTime_ += frameDt;
+
+	if (fpsAccumulatedTime_ >= 0.25) {
+		currentFPS_ = static_cast<int>(fpsFrameCount_ / fpsAccumulatedTime_ + 0.5);
+		fpsFrameCount_ = 0;
+		fpsAccumulatedTime_ = 0.0;
+	}
+}
+

@@ -3,6 +3,7 @@
 #include "Object.h"
 #include "render/Animation.h"
 
+
 class Player : public Object {
 public:
 	struct PlayerCommand {
@@ -12,13 +13,14 @@ public:
 	};
 
 	//explicit Player() = default;
-	explicit Player(Animation& animation);
+	explicit Player();
 	~Player() override = default;
 
 	void setCommand(const PlayerCommand& command) noexcept { command_ = command; }
 
 	void update(float dt) noexcept override;
 	void render() const noexcept override;
+	void renderDebug() const noexcept;
 
 	float getVelocityX() const noexcept { return velocityX_; }
 	float getVelocityY() const noexcept { return velocityY_; }
@@ -28,9 +30,7 @@ public:
 	void setVelocityY(float velocityY) noexcept { velocityY_ = velocityY; }
 	void setLanded(bool landed) noexcept { isLanded_ = landed; }
 
-	void applyGravity(float gravity, float dt) noexcept {
-		velocityY_ += gravity * dt;
-	}
+	void applyGravity(float gravity, float dt) noexcept;
 
 	void applyResolvedMovement(const SDL_FRect& hitBox, float velocityX, float velocityY, bool landed) noexcept {
 		setHitBox(hitBox);
@@ -55,6 +55,6 @@ private:
 
 	PlayerCommand command_ = {};
 	PlayerAnimationState currentAnimationState_ = PlayerAnimationState::IDLE;
-	Animation& animation_;
+	Animation animation_;
 	std::shared_ptr<SDL_Texture> playerTexture_ = nullptr;
 };

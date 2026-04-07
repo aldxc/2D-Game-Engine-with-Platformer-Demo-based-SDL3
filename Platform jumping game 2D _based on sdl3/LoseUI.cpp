@@ -30,7 +30,7 @@ void LoseUI::handleInput() noexcept {
 	}
 }
 
-void LoseUI::update() noexcept {
+void LoseUI::update(float dt) noexcept {
 
 }
 

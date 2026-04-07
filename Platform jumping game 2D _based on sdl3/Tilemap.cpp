@@ -2,6 +2,7 @@
 #include "Config.h"
 #include "render/Renderer.h"
 #include "resource/Resource.h"
+#include "physics/Physics.h"
 
 void TileMap::update(float dt) noexcept {
 	// 这里可以添加地图更新逻辑，例如动画、动态元素等
@@ -37,11 +38,10 @@ TileMap::CollisionResult TileMap::tileCollision(const SDL_FRect& srcBox, float v
 		srcBox,
 		velocityX,
 		velocityY,
-		false
+		isLanded
 	};
 
 	if (tiles_.empty() || tiles_[0].empty()) {
-		result.isLanded = isLanded;
 		return result;
 	}
 
@@ -77,7 +77,7 @@ TileMap::CollisionResult TileMap::tileCollision(const SDL_FRect& srcBox, float v
 			}
 
 			const SDL_FRect tileRect = getTileRect(row, col);
-			if (!SDL_HasRectIntersectionFloat(&result.hitbox, &tileRect)) {
+			if (!Physics::isColliding(result.hitbox, tileRect)) {
 				continue;
 			}
 
@@ -111,7 +111,7 @@ TileMap::CollisionResult TileMap::tileCollision(const SDL_FRect& srcBox, float v
 			const SDL_FRect tileRect = getTileRect(row, col);
 
 			if (collision == CollisionType::FULL) {
-				if (!SDL_HasRectIntersectionFloat(&result.hitbox, &tileRect)) {
+				if (!Physics::isColliding(result.hitbox, tileRect)) {
 					continue;
 				}
 

@@ -21,7 +21,9 @@ enum class EventType : uint8_t {
 	//UI状态事件
 	UI_Show,
 	UI_Hide,
+	UI_Change,
 
+    Debug_TogglePlayerInfo,
 
     // 应用事件
     App_Quit,

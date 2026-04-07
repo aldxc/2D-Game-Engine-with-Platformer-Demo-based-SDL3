@@ -1,8 +1,9 @@
 #include "Player.h"
 #include "render/Renderer.h"
 #include "resource/Resource.h"
+#include "physics/Physics.h"
 
-Player::Player(Animation& animation) : animation_(animation){
+Player::Player() {
 	playerTexture_ = Resource::getInstance().loadTexture("resource/characters.png", Renderer::getInstance().getSDLRenderer());
 	command_ = {};
 	currentAnimationState_ = PlayerAnimationState::IDLE;
@@ -10,6 +11,7 @@ Player::Player(Animation& animation) : animation_(animation){
 	const auto src = Config::PLAYER_IDLE_SRC;
 	animationClip.frames.push_back(SDL_FRect{ static_cast<float>(src[0]), static_cast<float>(src[1]), static_cast<float>(src[2]), static_cast<float>(src[3]) });
 	animation_.play(animationClip);
+	
 }
 
 void Player::update(float dt) noexcept{
@@ -31,18 +33,34 @@ void Player::update(float dt) noexcept{
 }
 
 void Player::render() const noexcept{
-
-	SDL_FRect debugRect = getHitBox();
-	debugRect.w *= 2;
-	debugRect.h *= 2;
-	debugRect.x -= 16;
-	debugRect.y -= 32;
+	SDL_FRect scaleTextureRect = getHitBox();
+	scaleTextureRect.w *= 2;
+	scaleTextureRect.h *= 2;
+	scaleTextureRect.x -= 16;
+	scaleTextureRect.y -= 32;
 	if (facingRight_)
-		Renderer::getInstance().renderTexture(playerTexture_.get(), animation_.getCurrentFrameRect(), debugRect);
+		Renderer::getInstance().renderTexture(playerTexture_.get(), animation_.getCurrentFrameRect(), scaleTextureRect);
 	else
-		Renderer::getInstance().reversePlayerFaceTexture(playerTexture_.get(), animation_.getCurrentFrameRect(), debugRect);
+		Renderer::getInstance().reversePlayerFaceTexture(playerTexture_.get(), animation_.getCurrentFrameRect(), scaleTextureRect);
 
-	Renderer::getInstance().renderRect(getHitBox(), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家
+	//Renderer::getInstance().renderRect(getHitBox(), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家
+}
+
+void Player::renderDebug() const noexcept{
+	SDL_Color debugTextColor = SDL_Color({ 255, 255, 255, 255 }); // 白色文本
+	SDL_FRect debugInfoRect = { Config::LOGIC_WIDTH - 200, 0, 200, 200 };
+	std::string str = (isLanded_) ? "Landed" : "Air";
+	Renderer::getInstance().renderText("IsLand:" + str, debugInfoRect, debugTextColor, 20);
+	std::string velocityXStr = "VelX: " + std::to_string(static_cast<int>(velocityX_));
+	std::string velocityYStr = "VelY: " + std::to_string(static_cast<int>(velocityY_));
+	Renderer::getInstance().renderText(velocityXStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 30, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	Renderer::getInstance().renderText(velocityYStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 60, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+
+	Renderer::getInstance().renderRect(getHitBox(), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家碰撞盒
+}
+
+void Player::applyGravity(float gravity, float dt) noexcept{
+	Physics::gravity(velocityY_, gravity, dt);
 }
 
 void Player::reset() noexcept {

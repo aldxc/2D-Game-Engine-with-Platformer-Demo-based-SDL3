@@ -29,7 +29,7 @@ public:
 		return SDL_HasRectIntersectionFloat(&a, &b);
 	}
 
-	//static void gravity(float& velocityY, float gravity, float dt) noexcept {
-	//	velocityY += gravity * dt; // 根据重力加速度和时间增量更新垂直速度
-	//}
+	static void gravity(float& velocityY, float gravity, float dt) noexcept {
+		velocityY += gravity * dt; // 根据重力加速度和时间增量更新垂直速度
+	}
 };

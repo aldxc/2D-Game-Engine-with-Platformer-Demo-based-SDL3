@@ -43,7 +43,7 @@ void MenuUI::handleInput() noexcept {
 	}
 }
 
-void MenuUI::update() noexcept {
+void MenuUI::update(float dt) noexcept {
 }
 
 void MenuUI::render() const noexcept {

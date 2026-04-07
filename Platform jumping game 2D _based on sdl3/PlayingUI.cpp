@@ -18,6 +18,10 @@ PlayingUI::PlayingUI() : UI(UIType::PLAYING){
 		[]() { EventManager::getInstance().sendEvent(Event{ EventType::State_Transition, StateType::LOSE }); },
 		[]() { EventManager::getInstance().sendEvent(Event{ EventType::UI_Show, UIType::LOSE }); }
 	} };
+	SDL_FRect debugBottonRect{ Config::LOGIC_WIDTH / 2 - 50, 0, 100, 100 };
+	bottons_[2] = { debugBottonRect, "Debug", SDL_Color({ 255, 100, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
+		[]() { EventManager::getInstance().sendEvent(Event{EventType::Debug_TogglePlayerInfo, {}}); }
+	} };
 }
 
 PlayingUI::~PlayingUI(){
@@ -36,7 +40,7 @@ void PlayingUI::handleInput() noexcept{
 	}
 }
 
-void PlayingUI::update() noexcept{
+void PlayingUI::update(float dt) noexcept{
 }
 
 void PlayingUI::render() const noexcept{

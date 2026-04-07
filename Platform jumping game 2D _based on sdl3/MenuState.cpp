@@ -10,7 +10,7 @@ void MenuState::update(float dt) noexcept{
 }
 
 void MenuState::render() const noexcept{
-	//test
-	//SDL_FRect rect{ 0,0,100,100 };
-	//Renderer::getInstance().renderRect(rect, SDL_Color({ 200, 00, 100, 255 }));
+	Renderer::getInstance().clearStaticTexture(); // 切换到静态纹理渲染目标并清除内容，准备渲染地图等静态元素
+
+	Renderer::getInstance().clearDynamicTexture(); // 切换到动态纹理渲染目标并清除内容，准备渲染胜利界面等动态元素
 }

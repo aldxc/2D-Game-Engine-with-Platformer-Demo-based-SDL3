@@ -1,14 +1,15 @@
 #pragma once
 #include <memory>
 #include "core/State.h"
+#include "core/SubscriptionId.h"
 #include "StateType.h"
 #include "Player.h"
 #include "TileMap.h"
 
 class PlayingState : public State<StateType> {
 public:
-	explicit PlayingState(Animation& animation) noexcept;
-	~PlayingState() noexcept override = default;
+	explicit PlayingState() noexcept;
+	~PlayingState() noexcept override;
 	void render() const noexcept override final;
 	void update(float dt) noexcept override final;
 private:
@@ -17,4 +18,8 @@ private:
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<TileMap> tileMap_;
 	int currentLevel_ = 0; // 当前关卡编号，后续增加关卡管理等功能
+
+	//调试信息显示
+	bool showPlayerDebugInfo_ = false;
+	SubscriptionId debugSubscriptionId_;
 };

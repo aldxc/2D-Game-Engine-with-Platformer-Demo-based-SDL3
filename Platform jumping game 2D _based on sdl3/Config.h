@@ -29,6 +29,7 @@ namespace Config {
 	constexpr int PLAYER_HEIGHT = 32;
 
 	constexpr float DELTAFREAM = 0.016f; // 假设每帧16ms，约60FPS
+	constexpr int TARGET_RENDER_FPS = 120;
 
 	constexpr float GRAVITY = 500.0f; // 重力加速度，单位像素/秒²
 	constexpr float PLAYER_SPEED = 200.0f; // 玩家水平移动速度，单位像素/秒
@@ -42,6 +43,7 @@ namespace Config {
 		"resource/level3.bin"
 	};
 
+	//减一是为了边缘采样，避免渲染时出现边缘像素的混合问题
 	inline static const std::array<std::array<int, 4>, 8> TILE_LAND_SRC = { {
 		{ 160, 0, 16 - 1, 16 - 1 }, // 左侧陆地瓦片在瓦片图中的位置和大小
 		{ 176, 0, 16 - 1, 16 - 1 }, // 陆地中间瓦片在瓦片图中的位置和大小

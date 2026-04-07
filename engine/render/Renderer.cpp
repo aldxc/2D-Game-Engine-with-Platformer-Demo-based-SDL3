@@ -15,13 +15,8 @@ Renderer::~Renderer(){
 	SDL_Quit();
 }
 
-bool Renderer::init(int w, int h) noexcept{
-	if (!TTF_Init()) {
-		SDL_Log("Failed to init TTF: %s", SDL_GetError());
-		return false;
-	}
-
-	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", 1920, 1080, 0);
+bool Renderer::init(int w, int h, int logicW, int logicH, int fontSize) noexcept{
+	SDL_Window* window = SDL_CreateWindow("Platform Jumping Game 2D", w, h, 0);
 	if (!window) {
 		SDL_Log("Failed to create window: %s", SDL_GetError());
 		return false;
@@ -35,7 +30,7 @@ bool Renderer::init(int w, int h) noexcept{
 	}
 	renderer_.reset(renderer);
 	SDL_SetRenderTarget(renderer_.get(), nullptr);
-	SDL_SetRenderLogicalPresentation(renderer_.get(), 1024, 576, SDL_LOGICAL_PRESENTATION_LETTERBOX); // 后续根据返回值添加判断，后续抽象为成员方法
+	SDL_SetRenderLogicalPresentation(renderer_.get(), logicW, logicH, SDL_LOGICAL_PRESENTATION_LETTERBOX); // 后续根据返回值添加判断，后续抽象为成员方法
 
 	TTF_TextEngine* textEngine = TTF_CreateRendererTextEngine(renderer_.get());
 	if (!textEngine) {
@@ -45,28 +40,33 @@ bool Renderer::init(int w, int h) noexcept{
 	textEngine_.reset(textEngine);
 
 	std::string path = "font.ttf";
-	TTF_Font* font = TTF_OpenFont(path.c_str(), 30);
+	TTF_Font* font = TTF_OpenFont(path.c_str(), fontSize);
 	if (!font) {
 		SDL_Log("Failed to open font: %s", SDL_GetError());
 		return false;
 	}
 	font_.reset(font);
 
-	SDL_Texture* staticTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1024, 576);
+	SDL_Texture* UITexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, logicW, logicH);
+	if(!UITexture) {
+		SDL_Log("Failed to create UI texture: %s", SDL_GetError());
+		return false;
+	}
+	UITexture_.reset(UITexture);
+
+	SDL_Texture* staticTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, logicW, logicH);
 	if(!staticTexture) {
 		SDL_Log("Failed to create static texture: %s", SDL_GetError());
 		return false;
 	}
 	staticTexture_.reset(staticTexture);
 
-	SDL_Texture* dynamicTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1024, 576);
+	SDL_Texture* dynamicTexture = SDL_CreateTexture(renderer_.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, logicW, logicH);
 	if(!dynamicTexture) {
 		SDL_Log("Failed to create dynamic texture: %s", SDL_GetError());
 		return false;
 	}
 	dynamicTexture_.reset(dynamicTexture);
-
-	//SDL_SetRenderTarget(renderer_.get(), nullptr); // 切换回默认渲染目标，准备进行后续的渲染操作
 
 	return true;
 }
@@ -130,6 +130,13 @@ void Renderer::resetRenderTarget() noexcept{
 	SDL_SetRenderLogicalPresentation(renderer_.get(), 1024, 576, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 }
 
+void Renderer::clearUITexture(const SDL_Color color) noexcept{
+	SDL_SetRenderTarget(renderer_.get(), UITexture_.get());
+
+	SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
+	SDL_RenderClear(renderer_.get());
+}
+
 void Renderer::clearStaticTexture(const SDL_Color color) noexcept{
 	SDL_SetRenderTarget(renderer_.get(), staticTexture_.get());
 
@@ -146,18 +153,18 @@ void Renderer::clearDynamicTexture(const SDL_Color color) noexcept{
 
 void Renderer::renderStaticTexture() const noexcept{
 	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
-	const SDL_FRect dstRect{ 0.0f, 0.0f, 1024.0f, 576.0f };
-	//SDL_RenderTexture(renderer_.get(), staticTexture_.get(), nullptr, &dstRect);
 	SDL_RenderTexture(renderer_.get(), staticTexture_.get(), nullptr, nullptr);
 
 }
 
 void Renderer::renderDynamicTexture() const noexcept{
 	//SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
-	const SDL_FRect dstRect{ 0.0f, 0.0f, 1024.0f, 576.0f };
-	//SDL_RenderTexture(renderer_.get(), dynamicTexture_.get(), nullptr, &dstRect);
 	SDL_RenderTexture(renderer_.get(), dynamicTexture_.get(), nullptr, nullptr);
+}
 
+void Renderer::renderUITexture() const noexcept{
+	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持UI纹理的透明度
+	SDL_RenderTexture(renderer_.get(), UITexture_.get(), nullptr, nullptr);
 }
 
 void Renderer::reversePlayerFaceTexture(SDL_Texture* texture, SDL_FRect srcRect, SDL_FRect dstRect) const noexcept{

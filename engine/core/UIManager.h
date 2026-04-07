@@ -12,7 +12,7 @@ public:
 	explicit UIManager(TUIType initType);
 	~UIManager();
 
-	void update() noexcept;
+	void update(float dt) noexcept;
 	void handleInput() noexcept;
 	void render() const noexcept;
 	void show(TUIType type);
@@ -46,9 +46,9 @@ UIManager<TUIType, TFactory>::~UIManager() {
 }
 
 template<class TUIType, class TFactory>
-void UIManager<TUIType, TFactory>::update() noexcept {
+void UIManager<TUIType, TFactory>::update(float dt) noexcept {
 	if (currentUI_) {
-		currentUI_->update();
+		currentUI_->update(dt);
 	}
 }
 
@@ -61,15 +61,10 @@ void UIManager<TUIType, TFactory>::handleInput() noexcept {
 
 template<class TUIType, class TFactory>
 void UIManager<TUIType, TFactory>::render() const noexcept {
-	//后续可以考虑UI分组渲染等优化
-	Renderer::getInstance().clearStaticTexture(); // 每帧切换渲染对象同时清除静态纹理，避免残影问题，后续可优化为按需清除
 
-	if (currentUI_) {
-		currentUI_->render();
-	}
+	//后续增加需要频繁更新的UI元素时可以订阅事件来更新UI纹理，避免每帧都更新UI纹理带来的性能问题
 
-	Renderer::getInstance().resetRenderTarget();
-	Renderer::getInstance().renderStaticTexture();
+	Renderer::getInstance().renderUITexture();
 }
 
 template<class TUIType, class TFactory>
@@ -83,5 +78,17 @@ void UIManager<TUIType, TFactory>::show(TUIType type) {
 
 template<class TUIType, class TFactory>
 std::unique_ptr<UI<TUIType>> UIManager<TUIType, TFactory>::createUI(TUIType type) {
+	currentUI_ = TFactory::create(type);
+
+	// UI一般为静态元素，不需要频繁更新，现只在初始化中更新纹理
+	//后续增加血条等需要频繁更新的UI元素时可以订阅事件来更新UI纹理，避免每帧都更新UI纹理带来的性能问题
+	Renderer::getInstance().clearUITexture();
+
+	if (currentUI_) {
+		currentUI_->render();
+	}
+
+	Renderer::getInstance().resetRenderTarget();
+
 	return TFactory::create(type);
 }

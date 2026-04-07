@@ -35,7 +35,7 @@ void WonUI::handleInput() noexcept{
 	}
 }
 
-void WonUI::update() noexcept{
+void WonUI::update(float dt) noexcept{
 
 }
 
