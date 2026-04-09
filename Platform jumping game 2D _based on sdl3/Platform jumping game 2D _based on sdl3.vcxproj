@@ -105,7 +105,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>..\engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -132,13 +132,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\engine\core\EventManager.cpp" />
+    <ClCompile Include="..\engine\core\Timer.cpp" />
     <ClCompile Include="..\engine\input\Input.cpp" />
+    <ClCompile Include="..\engine\render\Animation.cpp" />
     <ClCompile Include="..\engine\render\Renderer.cpp" />
-    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="..\engine\resource\Resource.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\detail\pugixml.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\FreeFuncs.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\ImageLayer.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\LayerGroup.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\Map.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\miniz.c" />
+    <ClCompile Include="..\engine\tmxlite\src\Object.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\ObjectGroup.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\ObjectTypes.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\Property.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\TileLayer.cpp" />
+    <ClCompile Include="..\engine\tmxlite\src\Tileset.cpp" />
     <ClCompile Include="Botton.cpp" />
     <ClCompile Include="LoseState.cpp" />
     <ClCompile Include="LoseUI.cpp" />
-    <ClCompile Include="Resource.cpp" />
     <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="WonState.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -168,6 +181,7 @@
     <ClInclude Include="..\engine\render\Camera.h" />
     <ClInclude Include="..\engine\render\Renderer.h" />
     <ClInclude Include="..\engine\resource\Resource.h" />
+    <ClInclude Include="..\engine\tmxlite\src\miniz.h" />
     <ClInclude Include="Botton.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="LoseState.h" />

@@ -43,7 +43,7 @@ void Game::Run() noexcept {
 }
 
 void Game::handleInput() noexcept {
-	Input::getInstance().resetInputState();
+	//Input::getInstance().resetInputState();
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
@@ -63,6 +63,7 @@ void Game::update() noexcept {
 	// 使用固定时间步长更新游戏逻辑，确保游戏在不同帧率下的行为一致
 	while (accumulator_ >= Config::DELTAFREAM) {
 		stateMachine_->update(Config::DELTAFREAM);
+		Input::getInstance().resetInputState();//在每次逻辑更新后重置输入状态，确保输入状态只在当前逻辑帧内有效，避免输入状态在多帧之间持续导致的重复输入问题
 		GlobalTime_ += Config::DELTAFREAM;
 		accumulator_ -= Config::DELTAFREAM;
 	}
@@ -73,7 +74,7 @@ void Game::renderer() const noexcept {
 
 	stateMachine_->render();
 	uiMananger_->render();
-	Renderer::getInstance().renderText("FPS: " + std::to_string(currentFPS_) + "/" + std::to_string(MAX_FPS_), SDL_FRect{10, 10, 100, 30}, SDL_Color({255, 255, 255, 255}), 20);
+	Renderer::getInstance().renderText("FPS: " + std::to_string(std::min(currentFPS_, MAX_FPS_)) + "/" + std::to_string(MAX_FPS_), SDL_FRect{10, 10, 100, 30}, SDL_Color({255, 255, 255, 255}), 20);
 
 	Renderer::getInstance().restoreDefaultAndPresent();
 }

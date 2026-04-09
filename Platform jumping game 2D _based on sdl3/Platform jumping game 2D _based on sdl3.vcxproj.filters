@@ -53,6 +53,9 @@
     <Filter Include="Engine\physics">
       <UniqueIdentifier>{4b75bb2e-b5dc-4258-a6bc-798b12bb07ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\tmxlite">
+      <UniqueIdentifier>{892f6416-7780-4127-bdf8-a178cabf4f65}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\engine\render\Renderer.cpp">
@@ -100,14 +103,53 @@
     <ClCompile Include="LoseUI.cpp">
       <Filter>src\UI\SpecificUI</Filter>
     </ClCompile>
-    <ClCompile Include="Resource.cpp">
-      <Filter>Engine\resource</Filter>
-    </ClCompile>
     <ClCompile Include="Tilemap.cpp">
       <Filter>src\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Animation.cpp">
+    <ClCompile Include="..\engine\core\Timer.cpp">
+      <Filter>Engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\render\Animation.cpp">
       <Filter>Engine\render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\resource\Resource.cpp">
+      <Filter>Engine\resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\FreeFuncs.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\ImageLayer.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\LayerGroup.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\Map.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\Object.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\ObjectGroup.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\ObjectTypes.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\Property.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\TileLayer.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\Tileset.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\detail\pugixml.cpp">
+      <Filter>Engine\tmxlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\tmxlite\src\miniz.c">
+      <Filter>Engine\tmxlite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -230,6 +272,9 @@
     </ClInclude>
     <ClInclude Include="..\engine\physics\Physics.h">
       <Filter>Engine\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\tmxlite\src\miniz.h">
+      <Filter>Engine\tmxlite</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

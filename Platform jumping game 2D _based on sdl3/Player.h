@@ -2,6 +2,7 @@
 #include <memory>
 #include "Object.h"
 #include "render/Animation.h"
+#include "core/Timer.h"
 
 
 class Player : public Object {
@@ -32,21 +33,13 @@ public:
 
 	void applyGravity(float gravity, float dt) noexcept;
 
-	void applyResolvedMovement(const SDL_FRect& hitBox, float velocityX, float velocityY, bool landed) noexcept {
-		setHitBox(hitBox);
-		velocityX_ = velocityX;
-		velocityY_ = velocityY;
-		isLanded_ = landed;
-		if (landed) {
-			isJumping_ = false;
-		}
-	}
+	void applyResolvedMovement(const SDL_FRect& hitBox, float velocityX, float velocityY, bool landed) noexcept;
 	void reset() noexcept;
 
 	bool isStateChanged() noexcept;
 	void updateAnimationState(float dt) noexcept;
 private:
-	float speed_ = 200.0f;
+	float speed_ = 0.0f;
 	float velocityX_ = 0.0f;
 	float velocityY_ = 0.0f;
 	bool facingRight_ = true;
@@ -57,4 +50,8 @@ private:
 	PlayerAnimationState currentAnimationState_ = PlayerAnimationState::IDLE;
 	Animation animation_;
 	std::shared_ptr<SDL_Texture> playerTexture_ = nullptr;
+	Timer jumpTimer_; // Ã¯‘æª∫≥Â
+	Timer coyoteTimer_; // ≥Ÿ÷Õ ±º‰-Õ¡¿« ±º‰
+
+	int playerId_ = 0; // ÕÊº“±‡∫≈
 };

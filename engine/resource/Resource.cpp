@@ -1,17 +1,16 @@
-#include "resource/Resource.h"
+#include "Resource.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <fstream>
-#include <cstdint>
-
-
+#include <tmxlite/Layer.hpp>
+#include <tmxlite/TileLayer.hpp>
 
 bool Resource::init() noexcept {
 
 	return true;
 }
 
-bool Resource::loadLevel(const std::string& filePath, std::vector<std::vector<Tile>>& Tiles) const{
+bool Resource::loadLevel(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles) const{
 	std::ifstream ifs(filePath, std::ios::binary);
 	if(!ifs.is_open()) {
 		SDL_Log("Failed to open file for reading: %s", filePath.c_str());
@@ -20,7 +19,7 @@ bool Resource::loadLevel(const std::string& filePath, std::vector<std::vector<Ti
 	uint64_t width = 0, height = 0;
 	ifs.read(reinterpret_cast<char*>(&width), sizeof(width));
 	ifs.read(reinterpret_cast<char*>(&height), sizeof(height));
-	Tiles.resize(height, std::vector<Tile>(width));
+	Tiles.resize(height, std::vector<uint64_t>(width));
 	//读取地图宽高
 	//ifs.read(reinterpret_cast<char*>(&outLevel.width), sizeof(outLevel.width));
 	//ifs.read(reinterpret_cast<char*>(&outLevel.height), sizeof(outLevel.height));
@@ -29,11 +28,7 @@ bool Resource::loadLevel(const std::string& filePath, std::vector<std::vector<Ti
 	//读取瓦片数据
 	for(auto& tile : Tiles) {
 		for(auto& t : tile) {
-			uint64_t packedData = 0;
-			ifs.read(reinterpret_cast<char*>(&packedData), sizeof(packedData));
-			t.type = static_cast<TileType>((packedData >> 0) & 0xFF);
-			t.collision = static_cast<CollisionType>((packedData >> 8) & 0xFF);
-			t.flags = static_cast<uint32_t>((packedData >> 16) & 0xFFFFFFFF);
+			ifs.read(reinterpret_cast<char*>(&t), sizeof(t));
 		}
 	}
 
@@ -54,12 +49,49 @@ bool Resource::saveLevel(const std::string& filePath, const LevelData& level) co
 	for (const auto& tile : level.tiles) {
 		for (const auto& t : tile) {
 			//将Tile的type、collision和flags打包成一个64位整数进行写入，节省空间
-			uint64_t packedDate = (static_cast<uint64_t>(t.type) << 0 | static_cast<uint64_t>(t.collision) << 8 | static_cast<uint64_t>(t.flags) << 16);
-			ofs.write(reinterpret_cast<const char*>(&packedDate), sizeof(packedDate));
+			//uint64_t packedDate = (static_cast<uint64_t>(t.type) << 0 | static_cast<uint64_t>(t.collision) << 8 | static_cast<uint64_t>(t.flags) << 16);
+			ofs.write(reinterpret_cast<const char*>(&t), sizeof(t));
 		}
 	}
 	SDL_Log("Level saved successfully to: %s", filePath.c_str());
 	return true;
+}
+
+bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles){
+	if(mapData_.load(filePath)) {
+		SDL_Log("Failed to load tmx map: %s", filePath.c_str());
+		return false;
+	}
+	//auto col = mapData_.getTileCount().x; // 获取地图宽度
+	//auto row = mapData_.getTileCount().y; // 获取地图高度
+	//tilesize 暂时不需要
+
+	auto& layers = mapData_.getLayers();
+	for (auto& layer : layers) {
+		if (layer->getType() == tmx::Layer::Type::Tile) { //瓦片层
+			auto* tileLayer = dynamic_cast<tmx::TileLayer*>(layer.get());
+			if(!tileLayer) {
+				SDL_Log("Failed to cast layer to TileLayer: %s", filePath.c_str());
+				continue;
+			}
+			const auto& tiles = tileLayer->getTiles();
+			int width = tileLayer->getSize().x;
+			int height = tileLayer->getSize().y;
+			for(int i = 0; i < height; ++i) {
+				for(int j = 0; j < width; ++j) {
+					auto& tile = tiles[i * width + j];
+					// 存pid - 瓦片 x, y; 碰撞类型 ；其他属性标志位
+					
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+void Resource::tmxToPngSrcRect() const{
+
 }
 
 std::shared_ptr<SDL_Texture> Resource::loadTexture(const std::string& filePath, SDL_Renderer* renderer) {

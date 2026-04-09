@@ -1,5 +1,4 @@
-#include "render/Animation.h"
-#include "Config.h"
+#include "Animation.h"
 
 bool Animation::init() noexcept{
 	return true;

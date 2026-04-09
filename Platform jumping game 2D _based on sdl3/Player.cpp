@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Player.h"
 #include "render/Renderer.h"
 #include "resource/Resource.h"
@@ -15,22 +16,62 @@ Player::Player() {
 }
 
 void Player::update(float dt) noexcept{
-	//只负责更新速度，位置的更新由外部根据碰撞结果调用applyResolvedMovement来处理，保持Player类的单一职责，后续可以增加状态机等机制来管理玩家状态和行为
-	velocityX_ = 0.0f; // 每帧重置水平速度
-	if(command_.moveLeft) {
-		velocityX_ -= speed_;
-		facingRight_ = false;
+	//后续整合至物理系统中
+	//只负责更新速度，位置的更新由外部根据碰撞结果调用applyResolvedMovement来处理，保持Player类的单一职责
+	int dir = (command_.moveRight ? 1 : command_.moveLeft ? -1 : 0); // 根据输入确定移动方向，优先级：右 > 左 > 无
+	facingRight_ = (dir > 0) ? true : (dir < 0) ? false : facingRight_; // 根据输入更新朝向，优先级：右 > 左 > 保持当前
+
+	if(dir != 0) {
+		if (isLanded_) {
+			if(dir * velocityX_ >= 0)
+				velocityX_ += dir * Config::ACCELERATION * dt; // 地面加速
+			else 
+				velocityX_ += dir * Config::DECELERATION * dt; // 反向输入时先减速到0再加速
+		}
+		else velocityX_ += dir * Config::AIR_ACCEL * dt; // 空中加速
+		velocityX_ = std::clamp(velocityX_, -Config::MAX_SPEED, Config::MAX_SPEED); // 限制最大速度
+	} else {
+		if (isLanded_) {
+			if (velocityX_ > 0)
+				velocityX_ = std::max(velocityX_ - Config::GROUND_FRICTION * dt, 0.0f); // 没有输入时减速
+			else if (velocityX_ < 0)
+				velocityX_ = std::min(velocityX_ + Config::GROUND_FRICTION * dt, 0.0f);
+		}
 	}
-	if(command_.moveRight) {
-		velocityX_ += speed_;
-		facingRight_ = true;
+
+	if(command_.jump) {
+		jumpTimer_.start(Config::JUMP_BUFFER_TIME); // 开始跳跃缓冲计时
 	}
-	if(command_.jump && isLanded_) {
-		velocityY_ = -300.0f; // 跳跃初始速度
+
+	jumpTimer_.update(dt); // 更新跳跃缓冲计时
+	coyoteTimer_.update(dt); // 更新土狼时间计时
+
+	if (jumpTimer_.isActive() && (coyoteTimer_.isActive() || isLanded_)) {
+		velocityY_ = Config::JUMP_VELOCITY; // 跳跃初始速度
 		isJumping_ = true;
 		isLanded_ = false;
+		jumpTimer_.stop(); // 跳跃后停止跳跃缓冲计时
+		coyoteTimer_.stop(); //
+	}
+
+}
+
+void Player::applyResolvedMovement(const SDL_FRect& hitBox, float velocityX, float velocityY, bool landed) noexcept {
+	setHitBox(hitBox);
+	velocityX_ = velocityX;
+	velocityY_ = velocityY;
+
+	if (isLanded_ && !landed) {
+		coyoteTimer_.start(Config::COYOTE_TIME);
+	}
+
+	isLanded_ = landed;
+	if (landed) {
+		coyoteTimer_.stop();
+		isJumping_ = false;
 	}
 }
+
 
 void Player::render() const noexcept{
 	SDL_FRect scaleTextureRect = getHitBox();
@@ -38,12 +79,14 @@ void Player::render() const noexcept{
 	scaleTextureRect.h *= 2;
 	scaleTextureRect.x -= 16;
 	scaleTextureRect.y -= 32;
-	if (facingRight_)
-		Renderer::getInstance().renderTexture(playerTexture_.get(), animation_.getCurrentFrameRect(), scaleTextureRect);
-	else
-		Renderer::getInstance().reversePlayerFaceTexture(playerTexture_.get(), animation_.getCurrentFrameRect(), scaleTextureRect);
 
-	//Renderer::getInstance().renderRect(getHitBox(), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家
+	SDL_FRect currentFrameRect = animation_.getCurrentFrameRect();
+	currentFrameRect.y += Config::PLAYER_3_Y_OFFSET; // 根据玩家编号调整帧的y坐标，支持多个玩家使用同一纹理图
+
+	if (facingRight_)
+		Renderer::getInstance().renderTexture(playerTexture_.get(), currentFrameRect, scaleTextureRect);
+	else
+		Renderer::getInstance().reversePlayerFaceTexture(playerTexture_.get(), currentFrameRect, scaleTextureRect);
 }
 
 void Player::renderDebug() const noexcept{
@@ -55,6 +98,20 @@ void Player::renderDebug() const noexcept{
 	std::string velocityYStr = "VelY: " + std::to_string(static_cast<int>(velocityY_));
 	Renderer::getInstance().renderText(velocityXStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 30, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	Renderer::getInstance().renderText(velocityYStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 60, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	std::string currState = "State: ";
+	switch (currentAnimationState_) {
+	case PlayerAnimationState::IDLE: currState += "Idle"; break;
+	case PlayerAnimationState::RUN: currState += "Run"; break;
+	case PlayerAnimationState::JUMP: currState += "Jump"; break;
+	case PlayerAnimationState::FALL: currState += "Fall"; break;
+	}
+	Renderer::getInstance().renderText(currState, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 90, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	std::string JumpBufferStr = "JumpBuffer: ";
+	JumpBufferStr += (jumpTimer_.isActive() ? "Active" : "Inactive");
+	Renderer::getInstance().renderText(JumpBufferStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 120, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	std::string CoyoteBufferStr = "CoyoteBuffer: ";
+	CoyoteBufferStr += (coyoteTimer_.isActive() ? "Active" : "Inactive");
+	Renderer::getInstance().renderText(CoyoteBufferStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 150, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 
 	Renderer::getInstance().renderRect(getHitBox(), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家碰撞盒
 }
@@ -75,12 +132,11 @@ void Player::reset() noexcept {
 bool Player::isStateChanged() noexcept{
 	PlayerAnimationState nextState = PlayerAnimationState::IDLE;
 	if (isLanded_) {
-		if (velocityX_ == 0.0f) {
+		if (velocityX_ <= 0.1f && velocityX_ >= -0.1f) {
 			nextState = PlayerAnimationState::IDLE;
 		}
-		else {
+		else 
 			nextState = PlayerAnimationState::RUN;
-		}
 	}
 	else if(isJumping_){
 		if(velocityY_ < 0.0f) {
@@ -89,6 +145,10 @@ bool Player::isStateChanged() noexcept{
 		else {
 			nextState = PlayerAnimationState::FALL;
 		}
+	}
+	else {
+		if (velocityY_ > 0.1f || velocityY_ < -0.1f)
+			nextState = PlayerAnimationState::FALL; // 边缘掉落
 	}
 	bool f = (nextState != currentAnimationState_);
 	currentAnimationState_ = nextState;
