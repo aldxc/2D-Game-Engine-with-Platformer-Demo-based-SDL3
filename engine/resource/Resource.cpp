@@ -10,7 +10,7 @@ bool Resource::init() noexcept {
 	return true;
 }
 
-bool Resource::loadLevel(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles) const{
+bool Resource::loadLevel(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles) const noexcept {
 	std::ifstream ifs(filePath, std::ios::binary);
 	if(!ifs.is_open()) {
 		SDL_Log("Failed to open file for reading: %s", filePath.c_str());
@@ -35,7 +35,7 @@ bool Resource::loadLevel(const std::string& filePath, std::vector<std::vector<ui
 	return true;
 }
 
-bool Resource::saveLevel(const std::string& filePath, const LevelData& level) const{
+bool Resource::saveLevel(const std::string& filePath, const LevelData& level) const noexcept {
 	//以二进制文件方式打开文件进行写入
 	std::ofstream ofs(filePath, std::ios::binary);
 	if (!ofs.is_open()) {
@@ -57,44 +57,131 @@ bool Resource::saveLevel(const std::string& filePath, const LevelData& level) co
 	return true;
 }
 
-bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles){
-	if(mapData_.load(filePath)) {
+bool Resource::loadMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles) noexcept{
+	if (filePath.size() >= 4 && filePath.compare(filePath.size() - 4, 4, ".tmx") == 0) {
+		return loadTmxMap(filePath, Tiles);
+	}
+	else if (filePath.size() >= 4 && filePath.compare(filePath.size() - 4, 4, ".bin") == 0) {
+		// 直接从二进制文件加载地图数据
+	}
+	SDL_Log("Unsupported map format: %s", filePath.c_str());
+	return false;
+
+	return false;
+}
+
+
+bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& mapTiles) noexcept { 
+	if(!mapData_.load(filePath)) {
 		SDL_Log("Failed to load tmx map: %s", filePath.c_str());
 		return false;
 	}
-	//auto col = mapData_.getTileCount().x; // 获取地图宽度
-	//auto row = mapData_.getTileCount().y; // 获取地图高度
-	//tilesize 暂时不需要
+	auto col = mapData_.getTileCount().x; // 获取地图宽度
+	auto row = mapData_.getTileCount().y; // 获取地图高度
+	tmxToPngSrcRectAndColl(); // 将tmx地图数据转换成png纹理的源矩形和碰撞信息，存储在tileTypeToSrcRectXY_和tileTypeToCollision_中，后续可以根据需要增加其他属性的转换和存储
+	mapTiles.assign(row, std::vector<uint64_t>(col, 0));
 
 	auto& layers = mapData_.getLayers();
 	for (auto& layer : layers) {
 		if (layer->getType() == tmx::Layer::Type::Tile) { //瓦片层
-			auto* tileLayer = dynamic_cast<tmx::TileLayer*>(layer.get());
-			if(!tileLayer) {
-				SDL_Log("Failed to cast layer to TileLayer: %s", filePath.c_str());
-				continue;
-			}
-			const auto& tiles = tileLayer->getTiles();
-			int width = tileLayer->getSize().x;
-			int height = tileLayer->getSize().y;
-			for(int i = 0; i < height; ++i) {
-				for(int j = 0; j < width; ++j) {
-					auto& tile = tiles[i * width + j];
-					// 存pid - 瓦片 x, y; 碰撞类型 ；其他属性标志位
-					
+			if (layer->getName() == "land") {
+				auto* tileLayer = dynamic_cast<tmx::TileLayer*>(layer.get());
+				if (!tileLayer) {
+					SDL_Log("Failed to cast layer to TileLayer: %s", filePath.c_str());
+					continue;
+				}
+				const auto& tiles = tileLayer->getTiles();
+
+				if (tiles.size() < static_cast<size_t>(row * col)) {
+					SDL_Log("Tile layer data size is invalid: %s", filePath.c_str());
+					return false;
+				}
+
+				// layer 的瓦片数据是一个一维数组，按照行优先顺序存储，需要转换成二维数组
+				// 有限地图中layer 与 mapData_.getTileCount()中的宽高一致，无需考虑无限地图中的chunk数据
+				//int width = tileLayer->getSize().x;
+				//int height = tileLayer->getSize().y;
+				for (int i = 0; i < row; ++i) {
+					for (int j = 0; j < col; ++j) {
+						const int index = i * col + j;
+						const auto GID = tiles[index].ID; // 获取瓦片的全局ID
+						if (GID == 0) {
+							continue; // GID为0表示该位置没有瓦片，跳过
+						}
+						mapTiles[i][j] |= (tileTypeToSrcRectXY_[GID] | (static_cast<uint64_t>(1) << 24)); // 根据GID获取对应的源矩形坐标和碰撞信息，并存储在Tiles二维数组中
+					}
 				}
 			}
+			else if (layer->getName() == "collision") {
+				auto* tileLayer = dynamic_cast<tmx::TileLayer*>(layer.get());
+				if (!tileLayer) {
+					SDL_Log("Failed to cast layer to TileLayer: %s", filePath.c_str());
+					continue;
+				}
+				const auto& tiles = tileLayer->getTiles();
+
+				if (tiles.size() < static_cast<size_t>(row * col)) {
+					SDL_Log("Tile layer data size is invalid: %s", filePath.c_str());
+					return false;
+				}
+				
+				for (int i = 0; i < row; ++i) {
+					for (int j = 0; j < col; ++j) {
+						const int index = i * col + j;
+						const auto GID = tiles[index].ID; // 获取瓦片的全局ID
+						if (GID == 0) {
+							continue; // GID为0表示该位置没有瓦片，跳过
+						}
+						mapTiles[i][j] |= (static_cast<uint64_t>(tileTypeToCollision_[GID]) << 16); // 根据GID获取对应的源矩形坐标和碰撞信息，并存储在Tiles二维数组中
+					}
+				}
+			}
+
 		}
 	}
 
 	return true;
 }
 
-void Resource::tmxToPngSrcRect() const{
+void Resource::tmxToPngSrcRectAndColl() noexcept {
+	for (const auto& tileset : mapData_.getTilesets()) {
+		// 纹理集名字
+		if (tileset.getName() == "sheet") { // sheet 获取瓦片纹理
+			int col = tileset.getColumnCount(); // tileset每行几个瓦片
+			int tileSize = mapData_.getTileSize().x;
+			uint32_t firstGID = tileset.getFirstGID();
 
+			int tileCount = tileset.getTileCount(); // tileset里有多少瓦片
+
+			for (int i = 0; i < tileCount; ++i) {
+				uint32_t tileID = firstGID + i;
+				uint8_t srcX = (i % col);
+				uint8_t srcY = (i / col);
+				tileTypeToSrcRectXY_[tileID] = (static_cast<uint16_t>(srcX) | static_cast<uint16_t>(srcY) << 8);
+			}
+		} else if (tileset.getName() == "logictile") { // logictile 获取瓦片碰撞信息
+			uint32_t firstGID = tileset.getFirstGID();
+
+			for (const auto& tile : tileset.getTiles()) {
+				uint32_t tileID = firstGID + tile.ID;
+				const auto& props = tile.properties;
+
+				for (const auto& prop : props) {
+					if (prop.getName() == "collision") {
+						uint8_t collisionType = 0;
+						if (prop.getType() == tmx::Property::Type::Int) { // 碰撞类型int存储 1 -- half 2 -- full
+							int collInt = prop.getIntValue();
+							collisionType = collInt; // 存储的int值直接对应碰撞类型
+						}
+						tileTypeToCollision_[tileID] = collisionType;
+					}
+				}
+			}
+		}
+	}
 }
 
-std::shared_ptr<SDL_Texture> Resource::loadTexture(const std::string& filePath, SDL_Renderer* renderer) {
+std::shared_ptr<SDL_Texture> Resource::loadTexture(const std::string& filePath, SDL_Renderer* renderer) noexcept {
 	auto it = textureCache_.find(filePath);
 	if(it != textureCache_.end()) {
 		return it->second; // 如果缓存中已经存在该纹理，直接返回

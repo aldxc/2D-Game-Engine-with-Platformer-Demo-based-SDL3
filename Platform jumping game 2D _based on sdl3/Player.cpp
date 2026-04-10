@@ -6,13 +6,15 @@
 
 Player::Player() {
 	playerTexture_ = Resource::getInstance().loadTexture("resource/characters.png", Renderer::getInstance().getSDLRenderer());
+	attackTexture_ = Resource::getInstance().loadTexture("resource/swoosh.png", Renderer::getInstance().getSDLRenderer());
 	command_ = {};
 	currentAnimationState_ = PlayerAnimationState::IDLE;
 	Animation::AnimationClip animationClip;
 	const auto src = Config::PLAYER_IDLE_SRC;
 	animationClip.frames.push_back(SDL_FRect{ static_cast<float>(src[0]), static_cast<float>(src[1]), static_cast<float>(src[2]), static_cast<float>(src[3]) });
 	animation_.play(animationClip);
-	
+	attackDuration_ = Config::ATTACK_DURATION;
+	attackHitBox_ = { 0,0,Config::ATTACK_WIDTH, Config::ATTACK_HEIGHT };
 }
 
 void Player::update(float dt) noexcept{
@@ -41,6 +43,18 @@ void Player::update(float dt) noexcept{
 
 	if(command_.jump) {
 		jumpTimer_.start(Config::JUMP_BUFFER_TIME); // 开始跳跃缓冲计时
+	}
+
+	if (command_.attack && !isAttacking_) {
+		isAttacking_ = true;
+		attackTimer_.start(attackDuration_);
+		attackHitBox_.y = getHitBox().y;
+		attackHitBox_.x = getHitBox().x + (facingRight_ ? 1 : -1) * getHitBox().w; // 根据朝向调整攻击碰撞盒位置
+		attackFacingRight_ = facingRight_; // 攻击时的朝向快照
+	}
+	attackTimer_.update(dt);
+	if (isAttacking_ && !attackTimer_.isActive()) {
+		isAttacking_ = false;
 	}
 
 	jumpTimer_.update(dt); // 更新跳跃缓冲计时
@@ -73,7 +87,7 @@ void Player::applyResolvedMovement(const SDL_FRect& hitBox, float velocityX, flo
 }
 
 
-void Player::render() const noexcept{
+void Player::render(const Camera& camera) const noexcept{
 	SDL_FRect scaleTextureRect = getHitBox();
 	scaleTextureRect.w *= 2;
 	scaleTextureRect.h *= 2;
@@ -83,13 +97,29 @@ void Player::render() const noexcept{
 	SDL_FRect currentFrameRect = animation_.getCurrentFrameRect();
 	currentFrameRect.y += Config::PLAYER_3_Y_OFFSET; // 根据玩家编号调整帧的y坐标，支持多个玩家使用同一纹理图
 
-	if (facingRight_)
+	scaleTextureRect = camera.worldToScreen(scaleTextureRect); // 将玩家的世界坐标转换为屏幕坐标
+	if (facingRight_) {
 		Renderer::getInstance().renderTexture(playerTexture_.get(), currentFrameRect, scaleTextureRect);
-	else
+	}
+	else {
 		Renderer::getInstance().reversePlayerFaceTexture(playerTexture_.get(), currentFrameRect, scaleTextureRect);
+	}
+
+	if (isAttacking_) {
+		const auto& src = Config::ATTACK_SRC[animation_.getCurrentFrameIndex()];
+		SDL_FRect attackSrcRect = SDL_FRect{ static_cast<float>(src[0]), static_cast<float>(src[1]), static_cast<float>(src[2]), static_cast<float>(src[3]) };
+		SDL_FRect attackDstRect = camera.worldToScreen(attackHitBox_);
+
+		if (attackFacingRight_) {
+			Renderer::getInstance().renderTexture(attackTexture_.get(), attackSrcRect, attackDstRect);
+		}
+		else {
+			Renderer::getInstance().reversePlayerFaceTexture(attackTexture_.get(), attackSrcRect, attackDstRect);
+		}
+	}
 }
 
-void Player::renderDebug() const noexcept{
+void Player::renderDebug(const Camera& camera) const noexcept{
 	SDL_Color debugTextColor = SDL_Color({ 255, 255, 255, 255 }); // 白色文本
 	SDL_FRect debugInfoRect = { Config::LOGIC_WIDTH - 200, 0, 200, 200 };
 	std::string str = (isLanded_) ? "Landed" : "Air";
@@ -104,16 +134,15 @@ void Player::renderDebug() const noexcept{
 	case PlayerAnimationState::RUN: currState += "Run"; break;
 	case PlayerAnimationState::JUMP: currState += "Jump"; break;
 	case PlayerAnimationState::FALL: currState += "Fall"; break;
+	case PlayerAnimationState::ATTACK: currState += "Attack"; break;
 	}
 	Renderer::getInstance().renderText(currState, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 90, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
-	std::string JumpBufferStr = "JumpBuffer: ";
-	JumpBufferStr += (jumpTimer_.isActive() ? "Active" : "Inactive");
-	Renderer::getInstance().renderText(JumpBufferStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 120, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
-	std::string CoyoteBufferStr = "CoyoteBuffer: ";
-	CoyoteBufferStr += (coyoteTimer_.isActive() ? "Active" : "Inactive");
-	Renderer::getInstance().renderText(CoyoteBufferStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 150, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	std::string playerPosStr = "Pos: (" + std::to_string(static_cast<int>(getHitBox().x)) + ", " + std::to_string(static_cast<int>(getHitBox().y)) + ")";
+	Renderer::getInstance().renderText(playerPosStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 120, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	std::string cameraMoveStr = "CameraMove: (" + std::to_string(static_cast<int>(camera.getViewport().x)) + ", " + std::to_string(static_cast<int>(camera.getViewport().y)) + ")";
+	Renderer::getInstance().renderText(cameraMoveStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 150, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 
-	Renderer::getInstance().renderRect(getHitBox(), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家碰撞盒
+	Renderer::getInstance().renderRect(camera.worldToScreen(getHitBox()), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家碰撞盒
 }
 
 void Player::applyGravity(float gravity, float dt) noexcept{
@@ -149,6 +178,9 @@ bool Player::isStateChanged() noexcept{
 	else {
 		if (velocityY_ > 0.1f || velocityY_ < -0.1f)
 			nextState = PlayerAnimationState::FALL; // 边缘掉落
+	}
+	if (isAttacking_) {
+		nextState = PlayerAnimationState::ATTACK;
 	}
 	bool f = (nextState != currentAnimationState_);
 	currentAnimationState_ = nextState;
@@ -187,6 +219,15 @@ void Player::updateAnimationState(float dt) noexcept{
 				animationClip.frames.push_back(SDL_FRect{ static_cast<float>(rect[0]), static_cast<float>(rect[1]), static_cast<float>(rect[2]), static_cast<float>(rect[3]) });
 			}
 			animationClip.loop = false; // 下降动画不循环，播放完后停在最后一帧，直到状态改变
+			break;
+		}
+		case PlayerAnimationState::ATTACK: {
+			const auto src = Config::PLAYER_ATTACK_SRC;
+			for (const auto& rect : src) {
+				animationClip.frames.push_back(SDL_FRect{ static_cast<float>(rect[0]), static_cast<float>(rect[1]), static_cast<float>(rect[2]), static_cast<float>(rect[3]) });
+			}
+			animationClip.frameDuration = attackDuration_ / src.size(); // 根据攻击持续时间和帧数计算每帧持续时间
+			animationClip.loop = false; // 攻击动画不循环，播放完后停在最后一帧，直到状态改变
 			break;
 		}
 		default:{

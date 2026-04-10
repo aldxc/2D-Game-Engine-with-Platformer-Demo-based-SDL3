@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="100" height="18" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="3">
+ <tileset firstgid="1" name="sheet" tilewidth="16" tileheight="16" tilecount="136" columns="17" tilerendersize="grid">
+  <grid orientation="orthogonal" width="32" height="32"/>
+  <image source="sheet.png" width="272" height="128"/>
+  <tile id="7">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="10">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="11">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="12">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="13">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="25">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="26">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="27">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="29">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="30">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="41">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="42">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="43">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="44">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="45">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="46">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="47">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="59">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="60">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="61">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="63">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="64">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="125" probability="5"/>
+ </tileset>
+ <tileset firstgid="137" source="logictile.tsx"/>
+ <tileset firstgid="143" source="sheet.tsx"/>
+ <objectgroup id="6" name="object">
+  <object id="1" x="3011" y="424" width="28" height="23">
+   <properties>
+    <property name="interaction" value="openbox"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="7" name="collision" width="100" height="18">
+  <data encoding="base64" compression="zlib">
+   eJzt08EKQCEIRFH/vLV9ddt6BBWYz+QemG0pUyIAAAAAACC68kkE6nRP7ZJVXWSHVx9YUxn7sOpm901k/y+ndJJMZvud5saZXrHw9w70EXvf6PPRxzuxYDlPA54fuRM=
+  </data>
+ </layer>
+ <layer id="1" name="land" width="100" height="18">
+  <data encoding="base64" compression="zlib">
+   eJztkzsOwjAMQMPGpyAxtqVwF2BkAHaYYCUTcKReEyMiYVmp82nIgp/01CZxYzttlRIEQRAEQRAEQRAEQQhnlilPBY7AOlO+3OzUt0ebtYlxsfpVgX/GKUHMBFyicap/xfdfqDxicnMPiHug8Y2s78EDeOyIeVr2XIANWBjxu1mDG3DL1HQBr2zV6Zgza9OBfb4gDtXnOxkHrLn29NnDd74xluieq9llCkJzctLeYjwT++zlY0mufXqgtccYk5t7Bvdni+PW32Nt7rUjn+0cQ2r07duVx1Y7lc7jHjUTZ8uLa2/RfNuRO/RsuNq7+gvZO/TcU8j1wPWkI+qg7wGPX3S+OeU=
+  </data>
+ </layer>
+ <layer id="5" name="bk" width="100" height="18">
+  <data encoding="base64" compression="zlib">
+   eJztzlcNwgAYAOEmLAMUMAC0BroMMGqAZYBlAAraOQm8/Ulzl3zvlyRmZmZmZv81wBAjjDHxJbQpUswwx8KX0JZYYY0MuS+hFShRoUbjS2gbbLHDHq0voR1wxAlnXHwJ7Yob7njg6UtoL7zR4YOvL2Zm1tN+zcgUKQ==
+  </data>
+ </layer>
+</map>

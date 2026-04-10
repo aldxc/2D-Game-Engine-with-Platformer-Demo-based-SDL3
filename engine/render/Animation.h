@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <SDL3/SDL.h>
 
-enum class PlayerAnimationState { IDLE, RUN, JUMP, FALL };
+enum class PlayerAnimationState { IDLE, RUN, JUMP, FALL, ATTACK, CLIMB,SPRINT, FLASH, HIT };
 
 class Animation {
 public:
@@ -27,6 +27,7 @@ public:
 	void play(const AnimationClip& clip) noexcept; // 播放指定的动画剪辑，重置动画状态
 	void update(float dt) noexcept;
 	const SDL_FRect& getCurrentFrameRect() const noexcept;
+	int getCurrentFrameIndex() const noexcept { return currentFrameIndex_; }
 	bool isFinished() const noexcept;
 private:
 	AnimationClip currentClip_; // 当前播放的动画剪辑

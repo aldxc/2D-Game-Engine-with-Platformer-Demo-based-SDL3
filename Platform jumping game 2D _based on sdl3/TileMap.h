@@ -1,8 +1,11 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <array>
 #include <SDL3/SDL.h>
 #include "Tile.h"
+#include "render/Camera.h"
+
 
 class TileMap {
 public:
@@ -10,20 +13,18 @@ public:
 		SDL_FRect hitbox; // 碰撞后的碰撞盒位置和大小
 		float velocityX; // 碰撞后的水平速度
 		float velocityY; // 碰撞后的垂直速度
-		//bool hitLeft; // 是否碰撞到左侧
-		//bool hitRight; // 是否碰撞到右侧
-		//bool hitTop; // 是否碰撞到顶部
-		//bool hitBottom; // 是否碰撞到底部
 		bool isLanded; // 是否着陆，表示玩家是否站在地面上
 	};
 	explicit TileMap() = default;
 	~TileMap() = default;
 	void update(float dt) noexcept;
-	void render() const noexcept;
-	void setTile(const std::vector<std::vector<Tile>>& tiles) noexcept { tiles_ = tiles; }
-	CollisionResult tileCollision(const SDL_FRect& hitBox, float velocityX, float velocityY, bool isLanded, float dt) const noexcept;
-	void calculateTileTypeToTextureIndexMapping() noexcept; // 计算瓦片类型到纹理索引的映射关系
+	void render(const Camera& camera) const noexcept;
+	void setTiles(const std::vector<std::vector<Tile>>& tilesMap) noexcept { tiles_ = tilesMap; }
+	CollisionResult tileCollision(const SDL_FRect& hitBox, float velocityX, float velocityY, bool isLanded, float dt) const noexcept; // 基于地图数据的碰撞检测
+
+	int getMapWidth() const noexcept { return tiles_.empty() ? 0 : static_cast<int>(tiles_[0].size()); }
+	int getMapHeight() const noexcept { return static_cast<int>(tiles_.size()); }
 private:
-	std::vector<std::vector<Tile>> tiles_ = {}; // 2D瓦片地图数据，tiles_[y][x]表示第y行第x列的瓦片
-	std::vector<std::vector<uint8_t>> tileTypeToTextureIndex_ = {}; // 瓦片类型到纹理索引的映射
+	std::vector<std::vector<Tile>> tiles_ = {}; // tmx地图数据
+
 };

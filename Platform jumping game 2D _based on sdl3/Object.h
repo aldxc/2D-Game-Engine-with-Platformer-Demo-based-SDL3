@@ -2,6 +2,8 @@
 #include <SDL3/SDL.h>
 #include "Config.h"
 
+class Camera;
+
 //游戏对象基类
 class Object {
 public:
@@ -15,7 +17,7 @@ public:
 	Object& operator=(Object&&) = delete;
 
 	virtual void update(float dt) noexcept = 0;
-	virtual void render() const noexcept = 0;
+	virtual void render(const Camera& camera) const noexcept = 0;
 	//获取对象位置和大小接口
 	const SDL_FRect& getHitBox() const noexcept { return hitBox_; }
 protected:

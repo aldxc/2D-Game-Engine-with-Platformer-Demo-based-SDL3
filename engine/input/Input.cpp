@@ -4,7 +4,9 @@
 bool Input::init() noexcept {
 	keyBindings_[SDL_SCANCODE_A] = InputAction::MOVE_LEFT;
 	keyBindings_[SDL_SCANCODE_D] = InputAction::MOVE_RIGHT;
-	keyBindings_[SDL_SCANCODE_W] = InputAction::JUMP;
+	keyBindings_[SDL_SCANCODE_SPACE] = InputAction::JUMP;
+	keyBindings_[SDL_SCANCODE_J] = InputAction::ATTACK;
+
 	resetInputState();
 	return true;
 }
@@ -39,6 +41,9 @@ void Input::processInput(const SDL_Event& event) noexcept{
 		case InputAction::JUMP:
 			isJumpPressed_ = true;
 			break;
+		case InputAction::ATTACK:
+			isAttackPressed_ = true;
+			break;
 		default:
 			break;
 		}
@@ -59,9 +64,6 @@ void Input::processInput(const SDL_Event& event) noexcept{
 			isMoveRightPressed_ = false;
 			break;
 		}
-		//case InputAction::JUMP:
-		//	isJumpPressed_ = false;
-		//	break;
 		default:
 			break;
 		}
@@ -77,4 +79,5 @@ void Input::resetInputState() noexcept{
 	isMousePressed_ = false;
 	mousePos_ = { 0, 0 };
 	isJumpPressed_ = false;// 跳跃状态通常在按键按下时设置，在每帧开始时重置，确保跳跃动作只在按键按下的那一帧触发
+	isAttackPressed_ = false;
 }

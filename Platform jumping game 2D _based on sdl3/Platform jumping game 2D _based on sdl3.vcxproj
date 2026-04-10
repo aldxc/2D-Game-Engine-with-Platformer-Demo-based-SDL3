@@ -105,7 +105,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;TMXLITE_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>..\engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -113,7 +113,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL3.lib;SDL3_test.lib;SDL3_ttf.lib;SDL3_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;SDL3_test.lib;SDL3_ttf.lib;SDL3_image.lib;tmxlite-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,20 +136,9 @@
     <ClCompile Include="..\engine\core\Timer.cpp" />
     <ClCompile Include="..\engine\input\Input.cpp" />
     <ClCompile Include="..\engine\render\Animation.cpp" />
+    <ClCompile Include="..\engine\render\Camera.cpp" />
     <ClCompile Include="..\engine\render\Renderer.cpp" />
     <ClCompile Include="..\engine\resource\Resource.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\detail\pugixml.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\FreeFuncs.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\ImageLayer.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\LayerGroup.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\Map.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\miniz.c" />
-    <ClCompile Include="..\engine\tmxlite\src\Object.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\ObjectGroup.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\ObjectTypes.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\Property.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\TileLayer.cpp" />
-    <ClCompile Include="..\engine\tmxlite\src\Tileset.cpp" />
     <ClCompile Include="Botton.cpp" />
     <ClCompile Include="LoseState.cpp" />
     <ClCompile Include="LoseUI.cpp" />
@@ -180,14 +170,13 @@
     <ClInclude Include="..\engine\render\Animation.h" />
     <ClInclude Include="..\engine\render\Camera.h" />
     <ClInclude Include="..\engine\render\Renderer.h" />
+    <ClInclude Include="..\engine\render\TextureAtlas.h" />
     <ClInclude Include="..\engine\resource\Resource.h" />
-    <ClInclude Include="..\engine\tmxlite\src\miniz.h" />
     <ClInclude Include="Botton.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="LoseState.h" />
     <ClInclude Include="LoseUI.h" />
     <ClInclude Include="MapLoader.h" />
-    <ClInclude Include="TextureAtlas.h" />
     <ClInclude Include="WonState.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameStateFactory.h" />
@@ -205,6 +194,9 @@
     <ClInclude Include="UIStateFactory.h" />
     <ClInclude Include="UIType.h" />
     <ClInclude Include="WonUI.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

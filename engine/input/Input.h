@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 
 
-enum class InputAction { JUMP, MOVE_LEFT, MOVE_RIGHT };//后续增加更多输入动作，冲刺、攻击等
+enum class InputAction { JUMP, MOVE_LEFT, MOVE_RIGHT, ATTACK, CLIMB, SPRINT, FLASH };//后续增加更多输入动作，冲刺、攻击等
 
 //最好单例
 class Input {
@@ -30,6 +30,10 @@ public:
 	bool getMoveLeftPressed() const noexcept { return isMoveLeftPressed_; } // 获取左移状态
 	bool getMoveRightPressed() const noexcept { return isMoveRightPressed_; } // 获取右移状态
 	bool getJumpPressed() const noexcept { return isJumpPressed_; } // 获取跳跃状态
+	bool getAttackPressed() const noexcept { return isAttackPressed_; } // 获取攻击状态
+	bool getClimbPressed() const noexcept { return isClimbPressed_; } // 获取爬墙状态
+	bool getSprintPressed() const noexcept { return isSprintPressed_; } // 获取冲刺状态
+	bool getFlashPressed() const noexcept { return isFlashPressed_; } // 获取闪现状态
 
 	void resetInputState() noexcept; // 重置输入状态，通常在每帧开始时调用
 private:
@@ -38,6 +42,10 @@ private:
 	bool isMoveLeftPressed_ = false; // 左移
 	bool isMoveRightPressed_ = false; // 右移
 	bool isJumpPressed_ = false; // 跳跃
+	bool isAttackPressed_ = false; // 攻击
+	bool isClimbPressed_ = false; // 爬墙
+	bool isSprintPressed_ = false; // 冲刺
+	bool isFlashPressed_ = false; // 闪现
 	std::pair<float, float> mousePos_ = {};
 	std::unordered_map<SDL_Scancode, InputAction> keyBindings_; // 键盘绑定，后续支持自定义按键绑定
 };

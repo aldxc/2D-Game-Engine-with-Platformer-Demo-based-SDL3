@@ -2,6 +2,7 @@
 #include <memory>
 #include "Object.h"
 #include "render/Animation.h"
+#include "render/Camera.h"
 #include "core/Timer.h"
 
 
@@ -11,17 +12,20 @@ public:
 		bool moveLeft = false;
 		bool moveRight = false;
 		bool jump = false;
+		bool attack = false;
+		bool climb = false;
+		bool sprint = false;
+		bool flash = false;
 	};
 
-	//explicit Player() = default;
 	explicit Player();
 	~Player() override = default;
 
 	void setCommand(const PlayerCommand& command) noexcept { command_ = command; }
 
 	void update(float dt) noexcept override;
-	void render() const noexcept override;
-	void renderDebug() const noexcept;
+	void render(const Camera& camera) const noexcept override;
+	void renderDebug(const Camera& camera) const noexcept;
 
 	float getVelocityX() const noexcept { return velocityX_; }
 	float getVelocityY() const noexcept { return velocityY_; }
@@ -45,13 +49,19 @@ private:
 	bool facingRight_ = true;
 	bool isLanded_ = false;
 	bool isJumping_ = false;
+	bool isAttacking_ = false;
+	bool attackFacingRight_ = true; // 攻击时的快照
 
 	PlayerCommand command_ = {};
 	PlayerAnimationState currentAnimationState_ = PlayerAnimationState::IDLE;
 	Animation animation_;
 	std::shared_ptr<SDL_Texture> playerTexture_ = nullptr;
+	std::shared_ptr<SDL_Texture> attackTexture_ = nullptr; // 攻击纹理
+	SDL_FRect attackHitBox_; // 攻击碰撞盒，位置会根据玩家位置和朝向动态调整
 	Timer jumpTimer_; // 跳跃缓冲
 	Timer coyoteTimer_; // 迟滞时间-土狼时间
+	Timer attackTimer_; // 攻击持续时间
+	float attackDuration_ = 0.3f; // 攻击持续时间，单位秒
 
 	int playerId_ = 0; // 玩家编号
 };
