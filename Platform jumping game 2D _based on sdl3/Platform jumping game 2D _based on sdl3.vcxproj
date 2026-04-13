@@ -133,8 +133,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\engine\core\EventManager.cpp" />
+    <ClCompile Include="..\engine\core\Rect.cpp" />
     <ClCompile Include="..\engine\core\Timer.cpp" />
+    <ClCompile Include="..\engine\core\Vec2.cpp" />
     <ClCompile Include="..\engine\input\Input.cpp" />
+    <ClCompile Include="..\engine\physics\Physics.cpp" />
     <ClCompile Include="..\engine\render\Animation.cpp" />
     <ClCompile Include="..\engine\render\Camera.cpp" />
     <ClCompile Include="..\engine\render\Renderer.cpp" />
@@ -154,17 +157,21 @@
     <ClCompile Include="WonUI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\engine\core\Context.h" />
     <ClInclude Include="..\engine\core\EventManager.h" />
     <ClInclude Include="..\engine\core\EventType.h" />
+    <ClInclude Include="..\engine\core\Rect.h" />
     <ClInclude Include="..\engine\core\State.h" />
     <ClInclude Include="..\engine\core\StateMachine.h" />
     <ClInclude Include="..\engine\core\SubscriptionId.h" />
     <ClInclude Include="..\engine\core\Timer.h" />
     <ClInclude Include="..\engine\core\UI.h" />
     <ClInclude Include="..\engine\core\UIManager.h" />
+    <ClInclude Include="..\engine\core\Vec2.h" />
     <ClInclude Include="..\engine\input\Input.h" />
     <ClInclude Include="..\engine\net\Net.h" />
     <ClInclude Include="..\engine\physics\Physics.h" />
+    <ClInclude Include="..\engine\physics\RigidBody.h" />
     <ClInclude Include="..\engine\pool\ObjectPool.h" />
     <ClInclude Include="..\engine\pool\ThreadPool.h" />
     <ClInclude Include="..\engine\render\Animation.h" />

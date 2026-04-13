@@ -33,9 +33,9 @@ void Animation::play(const AnimationClip& clip) noexcept{
 	finished_ = clip.frames.empty();
 }
 
-const SDL_FRect& Animation::getCurrentFrameRect() const noexcept{
+const Rect& Animation::getCurrentFrameRect() const noexcept{
 	if (currentClip_.frames.empty()) {
-		static const SDL_FRect emptyRect{ 0, 0, 0, 0 };
+		static const Rect emptyRect{ 0, 0, 0, 0 };
 		return emptyRect; // 如果当前动画剪辑没有帧，返回一个空的矩形
 	}
 	else {

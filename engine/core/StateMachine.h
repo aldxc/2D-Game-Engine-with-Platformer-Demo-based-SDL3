@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "render/Renderer.h"
+#include "core/Context.h"
 #include "SubscriptionId.h"
 #include "EventManager.h"
 #include "State.h"
@@ -8,7 +9,7 @@
 template<class TStateType, class TFactory>
 class StateMachine {
 public:
-	explicit StateMachine(TStateType initState);
+	explicit StateMachine(TStateType initState, Context& context);
 	~StateMachine();
 
 	void update(float dt);
@@ -18,11 +19,12 @@ private:
 	std::unique_ptr<State<TStateType>> createState(TStateType stateType);
 	std::unique_ptr<State<TStateType>> currentState_;
 	SubscriptionId stateTransitionSubscriptionId_{};
+	Context& context_; // 状态机上下文，存储全局共享的数据和资源
 };
 
 template<class TStateType, class TFactory>
-StateMachine<TStateType, TFactory>::StateMachine(TStateType initState)
-	: currentState_(createState(initState))  {
+StateMachine<TStateType, TFactory>::StateMachine(TStateType initState, Context& context)
+	: context_(context), currentState_(createState(initState))  {
 	stateTransitionSubscriptionId_ = EventManager::getInstance().subscribe(
 		EventType::State_Transition,
 		[this](const Event& event) {
@@ -59,5 +61,5 @@ void StateMachine<TStateType, TFactory>::render() const {
 
 template<class TStateType, class TFactory>
 std::unique_ptr<State<TStateType>> StateMachine<TStateType, TFactory>::createState(TStateType stateType) {
-	return TFactory::create(stateType);
+	return TFactory::create(stateType, context_);
 }

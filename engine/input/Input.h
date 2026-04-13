@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 
 
-enum class InputAction { JUMP, MOVE_LEFT, MOVE_RIGHT, ATTACK, CLIMB, SPRINT, FLASH };//后续增加更多输入动作，冲刺、攻击等
+enum class InputAction { JUMP, MOVE_LEFT, MOVE_RIGHT, ATTACK, UP, DOWN, SPRINT, FLASH };//后续增加更多输入动作，冲刺、攻击等
 
 //最好单例
 class Input {
@@ -31,7 +31,8 @@ public:
 	bool getMoveRightPressed() const noexcept { return isMoveRightPressed_; } // 获取右移状态
 	bool getJumpPressed() const noexcept { return isJumpPressed_; } // 获取跳跃状态
 	bool getAttackPressed() const noexcept { return isAttackPressed_; } // 获取攻击状态
-	bool getClimbPressed() const noexcept { return isClimbPressed_; } // 获取爬墙状态
+	bool getUPPressed() const noexcept { return isUPPressed_; } // 获取爬墙状态
+	bool getDownPressed() const noexcept { return isDownPressed_; } // 获取下状态，例如下落、下蹲等
 	bool getSprintPressed() const noexcept { return isSprintPressed_; } // 获取冲刺状态
 	bool getFlashPressed() const noexcept { return isFlashPressed_; } // 获取闪现状态
 
@@ -43,7 +44,8 @@ private:
 	bool isMoveRightPressed_ = false; // 右移
 	bool isJumpPressed_ = false; // 跳跃
 	bool isAttackPressed_ = false; // 攻击
-	bool isClimbPressed_ = false; // 爬墙
+	bool isUPPressed_ = false; // 上
+	bool isDownPressed_ = false; // 下
 	bool isSprintPressed_ = false; // 冲刺
 	bool isFlashPressed_ = false; // 闪现
 	std::pair<float, float> mousePos_ = {};

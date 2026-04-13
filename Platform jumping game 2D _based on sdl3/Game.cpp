@@ -6,8 +6,9 @@
 #include "render/Renderer.h"
 #include "resource/Resource.h"
 #include "render/Animation.h"
+#include "physics/Physics.h"
 
-Game::Game() {
+Game::Game() : context_{ physicsEngine_ }{
 	if (!init()) {
 		SDL_Log("Failed to initialize game.");
 		return;
@@ -105,13 +106,17 @@ bool Game::init() noexcept {
 		SDL_Log("Failed to initialize resource manager.");
 		return false;
 	}
-
+	
+	if(!physicsEngine_.init(Config::GRAVITY)) {
+		SDL_Log("Failed to initialize physics engine.");
+		return false;
+	}
 
 	quitSubscriptionId_ = EventManager::getInstance().subscribe(EventType::App_Quit, [this](const Event&) {
 		isRunning_ = false;
 	});
 
-	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU);
+	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU, context_);
 	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU);
 	lastFrameTime_ = std::chrono::high_resolution_clock::now();
 	auto mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());

@@ -4,11 +4,12 @@
 #include "core/StateMachine.h"
 #include "core/UIManager.h"
 #include "core/State.h"
+#include "core/Context.h"
+#include "physics/Physics.h"
 #include "render/Animation.h"
 #include "GameStateFactory.h"
 #include "UIType.h"
 #include "UIStateFactory.h"
-
 
 class Game {
 public:
@@ -40,5 +41,9 @@ private:
 	double fpsAccumulatedTime_ = 0.0;
 
 	//系统资源去除单例，维护在此处，后续增加资源管理器等功能
+	Physics physicsEngine_; // 物理引擎实例
 
+
+
+	Context context_; // 游戏上下文，存储全局共享的数据和资源 // 最后声明
 };

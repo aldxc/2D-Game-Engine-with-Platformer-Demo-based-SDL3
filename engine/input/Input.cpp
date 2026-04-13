@@ -2,11 +2,13 @@
 #include "render/Renderer.h"
 
 bool Input::init() noexcept {
-	keyBindings_[SDL_SCANCODE_A] = InputAction::MOVE_LEFT;
-	keyBindings_[SDL_SCANCODE_D] = InputAction::MOVE_RIGHT;
-	keyBindings_[SDL_SCANCODE_SPACE] = InputAction::JUMP;
-	keyBindings_[SDL_SCANCODE_J] = InputAction::ATTACK;
-
+	keyBindings_[SDL_SCANCODE_LEFT] = InputAction::MOVE_LEFT;
+	keyBindings_[SDL_SCANCODE_RIGHT] = InputAction::MOVE_RIGHT;
+	keyBindings_[SDL_SCANCODE_C] = InputAction::JUMP;
+	keyBindings_[SDL_SCANCODE_Z] = InputAction::ATTACK;
+	keyBindings_[SDL_SCANCODE_UP] = InputAction::UP;
+	keyBindings_[SDL_SCANCODE_DOWN] = InputAction::DOWN;
+	keyBindings_[SDL_SCANCODE_X] = InputAction::SPRINT;
 	resetInputState();
 	return true;
 }
@@ -44,6 +46,15 @@ void Input::processInput(const SDL_Event& event) noexcept{
 		case InputAction::ATTACK:
 			isAttackPressed_ = true;
 			break;
+		case InputAction::UP:
+			isUPPressed_ = true;
+			break;
+		case InputAction::DOWN:
+			isDownPressed_ = true;
+			break;
+		case InputAction::SPRINT:
+			isSprintPressed_ = true;
+			break;
 		default:
 			break;
 		}
@@ -64,6 +75,14 @@ void Input::processInput(const SDL_Event& event) noexcept{
 			isMoveRightPressed_ = false;
 			break;
 		}
+		case InputAction::UP: {
+			isUPPressed_ = false;
+			break;
+		}
+		case InputAction::DOWN: {
+			isDownPressed_ = false;
+			break;
+		}
 		default:
 			break;
 		}
@@ -80,4 +99,5 @@ void Input::resetInputState() noexcept{
 	mousePos_ = { 0, 0 };
 	isJumpPressed_ = false;// 跳跃状态通常在按键按下时设置，在每帧开始时重置，确保跳跃动作只在按键按下的那一帧触发
 	isAttackPressed_ = false;
+	isSprintPressed_ = false;
 }

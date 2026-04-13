@@ -35,17 +35,18 @@ namespace Config {
 	constexpr int TARGET_RENDER_FPS = 120;
 
 	constexpr float GRAVITY = 500.0f; // 重力加速度，单位像素/秒²
-	constexpr float PLAYER_SPEED = 200.0f; // 玩家水平移动速度，单位像素/秒
 	constexpr float JUMP_VELOCITY = -320.0f; // 玩家跳跃初始速度，单位像素/秒
-	constexpr float TILE_SIZE = 32.0f; // 瓦片大小，单位像素
+	constexpr int TILE_SIZE = 32; // 瓦片大小，单位像素
 	constexpr float EPSILON = 0.001f; // 碰撞检测中的微小偏移量，避免浮点数精度问题
 
 	constexpr float ATTACK_DURATION = 0.3f; // 攻击持续时间，单位秒
+	constexpr float SPRINT_DURATION = 0.2f; // 冲刺持续时间，单位秒
 
 	constexpr float ACCELERATION = 1000.0f; // 玩家水平加速度，单位像素/秒² 
 	constexpr float DECELERATION = 1500.0f; // 玩家水平减速度，单位像素/秒² 
 	constexpr float AIR_ACCEL = 500.0f; // 玩家在空中时的水平加速度，单位像素/秒²
 	constexpr float MAX_SPEED = 275.0f; // 玩家最大水平速度，单位像素/秒
+	constexpr float SPRINT_MAX_SPEED = MAX_SPEED * 2.0f; // 冲刺时的最大水平速度，单位像素/秒
 	constexpr float GROUND_FRICTION = 1500.0f; // 玩家在地面上的摩擦力，单位像素/秒²
 
 	constexpr float JUMP_BUFFER_TIME = 0.2f; // 跳跃缓冲时间，单位秒
@@ -59,26 +60,6 @@ namespace Config {
 
 	constexpr int TILE_SRC_WIDTH = 16;
 	constexpr int TILE_SRC_HEIGHT = 16;
-
-	//减一是为了边缘采样，避免渲染时出现边缘像素的混合问题
-	//inline static const std::array<std::array<int, 4>, 8> TILE_LAND_SRC = { {
-	//	{ 160, 0, 16 - 1, 16 - 1 }, // 左侧陆地瓦片在瓦片图中的位置和大小
-	//	{ 176, 0, 16 - 1, 16 - 1 }, // 陆地中间瓦片在瓦片图中的位置和大小
-	//	{ 192, 0, 16 - 1, 16 - 1 }, // 右侧陆地瓦片在瓦片图中的位置和大小
-	//	{ 160, 16, 16 - 1, 16 - 1},	// 地下左侧瓦片在瓦片图中的位置和大小
-	//	{ 176, 16, 16 - 1, 16 - 1},	// 地下中间瓦片在瓦片图中的位置和大小
-	//	{ 192, 16, 16 - 1, 16 - 1},	// 地下右侧瓦片在瓦片图中的位置和大小
-	//	{ 208, 0, 16 - 1, 16 - 1 }, // 单独地面瓦片在瓦片图中的位置和大小
-	//	{ 208, 16, 16 - 1, 16 - 1}	// 单独地下瓦片在瓦片图中的位置和大小
-	//} };
-
-	//inline static const std::array<std::array<int, 4>, 5> TILE_GRASSLAND_SRC = { {
-	//	{ 112, 0, 16 - 1, 16 - 1 }, // 非陆地边缘草地左侧边缘
-	//	{ 128, 0, 16 - 1, 16 - 1 }, // 草地中心
-	//	{ 144, 0, 16 - 1, 16 - 1 }, // 非陆地边缘草地右侧边缘
-	//	{ 128, 16, 16 - 1, 16 - 1},	// 左侧陆地边缘草地边缘
-	//	{ 144, 16, 16 - 1, 16 - 1}	// 右侧陆地边缘草地边缘
-	//} };
 
 	constexpr int PLAYER_1_Y_OFFSET = 0;
 	constexpr int PLAYER_2_Y_OFFSET = 32;
@@ -105,12 +86,19 @@ namespace Config {
 		{ 32 * 11, 0, 32 - 1, 32 - 1 }, // 玩家攻击动画帧3在纹理图中的位置和大小
 		{ 32 * 12, 0, 32 - 1, 32 - 1 }, // 玩家攻击动画帧4在纹理图中的位置和大小
 	} };
+	inline static const std::array<std::array<int, 4>, 3> PLAYER_SPRINT_SRC = { {
+		{ 32 * 11, 0, 32 - 1, 32 - 1 }, // 玩家冲刺动画帧1在纹理图中的位置和大小
+		{ 32 * 13, 0, 32 - 1, 32 - 1 }, // 玩家冲刺动画帧2在纹理图中的位置和大小
+		{ 32 * 11, 0, 32 - 1, 32 - 1 }, // 玩家冲刺动画帧3在纹理图中的位置和大小
+	} };
 	inline static const std::array<std::array<int, 4>, 4> ATTACK_SRC = { {
 		{ 0, 0, 32, 32 }, // 攻击效果动画帧1在纹理图中的位置和大小
 		{ 32, 0, 32 , 32}, // 攻击效果动画帧2在纹理图中的位置和大小
 		{ 64, 0, 32 , 32 }, // 攻击效果动画帧3在纹理图中的位置和大小
 		{ 96, 0, 32 , 32}, // 攻击效果动画帧4在纹理图中的位置和大小
 	} };
+
+	constexpr int SPRINT_MAX_COUNT = 1; // 玩家最大连续冲刺次数，后续可以根据实际设计调整
 
 	constexpr int TMX_LAYER_NUMS = 3; // tmx地图层数，后续增加地图资源管理等功能时可以根据实际地图层数调整
 	//constexpr int 

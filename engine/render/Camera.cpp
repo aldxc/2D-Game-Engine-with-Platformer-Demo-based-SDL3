@@ -23,7 +23,6 @@ void Camera::setWorldBounds(float x, float y, float width, float height) noexcep
 void Camera::followTarget(const SDL_FRect& target, float dt, bool smooth, float followSpeed) noexcept{
 	//clampToBounds();// 在跟随目标后限制摄像机位置在世界边界内
 
-
 	if(target.x + target.w > viewX_ + deadZone_.x + deadZone_.w) {
 		float targetX = target.x + target.w - (viewX_ + deadZone_.x + deadZone_.w);
 		viewX_ += smooth ? (targetX * followSpeed * dt) : targetX;
@@ -42,12 +41,12 @@ void Camera::clampToBounds() noexcept{
 	}
 }
 
-SDL_FRect Camera::worldToScreen(const SDL_FRect& worldRect) const noexcept{
-	SDL_FRect screenRect = {};
-	screenRect.x = (worldRect.x - viewX_) * zoom_;
-	screenRect.y = (worldRect.y - viewY_) * zoom_;
-	screenRect.w = worldRect.w * zoom_;
-	screenRect.h = worldRect.h * zoom_;
+Rect Camera::worldToScreen(const SDL_FRect& worldRect) const noexcept{
+	Rect screenRect = {};
+	screenRect.setX((worldRect.x - viewX_) * zoom_);
+	screenRect.setY((worldRect.y - viewY_) * zoom_);
+	screenRect.setW(worldRect.w * zoom_);
+	screenRect.setH(worldRect.h * zoom_);
 
 	return screenRect;
 }

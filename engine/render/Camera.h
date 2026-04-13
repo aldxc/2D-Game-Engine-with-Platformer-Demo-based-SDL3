@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include <core/Rect.h>
 
 // 后续可属于组件，挂载在玩家、敌人等对象上，提供视口信息、坐标转换等功能，后续增加摄像机跟随、边界限制等功能
 // 本项目camera属于场景系统的一部分，负责管理视口位置、缩放等信息，提供坐标转换等功能，后续增加摄像机跟随、边界限制等功能
@@ -17,12 +18,12 @@ public:
 	void clampToBounds() noexcept; // 将视口位置限制在世界边界内
 
 	// 坐标转换
-	SDL_FRect worldToScreen(const SDL_FRect& worldRect) const noexcept;
+	Rect worldToScreen(const SDL_FRect& worldRect) const noexcept;
 	SDL_FPoint worldToScreen(const SDL_FPoint& worldPos) const noexcept;
 	//SDL_FPoint screenToWorld(const SDL_FPoint& screenPos) const noexcept; 
 
 	// 获取视口信息
-	SDL_FRect getViewport() const noexcept { return SDL_FRect{ viewX_, viewY_, viewWidth_, viewHeight_ }; }
+	Rect getViewport() const noexcept { return Rect{ viewX_, viewY_, viewWidth_, viewHeight_ }; }
 	bool isVisible(const SDL_FRect& worldRect) const noexcept; // 判断世界坐标矩形是否在视口内，后续增加更多的可见性判断功能，如基于对象中心点、基于对象边界等不同的可见性判断方式
 
 	// 后续加入

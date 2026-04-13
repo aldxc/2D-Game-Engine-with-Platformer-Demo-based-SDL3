@@ -17,17 +17,17 @@ public:
 	Object& operator=(Object&&) = delete;
 
 	virtual void update(float dt) noexcept = 0;
-	virtual void render(const Camera& camera) const noexcept = 0;
+	virtual void render(const Camera& camera) const noexcept = 0; //camera参数用于将对象的世界坐标转换为屏幕坐标进行渲染
 	//获取对象位置和大小接口
-	const SDL_FRect& getHitBox() const noexcept { return hitBox_; }
+	//const SDL_FRect& getHitBox() const noexcept { return hitBox_; }
 protected:
-	void setMoveXY(float dx, float dy) noexcept {	// 移动对象位置接口，更新碰撞盒位置
-		hitBox_.x += dx;
-		hitBox_.y += dy;
-	}
-	void setHitBox(const SDL_FRect& rect) noexcept { hitBox_ = rect; } // 设置碰撞盒位置和大小接口
+	//void setMoveXY(float dx, float dy) noexcept {	// 移动对象位置接口，更新碰撞盒位置
+	//	hitBox_.x += dx;
+	//	hitBox_.y += dy;
+	//}
+	//void setHitBox(const SDL_FRect& rect) noexcept { hitBox_ = rect; } // 设置碰撞盒位置和大小接口
 private:
-	SDL_FRect hitBox_ = SDL_FRect{ 0,0, Config::PLAYER_WIDTH, Config::PLAYER_HEIGHT }; // 碰撞盒 同时也可以用来表示对象的位置和大小
+	//SDL_FRect hitBox_ = SDL_FRect{ 0,0, Config::PLAYER_WIDTH, Config::PLAYER_HEIGHT }; // 碰撞盒 同时也可以用来表示对象的位置和大小
 
 	bool isActive_ = true; // 是否活跃，控制对象的更新和渲染
 	bool isDestroyed_ = false; // 是否被销毁，控制对象的生命周期

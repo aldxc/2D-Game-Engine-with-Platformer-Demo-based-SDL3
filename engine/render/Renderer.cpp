@@ -1,3 +1,4 @@
+#include "core/Rect.h"
 #include "Renderer.h"
 
 Renderer::Renderer() {
@@ -121,8 +122,10 @@ void Renderer::renderText(const std::string text, const SDL_FRect& rect, const S
 	textCache_[text] = std::move(text_);
 }
 
-void Renderer::renderTexture(SDL_Texture* texture, const SDL_FRect srcrect, const SDL_FRect dstrect) const noexcept {
-	SDL_RenderTexture(renderer_.get(), texture, &srcrect, &dstrect);
+void Renderer::renderTexture(SDL_Texture* texture, const Rect& srcrect, const Rect& dstrect) const noexcept {
+	SDL_FRect src = srcrect;
+	SDL_FRect dst = dstrect;
+	SDL_RenderTexture(renderer_.get(), texture, &src, &dst);
 }
 
 void Renderer::resetRenderTarget() noexcept{
@@ -167,8 +170,10 @@ void Renderer::renderUITexture() const noexcept{
 	SDL_RenderTexture(renderer_.get(), UITexture_.get(), nullptr, nullptr);
 }
 
-void Renderer::reversePlayerFaceTexture(SDL_Texture* texture, SDL_FRect srcRect, SDL_FRect dstRect) const noexcept{
+void Renderer::reversePlayerFaceTexture(SDL_Texture* texture, const Rect& srcRect, const Rect& dstRect) const noexcept{
 	//×óÓÒ·´×ªÎÆÀí
-	SDL_RenderTextureRotated(renderer_.get(), texture, &srcRect, &dstRect, 0, nullptr, SDL_FLIP_HORIZONTAL);
+	SDL_FRect src = srcRect;
+	SDL_FRect dst = dstRect;
+	SDL_RenderTextureRotated(renderer_.get(), texture, &src, &dst, 0, nullptr, SDL_FLIP_HORIZONTAL);
 }
 

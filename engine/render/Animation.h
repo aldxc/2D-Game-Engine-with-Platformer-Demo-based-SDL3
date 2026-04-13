@@ -2,17 +2,18 @@
 #include <vector>
 #include <unordered_map>
 #include <SDL3/SDL.h>
+#include "core/Rect.h"
 
-enum class PlayerAnimationState { IDLE, RUN, JUMP, FALL, ATTACK, CLIMB,SPRINT, FLASH, HIT };
+enum class PlayerAnimationState { IDLE, RUN, JUMP, FALL, ATTACK, CLIMB, SPRINT, FLASH, HIT };
 
 class Animation {
 public:
 	struct AnimationClip {
-		std::vector<SDL_FRect> frames; 
+		std::vector<Rect> frames; 
 		float frameDuration; // 每帧持续时间，单位为秒
 		bool loop = true;
 		AnimationClip() : frames({}), frameDuration(0.2f), loop(true) {};
-		AnimationClip(std::vector<SDL_FRect> rects) : frames(rects), frameDuration(0.2f), loop(true) {};
+		AnimationClip(std::vector<Rect> rects) : frames(rects), frameDuration(0.2f), loop(true) {};
 	};
 
 	explicit Animation() = default;
@@ -26,7 +27,7 @@ public:
 
 	void play(const AnimationClip& clip) noexcept; // 播放指定的动画剪辑，重置动画状态
 	void update(float dt) noexcept;
-	const SDL_FRect& getCurrentFrameRect() const noexcept;
+	const Rect& getCurrentFrameRect() const noexcept;
 	int getCurrentFrameIndex() const noexcept { return currentFrameIndex_; }
 	bool isFinished() const noexcept;
 private:

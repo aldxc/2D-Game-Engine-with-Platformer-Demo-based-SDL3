@@ -4,6 +4,7 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <string>
 #include <unordered_map>
+#include "core/Rect.h"
 
 //单例模式
 class Renderer {
@@ -26,7 +27,7 @@ public:
 	void renderRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept;
 	void renderFillRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept;
 	void renderText(const std::string text, const SDL_FRect& rect, const SDL_Color color = SDL_Color({ 100, 100, 100, 255 }), const int t_size = 30) const noexcept;
-	void renderTexture(SDL_Texture* texture, const SDL_FRect srcrect, const SDL_FRect dstrect) const noexcept;
+	void renderTexture(SDL_Texture* texture, const Rect& srcrect, const Rect& dstrect) const noexcept;
 	
 	void resetRenderTarget() noexcept; // 重置渲染目标为默认，适用于结束UI、地图等元素的渲染后恢复到默认渲染目标准备渲染玩家、敌人等动态元素
 	void clearUITexture(const SDL_Color color = SDL_Color({ 0, 0, 0, 0 })) noexcept; // 切换到UI纹理渲染目标并清除纹理内容，适用于UI元素的渲染准备，保持UI渲染质量同时避免与地图、玩家等动态元素的纹理混用带来的性能问题
@@ -39,7 +40,7 @@ public:
 
 	SDL_Renderer* getSDLRenderer() const noexcept { return renderer_.get(); } // 获取底层SDL_Renderer指针，适用于需要直接使用SDL_Renderer进行高级渲染操作的场景，例如使用SDL_RenderCopyEx进行旋转缩放等变换操作
 
-	void reversePlayerFaceTexture(SDL_Texture* texture, SDL_FRect srcRect, SDL_FRect dstRect) const noexcept;
+	void reversePlayerFaceTexture(SDL_Texture* texture, const Rect& srcRect, const Rect& dstRect) const noexcept;
 private:
 	Renderer();
 	~Renderer();

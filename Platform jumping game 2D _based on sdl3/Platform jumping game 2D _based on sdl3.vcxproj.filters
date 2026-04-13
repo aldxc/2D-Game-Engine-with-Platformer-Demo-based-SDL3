@@ -115,6 +115,15 @@
     <ClCompile Include="..\engine\render\Camera.cpp">
       <Filter>Engine\render</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\core\Vec2.cpp">
+      <Filter>Engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\core\Rect.cpp">
+      <Filter>Engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\physics\Physics.cpp">
+      <Filter>Engine\physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
@@ -236,6 +245,18 @@
     </ClInclude>
     <ClInclude Include="..\engine\render\TextureAtlas.h">
       <Filter>Engine\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\Vec2.h">
+      <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\Rect.h">
+      <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\physics\RigidBody.h">
+      <Filter>Engine\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\core\Context.h">
+      <Filter>Engine\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
