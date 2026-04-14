@@ -9,11 +9,8 @@
 //单例模式
 class Renderer {
 public:
-	static Renderer& getInstance() {
-		static Renderer instance;
-		return instance;
-	}
-
+	explicit Renderer() noexcept = default;
+	~Renderer() noexcept ;
 	bool init(int w, int h, int logicW, int logicH, int fontSize) noexcept;
 
 	Renderer(const Renderer&) = delete;
@@ -41,9 +38,8 @@ public:
 	SDL_Renderer* getSDLRenderer() const noexcept { return renderer_.get(); } // 获取底层SDL_Renderer指针，适用于需要直接使用SDL_Renderer进行高级渲染操作的场景，例如使用SDL_RenderCopyEx进行旋转缩放等变换操作
 
 	void reversePlayerFaceTexture(SDL_Texture* texture, const Rect& srcRect, const Rect& dstRect) const noexcept;
-private:
-	Renderer();
-	~Renderer();
+	SDL_Color setColorAlpha(uint8_t r, uint8_t g, uint8_t b, uint8_t a) const noexcept { return SDL_Color{ r, g, b, a }; } // 外界使用此函数设置颜色及alpha值，统一接口防止直接使用SDL_Color导致的混乱
+
 private:
 	struct SDL_Deleter {
 		void operator()(SDL_Window* window) const {

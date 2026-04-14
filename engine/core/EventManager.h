@@ -17,14 +17,14 @@ struct ListenerEntry {
 };
 
 class EventManager {
-private:
-	EventManager() = default;
-	~EventManager() = default;
 public:
-	static EventManager& getInstance() {
-		static EventManager instance;
-		return instance;
-	}
+	explicit EventManager() noexcept = default;
+	~EventManager() noexcept= default;
+
+	//static EventManager& getInstance() {
+	//	static EventManager instance;
+	//	return instance;
+	//}
 
 	EventManager(const EventManager&) = delete;
 	EventManager& operator=(const EventManager&) = delete;

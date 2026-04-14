@@ -2,6 +2,8 @@
 #include <cmath>
 #include "Physics.h"
 
+enum class TileColl : uint8_t { NONE = 0, HALF = 1, FULL = 2, CLIMBABLE = 3 };
+
 bool Physics::init(float gravity) noexcept{
 	gravity_ = gravity;
 
@@ -79,7 +81,7 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 					continue;
 				}
 
-				if (collmap[row][col].coll != 2) { 
+				if (static_cast<TileColl>(collmap[row][col].coll) != TileColl::FULL) { 
 					continue;
 				}
 
@@ -130,7 +132,7 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 					nextState.hitBox.getX() < tileRect.x + tileRect.w &&
 					nextState.hitBox.getX() + nextState.hitBox.getW() > tileRect.x;
 
-				if (collision == 2) {
+				if (static_cast<TileColl>(collision) == TileColl::FULL) {
 					const bool touchingOrCrossingTop =
 						nextState.velocity.getY() >= 0.0f &&
 						overlapX &&
@@ -158,7 +160,7 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 						nextState.velocity.setY(0.0f);
 					}
 				}
-				else if (collision == 1) {
+				else if (static_cast<TileColl>(collision) == TileColl::HALF) {
 					if (body.wantsDropDown) {
 						continue;
 					}

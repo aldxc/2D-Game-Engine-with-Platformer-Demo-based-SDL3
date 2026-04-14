@@ -4,11 +4,9 @@
 #include "core/EventManager.h"
 #include "input/Input.h"
 #include "render/Renderer.h"
-#include "resource/Resource.h"
-#include "render/Animation.h"
 #include "physics/Physics.h"
 
-Game::Game() : context_{ physicsEngine_ }{
+Game::Game() : renderContext_{ renderer_, camera_ }{
 	if (!init()) {
 		SDL_Log("Failed to initialize game.");
 		return;
@@ -16,7 +14,7 @@ Game::Game() : context_{ physicsEngine_ }{
 }
 
 Game::~Game() {
-	EventManager::getInstance().unsubscribe(quitSubscriptionId_);
+	eventManager_.unsubscribe(quitSubscriptionId_);
 }
 
 void Game::Run() noexcept {
@@ -53,31 +51,31 @@ void Game::handleInput() noexcept {
 			continue;
 		}
 
-		Input::getInstance().processInput(event);
+		inputManager_.processInput(event, renderer_);
 	}
 
 	uiMananger_->handleInput();
-	EventManager::getInstance().update();
+	eventManager_.update();
 }
 
 void Game::update() noexcept {
 	// 使用固定时间步长更新游戏逻辑，确保游戏在不同帧率下的行为一致
 	while (accumulator_ >= Config::DELTAFREAM) {
 		stateMachine_->update(Config::DELTAFREAM);
-		Input::getInstance().resetInputState();//在每次逻辑更新后重置输入状态，确保输入状态只在当前逻辑帧内有效，避免输入状态在多帧之间持续导致的重复输入问题
+		inputManager_.resetInputState();//在每次逻辑更新后重置输入状态，确保输入状态只在当前逻辑帧内有效，避免输入状态在多帧之间持续导致的重复输入问题
 		GlobalTime_ += Config::DELTAFREAM;
 		accumulator_ -= Config::DELTAFREAM;
 	}
 }
 
 void Game::renderer() const noexcept {
-	Renderer::getInstance().beginRender();
+	renderer_.beginRender();
 
 	stateMachine_->render();
 	uiMananger_->render();
-	Renderer::getInstance().renderText("FPS: " + std::to_string(std::min(currentFPS_, MAX_FPS_)) + "/" + std::to_string(MAX_FPS_), SDL_FRect{10, 10, 100, 30}, SDL_Color({255, 255, 255, 255}), 20);
+	renderer_.renderText("FPS: " + std::to_string(std::min(currentFPS_, MAX_FPS_)) + "/" + std::to_string(MAX_FPS_), SDL_FRect{10, 10, 100, 30}, SDL_Color({255, 255, 255, 255}), 20);
 
-	Renderer::getInstance().restoreDefaultAndPresent();
+	renderer_.restoreDefaultAndPresent();
 }
 
 bool Game::init() noexcept {
@@ -90,34 +88,37 @@ bool Game::init() noexcept {
 		return false;
 	}
 
-	if (!Renderer::getInstance().init(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT, Config::DEFAULT_TEXT_SIZE)) {
+	if (!renderer_.init(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT, Config::DEFAULT_TEXT_SIZE)) {
 		SDL_Log("Failed to initialize renderer.");
 		return false;
 	}
-	if (!EventManager::getInstance().init()) {
+	if (!eventManager_.init()) {
 		SDL_Log("Failed to initialize event manager.");
 		return false;
 	}
-	if (!Input::getInstance().init()) {
+	if (!inputManager_.init()) {
 		SDL_Log("Failed to initialize input manager.");
 		return false;
 	}
-	if(!Resource::getInstance().init()) {
+	if(!resourceManager_.init()) {
 		SDL_Log("Failed to initialize resource manager.");
 		return false;
 	}
-	
 	if(!physicsEngine_.init(Config::GRAVITY)) {
 		SDL_Log("Failed to initialize physics engine.");
 		return false;
 	}
+	if (!camera_.init(0, 0, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT)) {
+		SDL_Log("Failed to initialize camera.");
+		return false;
+	}
 
-	quitSubscriptionId_ = EventManager::getInstance().subscribe(EventType::App_Quit, [this](const Event&) {
+	quitSubscriptionId_ = eventManager_.subscribe(EventType::App_Quit, [this](const Event&) {
 		isRunning_ = false;
 	});
 
-	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU, context_);
-	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU);
+	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU, renderContext_, physicsEngine_, inputManager_, eventManager_, resourceManager_);
+	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU, inputManager_, eventManager_, renderer_);
 	lastFrameTime_ = std::chrono::high_resolution_clock::now();
 	auto mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
 	MAX_FPS_ = !mode ? 60 : std::min(Config::TARGET_RENDER_FPS, static_cast<int>(mode->refresh_rate)); // 如果无法获取显示模式信息，默认使用较低的帧率限制

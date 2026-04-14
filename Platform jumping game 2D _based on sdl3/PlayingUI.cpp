@@ -1,26 +1,26 @@
 #include "PlayingUI.h"
 #include "core/EventManager.h"
-#include "render/Renderer.h"
 #include "input/Input.h"
 #include "Config.h"
 #include "StateType.h"
 
+class Renderer;
 
-PlayingUI::PlayingUI() : UI(UIType::PLAYING){
+PlayingUI::PlayingUI(Input& iM, EventManager& eM, Renderer& r) : UI(UIType::PLAYING), inputManager_(iM), eventManager_(eM), renderer_(r){
 	//test botton
 	SDL_FRect bottonRect{ 0, 300, 100, 100 };
 	bottons_[0] = { bottonRect, "Won", SDL_Color({ 100, 200, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
-		[]() { EventManager::getInstance().sendEvent(Event{ EventType::State_Transition, StateType::WON }); },
-		[]() { EventManager::getInstance().sendEvent(Event{ EventType::UI_Show, UIType::WON }); }
+		[this]() { eventManager_.sendEvent(Event{ EventType::State_Transition, StateType::WON }); },
+		[this]() { eventManager_.sendEvent(Event{ EventType::UI_Show, UIType::WON }); }
 	} };
 	SDL_FRect bottonRect2{ Config::LOGIC_WIDTH - 100, 300, 100, 100 };
 	bottons_[1] = { bottonRect2, "Lose", SDL_Color({ 200, 100, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
-		[]() { EventManager::getInstance().sendEvent(Event{ EventType::State_Transition, StateType::LOSE }); },
-		[]() { EventManager::getInstance().sendEvent(Event{ EventType::UI_Show, UIType::LOSE }); }
+		[this]() { eventManager_.sendEvent(Event{ EventType::State_Transition, StateType::LOSE }); },
+		[this]() { eventManager_.sendEvent(Event{ EventType::UI_Show, UIType::LOSE }); }
 	} };
 	SDL_FRect debugBottonRect{ Config::LOGIC_WIDTH / 2 - 50, 0, 100, 100 };
 	bottons_[2] = { debugBottonRect, "Debug", SDL_Color({ 255, 100, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
-		[]() { EventManager::getInstance().sendEvent(Event{EventType::Debug_TogglePlayerInfo, {}}); }
+		[this]() { eventManager_.sendEvent(Event{EventType::Debug_TogglePlayerInfo, {}}); }
 	} };
 }
 
@@ -29,8 +29,8 @@ PlayingUI::~PlayingUI(){
 }
 
 void PlayingUI::handleInput() noexcept{
-	if (Input::getInstance().isMousePressed()) {
-		auto [mouseX, mouseY] = Input::getInstance().getMousePosition();
+	if (inputManager_.isMousePressed()) {
+		auto [mouseX, mouseY] = inputManager_.getMousePosition();
 		SDL_FPoint mousePoint{ mouseX, mouseY };
 		for(const auto& botton : bottons_) {
 			if (SDL_PointInRectFloat(&mousePoint, &botton.getRect())) {
@@ -49,6 +49,6 @@ void PlayingUI::render() const noexcept{
 	//Renderer::getInstance().renderFillRect(SDL_FRect{ 0, 0, 200, 200 }, SDL_Color({ 0, 0, 255, 255 }));
 
 	for(const auto& botton : bottons_) {
-		botton.render();
+		botton.render(renderer_);
 	}
 }

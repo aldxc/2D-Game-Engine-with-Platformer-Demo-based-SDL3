@@ -20,16 +20,6 @@ public:
 	Physics& operator=(Physics&&) = delete;
 
 	bool init(float gravity) noexcept;
-	
-	//struct PhysicsResult { //碰撞结果
-	//	SDL_FRect rect;// 碰撞后的碰撞盒位置和大小
-	//	float velocityX; // 碰撞后的水平速度
-	//	float velocityY; // 碰撞后的垂直速度
-	//	bool hitLeft; // 是否碰撞到左侧
-	//	bool hitRight; // 是否碰撞到右侧
-	//	bool hitTop; // 是否碰撞到顶部
-	//	bool hitBottom; // 是否碰撞到底部
-	//};
 
 	void registerRigidBody(RigidBody& body) noexcept; //注册物理对象
 	void unregisterRigidBody(RigidBody& body) noexcept;  // 解绑物理对象

@@ -3,25 +3,21 @@
 #include <unordered_map>
 #include <SDL3/SDL.h>
 
+class Renderer;
 
 enum class InputAction { JUMP, MOVE_LEFT, MOVE_RIGHT, ATTACK, UP, DOWN, SPRINT, FLASH };//后续增加更多输入动作，冲刺、攻击等
 
 //最好单例
 class Input {
-private:
-	Input() = default;
-	~Input() = default;
 public:
-	static Input& getInstance() {
-		static Input instance;
-		return instance;
-	}
+	explicit Input() noexcept = default;
+	~Input() noexcept = default;
 	Input(const Input&) = delete;
 	Input& operator=(const Input&) = delete;
 	Input(Input&&) = delete;
 	Input& operator=(Input&&) = delete;
 	bool init() noexcept; // 初始化输入系统，设置初始状态
-	void processInput(const SDL_Event& event) noexcept; // 读取输入状态，更新内部状态
+	void processInput(const SDL_Event& event, Renderer& renderer) noexcept; // 读取输入状态，更新内部状态
 
 	bool isKeyPressed() const noexcept { return isKeyPressed_; } // 示例：检查某个键是否被按下
 	bool isMousePressed() const noexcept { return isMousePressed_; } // 示例：检查鼠标是否被按下

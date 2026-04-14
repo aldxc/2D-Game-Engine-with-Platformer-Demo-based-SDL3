@@ -9,10 +9,9 @@
 
 //最好单例
 class Resource {
-private:
-	Resource() = default;
-	~Resource() = default;
 public:
+	Resource() noexcept = default;
+	~Resource() noexcept = default;
 
 	struct LevelData {
 		std::uint64_t width = 0;
@@ -26,10 +25,6 @@ public:
 	Resource(Resource&&) = delete;
 	Resource& operator=(Resource&&) = delete;
 
-	static Resource& getInstance() {
-		static Resource instance;
-		return instance;
-	}
 	bool init() noexcept; // 初始化资源，如加载纹理、字体等
 
 	// 地图 level 文件读写

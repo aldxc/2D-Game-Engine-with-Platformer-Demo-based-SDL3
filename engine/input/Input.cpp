@@ -13,12 +13,12 @@ bool Input::init() noexcept {
 	return true;
 }
 
-void Input::processInput(const SDL_Event& event) noexcept{
+void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 	switch (event.type) {
 	case SDL_EVENT_MOUSE_BUTTON_DOWN: {
 		isMousePressed_ = true;
 		float mouseX = 0.0f, mouseY = 0.0f;
-		SDL_RenderCoordinatesFromWindow(Renderer::getInstance().getSDLRenderer(), event.button.x, event.button.y, &mouseX, &mouseY);
+		SDL_RenderCoordinatesFromWindow(renderer.getSDLRenderer(), event.button.x, event.button.y, &mouseX, &mouseY);
 		//SDL_Log("MousePos,%f, %f", mouseX, mouseY);
 		mousePos_ = { mouseX, mouseY };
 		break;

@@ -67,7 +67,6 @@ bool Resource::loadMap(const std::string& filePath, std::vector<std::vector<uint
 	SDL_Log("Unsupported map format: %s", filePath.c_str());
 	return false;
 
-	return false;
 }
 
 
@@ -136,7 +135,21 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 					}
 				}
 			}
-
+		}else if(layer->getType() == tmx::Layer::Type::Object) { //对象层
+			if(layer->getName() == "object") {
+				auto* objectGroup = dynamic_cast<tmx::ObjectGroup*>(layer.get());
+				const auto& objects = objectGroup->getObjects();
+				for(const auto& obj : objects) {
+					// 处理对象层中的对象数据，根据需要存储在Tiles二维数组中
+					// 例如，可以根据对象的类型、位置等信息设置对应的属性位
+					// 这里假设对象的类型存储在obj.getClass()中，位置存储在obj.getPosition()中
+					// 可以根据实际需求进行调整
+					//std::vector
+					//if(obj.getClass() == "spawn") {
+					//	if(obj.getName() )
+					//}
+				}
+			}
 		}
 	}
 

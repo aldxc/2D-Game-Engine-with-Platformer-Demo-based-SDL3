@@ -9,6 +9,8 @@ public:
 	explicit Camera() noexcept = default ;
 	~Camera() noexcept = default;
 
+	bool init(float x, float y, float width, float height, float zoom = 1.0f) noexcept; // 供系统初始化时调用，设置初始视口位置、缩放级别等信息，后续增加根据窗口大小自动调整视口等功能
+
 	// 设置视口位置和缩放
 	void setViewport(float x, float y, float width, float height, float zoom = 1.0f) noexcept; // 初始化
 	void setPosition(float x, float y) noexcept; // 设置视口位置

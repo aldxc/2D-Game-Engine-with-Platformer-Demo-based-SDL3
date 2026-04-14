@@ -6,6 +6,8 @@
 #include "core/State.h"
 #include "Config.h"
 
+class Renderer;
+
 class Botton {
 public:
 	using ClickCallback = std::function<void()>;
@@ -14,7 +16,7 @@ public:
 	~Botton() = default;
 
 	void clickBottom() const noexcept;
-	void render() const noexcept;
+	void render(Renderer& renderer) const noexcept;
 	const SDL_FRect& getRect() const noexcept { return rect_; }
 private:
 	SDL_FRect rect_;

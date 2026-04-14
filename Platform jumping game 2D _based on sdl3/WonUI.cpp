@@ -1,21 +1,22 @@
 #include "WonUI.h"
 #include "core/EventManager.h"
 #include "input/Input.h"
-#include "render/Renderer.h"
 #include "StateType.h"
 
-WonUI::WonUI() : UI<UIType>(UIType::WON){
+class Renderer;
+
+WonUI::WonUI(Input& iM, EventManager& eM, Renderer& r) : UI<UIType>(UIType::WON), inputManager_(iM), eventManager_(eM), renderer_(r){
 	SDL_FRect showRect{ (Config::LOGIC_WIDTH - Config::WON_BUTTON_WIDTH) / 2, 100, Config::WON_BUTTON_WIDTH, Config::WON_BUTTON_HEIGHT };
 	bottons_[0] = { showRect, "Pass the Level", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE , {} };
 	SDL_FRect nextLevelRect{ (Config::LOGIC_WIDTH - Config::WON_BUTTON_WIDTH) / 2, 200, Config::WON_BUTTON_WIDTH, Config::WON_BUTTON_HEIGHT };
 	bottons_[1] = { nextLevelRect, "Next Level", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE,
-		{ []() {EventManager::getInstance().sendEvent(Event{ EventType::State_Transition, StateType::PLAYING });},
-		  []() {EventManager::getInstance().sendEvent(Event{ EventType::UI_Show, UIType::PLAYING });} }
+		{ [this]() {eventManager_.sendEvent(Event{ EventType::State_Transition, StateType::PLAYING });},
+		  [this]() {eventManager_.sendEvent(Event{ EventType::UI_Show, UIType::PLAYING });} }
 	};
 	SDL_FRect backToMenuRect{ (Config::LOGIC_WIDTH - Config::WON_BUTTON_WIDTH) / 2, 300, Config::WON_BUTTON_WIDTH, Config::WON_BUTTON_HEIGHT };
 	bottons_[2] = { backToMenuRect, "Back to Menu", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE,
-		{ []() {EventManager::getInstance().sendEvent(Event{ EventType::State_Transition, StateType::MENU });},
-		  []() {EventManager::getInstance().sendEvent(Event{ EventType::UI_Show, UIType::MENU });} }
+		{ [this]() {eventManager_.sendEvent(Event{ EventType::State_Transition, StateType::MENU });},
+		  [this]() {eventManager_.sendEvent(Event{ EventType::UI_Show, UIType::MENU });} }
 	};
 }
 
@@ -24,8 +25,8 @@ WonUI::~WonUI(){
 }
 
 void WonUI::handleInput() noexcept{
-	if (Input::getInstance().isMousePressed()) {
-		auto [mouseX, mouseY] = Input::getInstance().getMousePosition();
+	if (inputManager_.isMousePressed()) {
+		auto [mouseX, mouseY] = inputManager_.getMousePosition();
 		SDL_FPoint mousePoint{ mouseX, mouseY };
 		for(const auto& botton : bottons_) {
 			if (SDL_PointInRectFloat(&mousePoint, &botton.getRect())) {
@@ -41,6 +42,6 @@ void WonUI::update(float dt) noexcept{
 
 void WonUI::render() const noexcept{
 	for(const auto& botton : bottons_) {
-		botton.render();
+		botton.render(renderer_);
 	}
 }

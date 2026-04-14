@@ -1,11 +1,7 @@
 #include "core/Rect.h"
 #include "Renderer.h"
 
-Renderer::Renderer() {
-
-}
-
-Renderer::~Renderer(){
+Renderer::~Renderer() noexcept {
 	textCache_.clear();
 	textEngine_.reset();
 	font_.reset();

@@ -8,6 +8,8 @@
 #include "core/Vec2.h"
 #include "physics/RigidBody.h"
 
+class Resource;
+class Renderer;
 
 class Player : public Object {
 public:
@@ -23,7 +25,7 @@ public:
 	};
 	enum class MoveMode : uint8_t { Normal, Climb, Sprint };
 
-	explicit Player();
+	explicit Player(Renderer& renderer, Resource& rM) noexcept;
 	~Player() override = default;
 
 	void setCommand(const PlayerCommand& command) noexcept { command_ = command; }
@@ -36,14 +38,6 @@ public:
 	float getVelocityY() const noexcept { return rigidBody_.velocity.getY(); }
 	bool isLanded() const noexcept { return rigidBody_.isLanded; }
 	bool getSprint() const noexcept { return isSprinting_; }
-
-	//void setVelocityX(float velocityX) noexcept { velocityX_ = velocityX; }
-	//void setVelocityY(float velocityY) noexcept { velocityY_ = velocityY; }
-	//void setLanded(bool landed) noexcept { isLanded_ = landed; }
-
-	//void applyGravity(float gravity, float dt) noexcept;
-
-	//void applyResolvedMovement(const SDL_FRect& hitBox, float velocityX, float velocityY, bool landed) noexcept;
 	void reset() noexcept;
 
 	bool isStateChanged() noexcept;
@@ -63,6 +57,8 @@ private:
 	void updateMovementAcceleration(float dt) noexcept; // 更新玩家的加速度，速度积分等物理相关的状态更新放在物理系统中处理
 	void finalizeState() noexcept; // 根据当前状态进行最终的状态调整
 private:
+	Renderer& renderer_;
+
 	bool facingRight_ = true;
 	bool isJumping_ = false;
 	bool jumpRequested_ = false; // 是否请求跳跃，用于跳跃缓冲
@@ -95,4 +91,5 @@ private:
 
 	RigidBody rigidBody_; // 持有一个刚体组件
 	MoveMode moveMode_ = MoveMode::Normal; // 当前移动模式 普通 - 攀爬 - 冲刺
+	Timer dropDownTimer_; // 平台穿透持续时间，允许玩家在按下下键和跳跃键的组合输入后短暂穿透平台，单位秒
 };

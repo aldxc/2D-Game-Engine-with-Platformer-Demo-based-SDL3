@@ -1,8 +1,9 @@
 #pragma once
 
-class Physics;
+class Renderer;
+class Camera;
 
-
-struct Context {
-	Physics& physicsEngine; // 物理引擎引用
+struct RenderContext {
+	Renderer& renderer; // 渲染器引用
+	Camera& camera; // 摄像机引用
 };

@@ -5,8 +5,13 @@
 #include "core/UIManager.h"
 #include "core/State.h"
 #include "core/Context.h"
+#include "core/EventManager.h"
+#include "render/Renderer.h"
+#include "resource/Resource.h"
+#include "input/Input.h"
 #include "physics/Physics.h"
 #include "render/Animation.h"
+#include "render/Camera.h"
 #include "GameStateFactory.h"
 #include "UIType.h"
 #include "UIStateFactory.h"
@@ -20,6 +25,18 @@ public:
 	void handleInput() noexcept;
 	void update() noexcept;
 private:
+	//系统资源去除单例，维护在此处，后续增加资源管理器等功能
+	RenderContext renderContext_; //
+	Renderer renderer_; // 渲染器实例
+
+	EventManager eventManager_; // 事件管理器实例
+
+	Input inputManager_; // 输入管理器实例
+	Resource resourceManager_; // 资源管理器实例
+	Physics physicsEngine_; // 物理引擎实例
+	Camera camera_; // 摄像机实例
+
+
 	using GameStateMachine = StateMachine<StateType, GameStateFactory>;
 	using GameUIManager = UIManager<UIType, GameUIFactory>;
 
@@ -40,10 +57,4 @@ private:
 	int fpsFrameCount_ = 0;
 	double fpsAccumulatedTime_ = 0.0;
 
-	//系统资源去除单例，维护在此处，后续增加资源管理器等功能
-	Physics physicsEngine_; // 物理引擎实例
-
-
-
-	Context context_; // 游戏上下文，存储全局共享的数据和资源 // 最后声明
 };

@@ -3,10 +3,13 @@
 #include <string>
 #include <array>
 #include <SDL3/SDL.h>
+#include <memory>
 #include "Tile.h"
 #include "render/Camera.h"
 #include "physics/Physics.h"
 
+class Resource;
+class Renderer;
 
 class TileMap {
 public:
@@ -16,8 +19,8 @@ public:
 		float velocityY; // 碰撞后的垂直速度
 		bool isLanded; // 是否着陆，表示玩家是否站在地面上
 	};
-	explicit TileMap() = default;
-	~TileMap() = default;
+	explicit TileMap(Renderer& renderer, Resource& rM) noexcept;
+	~TileMap() noexcept = default;
 	void update(float dt) noexcept;
 	void render(const Camera& camera) const noexcept;
 	void setTiles(const std::vector<std::vector<Tile>>& tilesMap) noexcept;
@@ -30,7 +33,10 @@ public:
 
 	bool isCanClimb(const SDL_FRect& hitBox) const noexcept;
 private:
+	Renderer& renderer_; 
+
 	std::vector<std::vector<Tile>> tiles_ = {}; // 地图数据
 	//后续抽象出碰撞层、渲染层，碰撞层专门负责提供给物理系统进行碰撞检测，渲染层专门负责地图的渲染
 	std::vector<std::vector<Physics::physicalCollMap>> physicalCollisionMap_ = {}; // 碰撞层数据，提供给物理系统进行碰撞检测，后续增加更多的碰撞属性，例如半碰撞、可攀爬等
+	std::shared_ptr<SDL_Texture> tilesTexture_ = nullptr; 
 };

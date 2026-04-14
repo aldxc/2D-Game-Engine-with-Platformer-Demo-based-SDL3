@@ -41,6 +41,7 @@ namespace Config {
 
 	constexpr float ATTACK_DURATION = 0.3f; // 攻击持续时间，单位秒
 	constexpr float SPRINT_DURATION = 0.2f; // 冲刺持续时间，单位秒
+	constexpr float DROP_DOWN_BUFFER_TIME = 0.5f; // 下降持续时间，单位秒
 
 	constexpr float ACCELERATION = 1000.0f; // 玩家水平加速度，单位像素/秒² 
 	constexpr float DECELERATION = 1500.0f; // 玩家水平减速度，单位像素/秒² 

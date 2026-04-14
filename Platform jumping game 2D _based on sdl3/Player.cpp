@@ -6,9 +6,9 @@
 #include "physics/Physics.h"
 #include "core/Rect.h"
 
-Player::Player() {
-	playerTexture_ = Resource::getInstance().loadTexture("resource/characters.png", Renderer::getInstance().getSDLRenderer());
-	attackTexture_ = Resource::getInstance().loadTexture("resource/swoosh.png", Renderer::getInstance().getSDLRenderer());
+Player::Player(Renderer& renderer, Resource& rM) noexcept : renderer_(renderer){
+	playerTexture_ = rM.loadTexture("resource/characters.png", renderer_.getSDLRenderer());
+	attackTexture_ = rM.loadTexture("resource/swoosh.png", renderer_.getSDLRenderer());
 	command_ = {};
 	currentAnimationState_ = PlayerAnimationState::IDLE;
 	Animation::AnimationClip animationClip;
@@ -31,23 +31,6 @@ void Player::update(float dt) noexcept{
 	finalizeState();
 }
 
-//void Player::applyResolvedMovement(const SDL_FRect& hitBox, float velocityX, float velocityY, bool landed) noexcept {
-//	setHitBox(hitBox);
-//	velocityX_ = velocityX;
-//	velocityY_ = velocityY;
-//
-//	if (isLanded_ && !landed) {
-//		coyoteTimer_.start(Config::COYOTE_TIME);
-//	}
-//
-//	isLanded_ = landed;
-//	if (landed) {
-//		coyoteTimer_.stop();
-//		isJumping_ = false;
-//	}
-//}
-
-
 void Player::render(const Camera& camera) const noexcept{
 	Rect scaleTextureRect = rigidBody_.hitBox;
 	scaleTextureRect.setW(scaleTextureRect.w() * 2);
@@ -60,10 +43,10 @@ void Player::render(const Camera& camera) const noexcept{
 
 	scaleTextureRect = camera.worldToScreen(scaleTextureRect); // 将玩家的世界坐标转换为屏幕坐标
 	if (facingRight_) {
-		Renderer::getInstance().renderTexture(playerTexture_.get(), currentFrameRect, scaleTextureRect);
+		renderer_.renderTexture(playerTexture_.get(), currentFrameRect, scaleTextureRect);
 	}
 	else {
-		Renderer::getInstance().reversePlayerFaceTexture(playerTexture_.get(), currentFrameRect, scaleTextureRect);
+		renderer_.reversePlayerFaceTexture(playerTexture_.get(), currentFrameRect, scaleTextureRect);
 	}
 
 	if (isAttacking_) {
@@ -72,10 +55,10 @@ void Player::render(const Camera& camera) const noexcept{
 		Rect attackDstRect = camera.worldToScreen(attackHitBox_);
 
 		if (attackFacingRight_) {
-			Renderer::getInstance().renderTexture(attackTexture_.get(), attackSrcRect, attackDstRect);
+			renderer_.renderTexture(attackTexture_.get(), attackSrcRect, attackDstRect);
 		}
 		else {
-			Renderer::getInstance().reversePlayerFaceTexture(attackTexture_.get(), attackSrcRect, attackDstRect);
+			renderer_.reversePlayerFaceTexture(attackTexture_.get(), attackSrcRect, attackDstRect);
 		}
 	}
 }
@@ -84,11 +67,11 @@ void Player::renderDebug(const Camera& camera) const noexcept{
 	SDL_Color debugTextColor = SDL_Color({ 255, 255, 255, 255 }); // 白色文本
 	SDL_FRect debugInfoRect = { Config::LOGIC_WIDTH - 200, 0, 200, 200 };
 	std::string str = (rigidBody_.isLanded) ? "Landed" : "Air";
-	Renderer::getInstance().renderText("IsLand:" + str, debugInfoRect, debugTextColor, 20);
+	renderer_.renderText("IsLand:" + str, debugInfoRect, debugTextColor, 20);
 	std::string velocityXStr = "VelX: " + std::to_string(static_cast<int>(rigidBody_.velocity.getX()));
 	std::string velocityYStr = "VelY: " + std::to_string(static_cast<int>(rigidBody_.velocity.getY()));
-	Renderer::getInstance().renderText(velocityXStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 30, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
-	Renderer::getInstance().renderText(velocityYStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 60, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	renderer_.renderText(velocityXStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 30, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	renderer_.renderText(velocityYStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 60, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	std::string currState = "State: ";
 	switch (currentAnimationState_) {
 	case PlayerAnimationState::IDLE: currState += "Idle"; break;
@@ -99,15 +82,15 @@ void Player::renderDebug(const Camera& camera) const noexcept{
 	case PlayerAnimationState::CLIMB: currState += "Climb"; break;
 	case PlayerAnimationState::SPRINT: currState += "Sprint"; break;
 	}
-	Renderer::getInstance().renderText(currState, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 90, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	renderer_.renderText(currState, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 90, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	std::string playerPosStr = "Pos: (" + std::to_string(static_cast<int>(rigidBody_.hitBox.getX())) + ", " + std::to_string(static_cast<int>(rigidBody_.hitBox.getY())) + ")";
-	Renderer::getInstance().renderText(playerPosStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 120, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	renderer_.renderText(playerPosStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 120, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	std::string cameraMoveStr = "CameraMove: (" + std::to_string(static_cast<int>(camera.getViewport().getX())) + ", " + std::to_string(static_cast<int>(camera.getViewport().getY())) + ")";
-	Renderer::getInstance().renderText(cameraMoveStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 150, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	renderer_.renderText(cameraMoveStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 150, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	std::string moveModeStr = "MoveMode: " + std::string((moveMode_ == MoveMode::Normal) ? "Normal" : (moveMode_ == MoveMode::Climb) ? "Climb" : "Sprint");
-	Renderer::getInstance().renderText(moveModeStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 180, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
+	renderer_.renderText(moveModeStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 180, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 
-	Renderer::getInstance().renderRect(camera.worldToScreen(rigidBody_.hitBox), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家碰撞盒
+	renderer_.renderRect(camera.worldToScreen(rigidBody_.hitBox), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家碰撞盒
 }
 
 void Player::reset() noexcept {
@@ -248,7 +231,11 @@ void Player::updatePublicStatus(float dt) noexcept{
 		sprintDirection_.setY(0);
 	}
 
-	rigidBody_.wantsDropDown = command_.down && command_.jump; // 根据输入更新希望下落标志，物理系统会根据这个标志处理平台穿透逻辑
+	if (command_.jump) {
+		dropDownTimer_.start(Config::DROP_DOWN_BUFFER_TIME); // 启动下落缓冲计时，允许在平台上短暂时间内仍然可以下落
+	}
+
+	rigidBody_.wantsDropDown = command_.down && dropDownTimer_.isActive(); // 根据输入更新希望下落标志，物理系统会根据这个标志处理平台穿透逻辑
 
 	if (rigidBody_.isLanded) {
 		sprintCount_ = 0; // 在地面上重置冲刺次数
@@ -258,6 +245,7 @@ void Player::updatePublicStatus(float dt) noexcept{
 	coyoteTimer_.update(dt);
 	attackTimer_.update(dt);
 	sprintTimer_.update(dt);
+	dropDownTimer_.update(dt);
 
 	isUP_ = command_.up;
 

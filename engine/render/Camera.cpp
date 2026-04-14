@@ -1,6 +1,11 @@
 #include <algorithm>
 #include "Camera.h"
 
+bool Camera::init(float x, float y, float width, float height, float zoom) noexcept{
+	setViewport(x, y, width, height, zoom);
+	return true;
+}
+
 void Camera::setViewport(float x, float y, float width, float height, float zoom) noexcept {
 	viewX_ = x;
 	viewY_ = y;
