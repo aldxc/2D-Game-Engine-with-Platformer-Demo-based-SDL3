@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 #include "core/Rect.h"
 
-enum class PlayerAnimationState { IDLE, RUN, JUMP, FALL, ATTACK, CLIMB, SPRINT, FLASH, HIT };
+enum class PlayerAnimationState { IDLE = 0, RUN = 1, JUMP = 2, FALL = 3, ATTACK = 4, CLIMB = 5, SPRINT = 6, FLASH = 7, HIT = 8 };
 
 class Animation {
 public:

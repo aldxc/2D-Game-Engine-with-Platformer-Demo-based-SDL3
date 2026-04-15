@@ -28,6 +28,10 @@ namespace Config {
 	constexpr int PLAYER_WIDTH = 32;
 	constexpr int PLAYER_HEIGHT = 32;
 
+	constexpr int ENEMY_WIDTH = 32;
+	constexpr int ENEMY_HEIGHT = 32;
+	constexpr size_t ENEMYPOOL_SIZE = 10;
+
 	constexpr int ATTACK_WIDTH = 32;
 	constexpr int ATTACK_HEIGHT = 32;
 
@@ -42,6 +46,7 @@ namespace Config {
 	constexpr float ATTACK_DURATION = 0.3f; // 攻击持续时间，单位秒
 	constexpr float SPRINT_DURATION = 0.2f; // 冲刺持续时间，单位秒
 	constexpr float DROP_DOWN_BUFFER_TIME = 0.5f; // 下降持续时间，单位秒
+	constexpr float HIT_TIMER = 1.5f;
 
 	constexpr float ACCELERATION = 1000.0f; // 玩家水平加速度，单位像素/秒² 
 	constexpr float DECELERATION = 1500.0f; // 玩家水平减速度，单位像素/秒² 
@@ -49,6 +54,13 @@ namespace Config {
 	constexpr float MAX_SPEED = 275.0f; // 玩家最大水平速度，单位像素/秒
 	constexpr float SPRINT_MAX_SPEED = MAX_SPEED * 2.0f; // 冲刺时的最大水平速度，单位像素/秒
 	constexpr float GROUND_FRICTION = 1500.0f; // 玩家在地面上的摩擦力，单位像素/秒²
+	constexpr float MAX_FALL_SPEED_WHILE_DOWN = 500.0f; // 玩家快速下落时的额外加速度，单位像素/秒²
+	constexpr float PLAYER_HITBACK_VELOCITY = 1000.0f; // 玩家被击退的水平速度，单位像素/秒
+
+	constexpr float ENEMY_MAX_SPEED = 100.0f; // 敌人最大水平速度，单位像素/秒
+	constexpr float ENEMY_MAX_FALL_SPEED = 300.0f; // 敌人最大下落速度，单位像素/秒
+	constexpr float ENEMY_SCAN_DISTANCE = 500.0f; // 敌人最大扫描距离
+	constexpr float ENEMY_TRACKING_COOLDOWN = 2.0f; // 敌人跟踪玩家的冷却时间，单位秒
 
 	constexpr float JUMP_BUFFER_TIME = 0.2f; // 跳跃缓冲时间，单位秒
 	constexpr float COYOTE_TIME = 0.1f; // coyote time（土狼时间），单位秒
@@ -92,11 +104,23 @@ namespace Config {
 		{ 32 * 13, 0, 32 - 1, 32 - 1 }, // 玩家冲刺动画帧2在纹理图中的位置和大小
 		{ 32 * 11, 0, 32 - 1, 32 - 1 }, // 玩家冲刺动画帧3在纹理图中的位置和大小
 	} };
+	inline static const std::array<std::array<int, 4>, 3> PLAYER_HITED_SRC = { {
+		{ 32 * 8, 0, 32 - 1, 32 - 1 }, // 玩家冲刺动画帧1在纹理图中的位置和大小
+		{ 32 * 9, 0, 32 - 1, 32 - 1 }, // 玩家冲刺动画帧2在纹理图中的位置和大小
+		{ 32 * 8, 0, 32 - 1, 32 - 1 }, // 玩家冲刺动画帧3在纹理图中的位置和大小
+	} };
 	inline static const std::array<std::array<int, 4>, 4> ATTACK_SRC = { {
 		{ 0, 0, 32, 32 }, // 攻击效果动画帧1在纹理图中的位置和大小
 		{ 32, 0, 32 , 32}, // 攻击效果动画帧2在纹理图中的位置和大小
 		{ 64, 0, 32 , 32 }, // 攻击效果动画帧3在纹理图中的位置和大小
 		{ 96, 0, 32 , 32}, // 攻击效果动画帧4在纹理图中的位置和大小
+	} };
+	inline static const std::array<int, 4> ENEMY_IDLE_SRC = { 0, 96, 32 - 1, 32 - 1 };// 敌人静止动画帧1在纹理图中的位置和大小
+	inline static const std::array<std::array<int, 4>, 4> ENEMY_RUN_SRC = { {
+		{ 32, 96, 32 - 1, 32 - 1 }, // 敌人跑动动画帧1在纹理图中的位置和大小
+		{ 64, 96, 32 - 1, 32 - 1 }, // 敌人跑动动画帧2在纹理图中的位置和大小
+		{ 96, 96, 32 - 1, 32 - 1 }, // 敌人跑动动画帧3在纹理图中的位置和大小
+		{ 0, 96, 32 - 1, 32 - 1 }, // 敌人跑动动画帧4在纹理图中的位置和大小
 	} };
 
 	constexpr int SPRINT_MAX_COUNT = 1; // 玩家最大连续冲刺次数，后续可以根据实际设计调整

@@ -16,15 +16,11 @@ public:
 	void setY(float y) noexcept { rect_.y = y; }
 	void setW(float w) noexcept { rect_.w = w; }
 	void setH(float h) noexcept { rect_.h = h; }
+	float distance(const Rect& rect) const noexcept;
 
 	// 隐式转换 引擎内部使用
 	operator SDL_FRect() const noexcept { return rect_; }
 	//operator const SDL_FRect& () const noexcept { return rect_; }
-
-	float getX() const noexcept { return rect_.x; }
-	float getY() const noexcept { return rect_.y; }
-	float getW() const noexcept { return rect_.w; }
-	float getH() const noexcept { return rect_.h; }
 private:
 	SDL_FRect rect_ = SDL_FRect{};
 };

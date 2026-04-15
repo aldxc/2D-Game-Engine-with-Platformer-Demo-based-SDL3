@@ -45,13 +45,12 @@ public:
 
 	RigidBody& getRigidBody()noexcept { return rigidBody_; }
 	bool isAir() const noexcept { return !rigidBody_.isLanded; }
-	void judgeClimb(bool canClimb) noexcept { 
-		if (moveMode_ == MoveMode::Sprint) {
-			return;
-		}
-		moveMode_ = canClimb ? MoveMode::Climb : MoveMode::Normal; 
-	} //update中二次判断是否可以攀爬，根据结果切换移动模式
+	bool isAttacking() const noexcept { return isAttacking_; }
+	Rect getAttackHitBox() const noexcept { return attackHitBox_; }
+	void judgeClimb(bool canClimb) noexcept; //update中二次判断是否可以攀爬，根据结果切换移动模式
 	void postPhysicsUpdate() noexcept; // 在物理系统更新后调用，处理玩家状态的最终调整，例如根据碰撞结果调整位置、速度等
+	void setHit() noexcept { isHited = true; }
+	void setFaced(bool faced) noexcept { facingRight_ = faced; }
 private:
 	void updatePublicStatus(float dt) noexcept; // 更新玩家的公共状态，例如计时器、朝向等，速度积分等物理相关的状态更新放在物理系统中处理，保持Player类的单一职责
 	void updateMovementAcceleration(float dt) noexcept; // 更新玩家的加速度，速度积分等物理相关的状态更新放在物理系统中处理
@@ -65,10 +64,13 @@ private:
 	bool isAttacking_ = false;
 	bool attackFacingRight_ = true; // 攻击时的快照
 	bool isUP_ = false;
-	//bool isDown_ = false;
+	bool isDown_ = false;
 	bool isClimbing_ = false;
-	bool isSprinting_ = false;
+	bool isSprinting_ = false; // 有bug，冲刺时可以改变方向，后续看是否需要修改还是保存当作机制
 	bool wasLanded_ = false; // 上一帧是否着陆，用于检测着陆状态的变化
+	bool isHited = false; // 受到攻击
+
+	Timer hitTimer_; // 受击后无敌时间，单位秒
 
 	PlayerCommand command_ = {};
 	PlayerAnimationState currentAnimationState_ = PlayerAnimationState::IDLE;

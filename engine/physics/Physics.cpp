@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 #include "Physics.h"
+#include "PhysicsCollMap.h"
 
 enum class TileColl : uint8_t { NONE = 0, HALF = 1, FULL = 2, CLIMBABLE = 3 };
 
@@ -36,7 +37,7 @@ void Physics::update(float dt) noexcept{
 		body.velocity.setX(body.velocity.getX() + body.acceleration.getX() * dt); // 速度积分
 
 		body.velocity.setX(std::clamp(body.velocity.getX(), -body.maxSpeed, body.maxSpeed)); // 限速
-		body.velocity.setY(std::clamp(body.velocity.getY(), -body.maxSpeed, body.maxSpeed)); // 限速
+		body.velocity.setY(std::clamp(body.velocity.getY(), -body.maxSpeed, body.maxFallSpeed)); // 限速
 
 		// 重置加速度，等待下一帧根据输入重新设置
 		body.acceleration.set(0, 0);
@@ -68,12 +69,12 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 			};
 
 		// 先处理 X 轴：只处理 FULL，HALF 不参与水平阻挡 full - 2, half - 1, none - 0
-		nextState.hitBox.setX(nextState.hitBox.getX() + nextState.velocity.getX() * dt);
+		nextState.hitBox.setX(nextState.hitBox.x() + nextState.velocity.getX() * dt);
 
-		int rowStart = static_cast<int>(nextState.hitBox.getY() / tileSize);
-		int rowEnd = static_cast<int>((nextState.hitBox.getY() + nextState.hitBox.getH() - epsilon) / tileSize);
-		int colStart = static_cast<int>(nextState.hitBox.getX() / tileSize);
-		int colEnd = static_cast<int>((nextState.hitBox.getX() + nextState.hitBox.getW() - epsilon) / tileSize);
+		int rowStart = static_cast<int>(nextState.hitBox.y() / tileSize);
+		int rowEnd = static_cast<int>((nextState.hitBox.y() + nextState.hitBox.h() - epsilon) / tileSize);
+		int colStart = static_cast<int>(nextState.hitBox.x() / tileSize);
+		int colEnd = static_cast<int>((nextState.hitBox.x() + nextState.hitBox.w() - epsilon) / tileSize);
 
 		for (int row = rowStart; row <= rowEnd; ++row) {
 			for (int col = colStart; col <= colEnd; ++col) {
@@ -91,7 +92,7 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 				}
 
 				if (nextState.velocity.getX() > 0.0f) {
-					nextState.hitBox.setX(tileRect.x - nextState.hitBox.getW());
+					nextState.hitBox.setX(tileRect.x - nextState.hitBox.w());
 				}
 				else if (nextState.velocity.getX() < 0.0f) {
 					nextState.hitBox.setX(tileRect.x + tileRect.w);
@@ -102,22 +103,22 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 		}
 
 		// 再处理 Y 轴：FULL 正常阻挡，HALF 仅在下落且从上方穿过平台顶面时生效
-		const float previousTop = nextState.hitBox.getY();
-		const float previousBottom = previousTop + nextState.hitBox.getH();
+		const float previousTop = nextState.hitBox.y();
+		const float previousBottom = previousTop + nextState.hitBox.h();
 
 		nextState.hitBox.setY(previousTop + nextState.velocity.getY() * dt);
 		nextState.isLanded = false;
 
-		const float currentTop = nextState.hitBox.getY();
-		const float currentBottom = currentTop + nextState.hitBox.getH();
+		const float currentTop = nextState.hitBox.y();
+		const float currentBottom = currentTop + nextState.hitBox.h();
 
 		const float sweepTop = std::min(previousTop, currentTop);
 		const float sweepBottom = std::max(previousBottom, currentBottom);
 
 		rowStart = static_cast<int>(std::floor((sweepTop - epsilon) / tileSize));
 		rowEnd = static_cast<int>(std::floor((sweepBottom + epsilon) / tileSize));
-		colStart = static_cast<int>(std::floor(nextState.hitBox.getX() / tileSize));
-		colEnd = static_cast<int>(std::floor((nextState.hitBox.getX() + nextState.hitBox.getW() - epsilon) / tileSize));
+		colStart = static_cast<int>(std::floor(nextState.hitBox.x() / tileSize));
+		colEnd = static_cast<int>(std::floor((nextState.hitBox.x() + nextState.hitBox.w() - epsilon) / tileSize));
 
 		for (int row = rowStart; row <= rowEnd; ++row) {
 			for (int col = colStart; col <= colEnd; ++col) {
@@ -129,8 +130,8 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 				const SDL_FRect tileRect = getTileRect(row, col);
 
 				const bool overlapX =
-					nextState.hitBox.getX() < tileRect.x + tileRect.w &&
-					nextState.hitBox.getX() + nextState.hitBox.getW() > tileRect.x;
+					nextState.hitBox.x() < tileRect.x + tileRect.w &&
+					nextState.hitBox.x() + nextState.hitBox.w() > tileRect.x;
 
 				if (static_cast<TileColl>(collision) == TileColl::FULL) {
 					const bool touchingOrCrossingTop =
@@ -140,7 +141,7 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 						currentBottom >= tileRect.y - epsilon;
 
 					if (touchingOrCrossingTop) {
-						nextState.hitBox.setY(tileRect.y - nextState.hitBox.getH());
+						nextState.hitBox.setY(tileRect.y - nextState.hitBox.h());
 						nextState.velocity.setY(0.0f);
 						nextState.isLanded = true;
 						continue;
@@ -151,7 +152,7 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 					}
 
 					if (nextState.velocity.getY() > 0.0f) {
-						nextState.hitBox.setY(tileRect.y - nextState.hitBox.getH());
+						nextState.hitBox.setY(tileRect.y - nextState.hitBox.h());
 						nextState.velocity.setY(0.0f);
 						nextState.isLanded = true;
 					}
@@ -175,7 +176,7 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 						continue;
 					}
 
-					nextState.hitBox.setY(tileRect.y - nextState.hitBox.getH());
+					nextState.hitBox.setY(tileRect.y - nextState.hitBox.h());
 					nextState.velocity.setY(0.0f);
 					nextState.isLanded = true;
 				}
@@ -183,12 +184,12 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 		}
 
 		// 边界处理：如果玩家碰到地图边界，强制调整位置和速度
-		if (nextState.hitBox.getX() < 0.0f) {
+		if (nextState.hitBox.x() < 0.0f) {
 			nextState.hitBox.setX(0.0f);
 			nextState.velocity.setX(0.0f);
 		}
-		else if (nextState.hitBox.getX() + nextState.hitBox.getW() > collmap[0].size() * tileSize) {
-			nextState.hitBox.setX(collmap[0].size() * tileSize - nextState.hitBox.getW());
+		else if (nextState.hitBox.x() + nextState.hitBox.w() > collmap[0].size() * tileSize) {
+			nextState.hitBox.setX(collmap[0].size() * tileSize - nextState.hitBox.w());
 			nextState.velocity.setX(0.0f);
 		}
 
@@ -196,4 +197,94 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 
 		body = nextState; // 更新物体状态
 	}
+}
+
+bool Physics::LineOfSight(const SDL_FRect& start, const SDL_FRect& end, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept{
+	// 射线检测
+	if (collmap.empty() || collmap[0].empty()) return false;
+	const float tileSize = static_cast<float>(collmap[0][0].size);
+	const int mapRows = static_cast<int>(collmap.size());
+	const int mapCols = static_cast<int>(collmap[0].size());
+	// 1. 起点终点的中心转为网格索引
+	float sx = start.x + start.w * 0.5f;
+	float sy = start.y + start.h * 0.5f;
+	float ex = end.x + end.w * 0.5f;
+	float ey = end.y + end.h * 0.5f;
+
+	int x0 = static_cast<int>(sx / tileSize);
+	int y0 = static_cast<int>(sy / tileSize);
+	int x1 = static_cast<int>(ex / tileSize);
+	int y1 = static_cast<int>(ey / tileSize);
+
+	// 边界检查
+	x0 = std::clamp(x0, 0, mapCols - 1);
+	y0 = std::clamp(y0, 0, mapRows - 1);
+	x1 = std::clamp(x1, 0, mapCols - 1);
+	y1 = std::clamp(y1, 0, mapRows - 1);
+
+	// 2. 射线方向
+	float dx = ex - sx;
+	float dy = ey - sy;
+
+	// 3. 步进方向
+	int stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
+	int stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
+
+	// 4. tDelta
+	float tDeltaX = (dx != 0) ? std::abs(tileSize / dx) : INFINITY;
+	float tDeltaY = (dy != 0) ? std::abs(tileSize / dy) : INFINITY;
+
+	// 5. tMax — 到达第一个网格边界
+	float tMaxX, tMaxY;
+	if (dx > 0) {
+		tMaxX = ((x0 + 1) * tileSize - sx) / dx;
+	}
+	else if (dx < 0) {
+		tMaxX = (x0 * tileSize - sx) / dx;
+	}
+	else {
+		tMaxX = INFINITY;
+	}
+
+	if (dy > 0) {
+		tMaxY = ((y0 + 1) * tileSize - sy) / dy;
+	}
+	else if (dy < 0) {
+		tMaxY = (y0 * tileSize - sy) / dy;
+	}
+	else {
+		tMaxY = INFINITY;
+	}
+
+	// 6. 步进
+	int x = x0, y = y0;
+	int maxSteps = mapRows + mapCols;  // 安全上限，防止死循环
+	while (maxSteps-- > 0) {
+		// 越界检查
+		if (x < 0 || x >= mapCols || y < 0 || y >= mapRows) {
+			return false;
+		}
+
+		// 检查当前格子（跳过起点）
+		if (!(x == x0 && y == y0)) {
+			if (static_cast<TileColl>(collmap[y][x].coll) == TileColl::FULL) {
+				return false;  // 被墙阻挡
+			}
+		}
+
+		// 到达终点
+		if (x == x1 && y == y1) break;
+
+		// 步进
+		if (tMaxX < tMaxY) {
+			tMaxX += tDeltaX;
+			x += stepX;
+		}
+		else {
+			tMaxY += tDeltaY;
+			y += stepY;
+		}
+	}
+
+	return true; // 没有被墙阻挡
 }

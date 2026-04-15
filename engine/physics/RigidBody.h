@@ -9,7 +9,8 @@ struct RigidBody {
 
 	Vec2 acceleration = {}; // 加速度向量，玩家通过输入产生的加速度，影响速度的变化
 	bool isLanded = false; // 是否着陆，表示玩家是否站在地面上，影响重力和跳跃逻辑
-	float maxSpeed = 0.0f; // 最大速度，限制物体的速度不超过这个值
+	float maxSpeed = 0.0f; // 最大水平速度
+	float maxFallSpeed = 0.0f; // 最大下落速度
 
 	bool wantsDropDown = false; // 是否希望下落，表示玩家是否希望通过平台下落，影响平台穿透逻辑
 

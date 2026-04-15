@@ -18,18 +18,22 @@ public:
 
 	virtual void update(float dt) noexcept = 0;
 	virtual void render(const Camera& camera) const noexcept = 0; //camera参数用于将对象的世界坐标转换为屏幕坐标进行渲染
-	//获取对象位置和大小接口
-	//const SDL_FRect& getHitBox() const noexcept { return hitBox_; }
+	bool getIsActive() const noexcept { return isActive_; }
+	bool getIsDestroyed() const noexcept { return isDestroyed_; }
+	bool getIsCollidable() const noexcept { return isCollidable_; }
+	//bool getIsCollidable() const noexcept { return isCollidable_; }
 protected:
-	//void setMoveXY(float dx, float dy) noexcept {	// 移动对象位置接口，更新碰撞盒位置
-	//	hitBox_.x += dx;
-	//	hitBox_.y += dy;
-	//}
-	//void setHitBox(const SDL_FRect& rect) noexcept { hitBox_ = rect; } // 设置碰撞盒位置和大小接口
+	void setIsActive(bool active) noexcept { isActive_ = active; }
+	void setIsDestroyed(bool destroyed) noexcept { isDestroyed_ = destroyed; }
+	void setIsCollidable(bool coll) noexcept { isCollidable_ = coll; }
+	void reset() noexcept {
+		isActive_ = true;
+		isDestroyed_ = false;
+		isCollidable_ = true;
+	}
 private:
-	//SDL_FRect hitBox_ = SDL_FRect{ 0,0, Config::PLAYER_WIDTH, Config::PLAYER_HEIGHT }; // 碰撞盒 同时也可以用来表示对象的位置和大小
 
 	bool isActive_ = true; // 是否活跃，控制对象的更新和渲染
 	bool isDestroyed_ = false; // 是否被销毁，控制对象的生命周期
-	bool isCollidable_ = true; // 是否可碰撞，控制碰撞检测
+	bool isCollidable_ = true; // 是否可碰撞，控制碰撞检测 // 这里暂时不区分不可碰撞和被销毁的对象
 };

@@ -10,11 +10,13 @@ Player::Player(Renderer& renderer, Resource& rM) noexcept : renderer_(renderer){
 	playerTexture_ = rM.loadTexture("resource/characters.png", renderer_.getSDLRenderer());
 	attackTexture_ = rM.loadTexture("resource/swoosh.png", renderer_.getSDLRenderer());
 	command_ = {};
+
 	currentAnimationState_ = PlayerAnimationState::IDLE;
 	Animation::AnimationClip animationClip;
 	const auto src = Config::PLAYER_IDLE_SRC;
 	animationClip.frames.push_back(Rect{ static_cast<float>(src[0]), static_cast<float>(src[1]), static_cast<float>(src[2]), static_cast<float>(src[3]) });
 	animation_.play(animationClip);
+
 	attackDuration_ = Config::ATTACK_DURATION;
 	attackHitBox_ = { 0,0,Config::ATTACK_WIDTH, Config::ATTACK_HEIGHT };
 	sprintDirection_ = Vec2(0, 0);
@@ -33,13 +35,14 @@ void Player::update(float dt) noexcept{
 
 void Player::render(const Camera& camera) const noexcept{
 	Rect scaleTextureRect = rigidBody_.hitBox;
+	// 为了让玩家在屏幕上看起来更大一些，这里对渲染的矩形进行缩放
 	scaleTextureRect.setW(scaleTextureRect.w() * 2);
 	scaleTextureRect.setH(scaleTextureRect.h() * 2);
 	scaleTextureRect.setX(scaleTextureRect.x() - 16);
 	scaleTextureRect.setY(scaleTextureRect.y() - 32);
 
 	Rect currentFrameRect = animation_.getCurrentFrameRect();
-	currentFrameRect.setY(currentFrameRect.getY() + Config::PLAYER_2_Y_OFFSET); // 根据玩家编号调整动画状态的y坐标，支持多个玩家使用同一纹理图
+	currentFrameRect.setY(currentFrameRect.y() + Config::PLAYER_2_Y_OFFSET); // 根据玩家编号调整动画状态的y坐标，支持多个玩家使用同一纹理图
 
 	scaleTextureRect = camera.worldToScreen(scaleTextureRect); // 将玩家的世界坐标转换为屏幕坐标
 	if (facingRight_) {
@@ -81,16 +84,19 @@ void Player::renderDebug(const Camera& camera) const noexcept{
 	case PlayerAnimationState::ATTACK: currState += "Attack"; break;
 	case PlayerAnimationState::CLIMB: currState += "Climb"; break;
 	case PlayerAnimationState::SPRINT: currState += "Sprint"; break;
+	case PlayerAnimationState::HIT: currState += "Hited"; break;
 	}
 	renderer_.renderText(currState, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 90, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
-	std::string playerPosStr = "Pos: (" + std::to_string(static_cast<int>(rigidBody_.hitBox.getX())) + ", " + std::to_string(static_cast<int>(rigidBody_.hitBox.getY())) + ")";
+	std::string playerPosStr = "Pos: (" + std::to_string(static_cast<int>(rigidBody_.hitBox.x())) + ", " + std::to_string(static_cast<int>(rigidBody_.hitBox.y())) + ")";
 	renderer_.renderText(playerPosStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 120, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
-	std::string cameraMoveStr = "CameraMove: (" + std::to_string(static_cast<int>(camera.getViewport().getX())) + ", " + std::to_string(static_cast<int>(camera.getViewport().getY())) + ")";
+	std::string cameraMoveStr = "CameraMove: (" + std::to_string(static_cast<int>(camera.getViewport().x())) + ", " + std::to_string(static_cast<int>(camera.getViewport().y())) + ")";
 	renderer_.renderText(cameraMoveStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 150, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	std::string moveModeStr = "MoveMode: " + std::string((moveMode_ == MoveMode::Normal) ? "Normal" : (moveMode_ == MoveMode::Climb) ? "Climb" : "Sprint");
 	renderer_.renderText(moveModeStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 180, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
-
+	std::string hit = "is hited: " + std::string((isHited) ? "true" : "false");
+	renderer_.renderText(hit, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 210, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	renderer_.renderRect(camera.worldToScreen(rigidBody_.hitBox), SDL_Color({255, 0, 0, 255})); // 用红色矩形表示玩家碰撞盒
+	renderer_.renderRect(camera.worldToScreen(attackHitBox_), (isAttacking_ ? renderer_.setColorAlpha(255, 0, 0, 255) : renderer_.setColorAlpha(200, 200, 200, 255)));
 }
 
 void Player::reset() noexcept {
@@ -107,6 +113,7 @@ void Player::reset() noexcept {
 	isAttacking_ = false;
 	isSprinting_ = false;
 	wasLanded_ = false;
+	isHited = false;
 }
 
 bool Player::isStateChanged() noexcept{
@@ -134,6 +141,9 @@ bool Player::isStateChanged() noexcept{
 	}
 	if (isAttacking_) {
 		nextState = PlayerAnimationState::ATTACK;
+	}
+	if(isHited && !hitTimer_.isActive()) {
+		nextState = PlayerAnimationState::HIT;
 	}
 	bool f = (nextState != currentAnimationState_);
 	currentAnimationState_ = nextState;
@@ -190,6 +200,13 @@ void Player::updateAnimationState(float dt) noexcept{
 			}
 			break;
 		}
+		case PlayerAnimationState::HIT: {
+			const auto src = Config::PLAYER_HITED_SRC;
+			for (const auto& rect : src) {
+				animationClip.frames.push_back(Rect{ static_cast<float>(rect[0]), static_cast<float>(rect[1]), static_cast<float>(rect[2]), static_cast<float>(rect[3]) });
+			}
+			break;
+		}
 		default:{
 			const auto src = Config::PLAYER_IDLE_SRC;
 			animationClip.frames.push_back(Rect{ static_cast<float>(src[0]), static_cast<float>(src[1]), static_cast<float>(src[2]), static_cast<float>(src[3]) });
@@ -241,13 +258,20 @@ void Player::updatePublicStatus(float dt) noexcept{
 		sprintCount_ = 0; // 在地面上重置冲刺次数
 	}
 
+	if (isHited && !hitTimer_.isActive()) {
+		hitTimer_.start(Config::HIT_TIMER);
+		setIsCollidable(false);
+	}
+
 	jumpTimer_.update(dt);
 	coyoteTimer_.update(dt);
 	attackTimer_.update(dt);
 	sprintTimer_.update(dt);
 	dropDownTimer_.update(dt);
+	hitTimer_.update(dt);
 
 	isUP_ = command_.up;
+	isDown_ = command_.down;
 
 	if(command_.jump && !command_.down) {
 		jumpTimer_.start(Config::JUMP_BUFFER_TIME); // 启动跳跃缓冲计时，允许在离地面短暂时间内仍然可以跳跃
@@ -279,8 +303,8 @@ void Player::updatePublicStatus(float dt) noexcept{
 	if (command_.attack && !isAttacking_) {
 		isAttacking_ = true;
 		attackTimer_.start(attackDuration_);
-		attackHitBox_.setY(rigidBody_.hitBox.getY());
-		attackHitBox_.setX(rigidBody_.hitBox.getX() + (facingRight_ ? 1 : -1) * rigidBody_.hitBox.getW()); // 根据朝向调整攻击碰撞盒位置
+		attackHitBox_.setY(rigidBody_.hitBox.y());
+		attackHitBox_.setX(rigidBody_.hitBox.x() + (facingRight_ ? 1 : -1) * rigidBody_.hitBox.w()); // 根据朝向调整攻击碰撞盒位置
 		attackFacingRight_ = facingRight_; // 攻击时的朝向快照
 	}
 }
@@ -308,9 +332,10 @@ void Player::updateMovementAcceleration(float dt) noexcept{
 	case MoveMode::Normal :{
 		rigidBody_.gravityScale = 1.0f; // 恢复正常重力
 		rigidBody_.maxSpeed = Config::MAX_SPEED; // 恢复正常最大速度
+		rigidBody_.maxFallSpeed = Config::MAX_SPEED; // 恢复正常最大下落速度
 
 		// 摩擦在此处结算（为调整手感使用，而不是通用摩擦力）
-		if (dir != 0) {
+		if (dir != 0) { // 水平输入
 			rigidBody_.acceleration.setX(dir * (rigidBody_.isLanded ? Config::ACCELERATION : Config::AIR_ACCEL)); // 有输入 根据是否着陆选择不同的加速度
 		} else if (rigidBody_.isLanded) {
 			// 无输入 + 在地面：摩擦减速
@@ -323,6 +348,10 @@ void Player::updateMovementAcceleration(float dt) noexcept{
 				rigidBody_.acceleration.setX(0.0f); // 已归零，不再施加加速度
 			}
 		} else {
+			if (isDown_) {
+				rigidBody_.acceleration.setY(0.5 * Config::GRAVITY);
+				rigidBody_.maxFallSpeed = Config::MAX_FALL_SPEED_WHILE_DOWN; // 按下下键时增加最大下落速度，允许更快地落地
+			}
 			// 无输入 + 在空中：不施加水平加速度，保持当前水平速度（不受空气摩擦影响）
 			rigidBody_.acceleration.setX(0.0f);
 		}
@@ -355,5 +384,17 @@ void Player::finalizeState() noexcept{
 		coyoteTimer_.stop();
 		isJumping_ = false;
 	}
+	// 受击无敌结束
+	if (isHited && !hitTimer_.isActive()) {
+		isHited = false;
+		setIsCollidable(true);
+	}
 	// 后续根据实际情况调整状态转换的优先级和条件，例如攻击状态可能需要覆盖其他状态，或者增加更多的状态细分等
+}
+
+void Player::judgeClimb(bool canClimb) noexcept{
+	if (moveMode_ == MoveMode::Sprint) {
+		return;
+	}
+	moveMode_ = canClimb ? MoveMode::Climb : MoveMode::Normal;
 }

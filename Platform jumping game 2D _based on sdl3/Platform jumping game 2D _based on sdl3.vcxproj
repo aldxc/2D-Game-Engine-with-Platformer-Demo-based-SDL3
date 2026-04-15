@@ -143,6 +143,8 @@
     <ClCompile Include="..\engine\render\Renderer.cpp" />
     <ClCompile Include="..\engine\resource\Resource.cpp" />
     <ClCompile Include="Botton.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyManager.cpp" />
     <ClCompile Include="LoseState.cpp" />
     <ClCompile Include="LoseUI.cpp" />
     <ClCompile Include="Tilemap.cpp" />
@@ -171,6 +173,7 @@
     <ClInclude Include="..\engine\input\Input.h" />
     <ClInclude Include="..\engine\net\Net.h" />
     <ClInclude Include="..\engine\physics\Physics.h" />
+    <ClInclude Include="..\engine\physics\PhysicsCollMap.h" />
     <ClInclude Include="..\engine\physics\RigidBody.h" />
     <ClInclude Include="..\engine\pool\ObjectPool.h" />
     <ClInclude Include="..\engine\pool\ThreadPool.h" />
@@ -181,6 +184,7 @@
     <ClInclude Include="..\engine\resource\Resource.h" />
     <ClInclude Include="Botton.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="EnemyManager.h" />
     <ClInclude Include="LoseState.h" />
     <ClInclude Include="LoseUI.h" />
     <ClInclude Include="MapLoader.h" />

@@ -20,10 +20,6 @@ bool Resource::loadLevel(const std::string& filePath, std::vector<std::vector<ui
 	ifs.read(reinterpret_cast<char*>(&width), sizeof(width));
 	ifs.read(reinterpret_cast<char*>(&height), sizeof(height));
 	Tiles.resize(height, std::vector<uint64_t>(width));
-	//读取地图宽高
-	//ifs.read(reinterpret_cast<char*>(&outLevel.width), sizeof(outLevel.width));
-	//ifs.read(reinterpret_cast<char*>(&outLevel.height), sizeof(outLevel.height));
-	//outLevel.tiles.resize(outLevel.height, std::vector<Tile>(outLevel.width));
 	
 	//读取瓦片数据
 	for(auto& tile : Tiles) {
@@ -48,8 +44,6 @@ bool Resource::saveLevel(const std::string& filePath, const LevelData& level) co
 	
 	for (const auto& tile : level.tiles) {
 		for (const auto& t : tile) {
-			//将Tile的type、collision和flags打包成一个64位整数进行写入，节省空间
-			//uint64_t packedDate = (static_cast<uint64_t>(t.type) << 0 | static_cast<uint64_t>(t.collision) << 8 | static_cast<uint64_t>(t.flags) << 16);
 			ofs.write(reinterpret_cast<const char*>(&t), sizeof(t));
 		}
 	}

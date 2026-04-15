@@ -3,7 +3,6 @@
 #include "Config.h"
 #include "render/Renderer.h"
 #include "resource/Resource.h"
-#include "physics/Physics.h"
 
 TileMap::TileMap(Renderer& renderer, Resource& rM)noexcept : renderer_(renderer){
 	tilesTexture_ = rM.loadTexture("resource/sheet.png", renderer_.getSDLRenderer());
@@ -23,10 +22,10 @@ void TileMap::render(const Camera& camera) const noexcept {
 
 	// ÷ª‰÷»æ ”ø⁄
 	Rect view = camera.getViewport();
-	int colStart = static_cast<int>(std::floor(view.getX() / Config::TILE_SIZE));
-	int colEnd = static_cast<int>(std::ceil((view.getX() + view.getW()) / Config::TILE_SIZE));
-	int rowStart = static_cast<int>(std::floor(view.getY() / Config::TILE_SIZE));
-	int rowEnd = static_cast<int>(std::ceil((view.getY() + view.getH()) / Config::TILE_SIZE));
+	int colStart = static_cast<int>(std::floor(view.x() / Config::TILE_SIZE));
+	int colEnd = static_cast<int>(std::ceil((view.x() + view.w()) / Config::TILE_SIZE));
+	int rowStart = static_cast<int>(std::floor(view.y() / Config::TILE_SIZE));
+	int rowEnd = static_cast<int>(std::ceil((view.y() + view.h()) / Config::TILE_SIZE));
 
 
 	for (int i = rowStart; i <= rowEnd; ++i) {
@@ -44,8 +43,8 @@ void TileMap::render(const Camera& camera) const noexcept {
 			const float worldY = static_cast<float>(i) * Config::TILE_SIZE;
 
 			Rect dstRect = {
-				std::round(worldX - view.getX()),
-				std::round(worldY - view.getY()),
+				std::round(worldX - view.x()),
+				std::round(worldY - view.y()),
 				Config::TILE_SIZE,
 				Config::TILE_SIZE
 			};
@@ -64,10 +63,10 @@ void TileMap::setTiles(const std::vector<std::vector<Tile>>& tilesMap) noexcept 
 	physicalCollisionMap_.clear();
 	physicalCollisionMap_.reserve(tiles_.size());
 	for (const auto& row : tiles_) {
-		std::vector<Physics::physicalCollMap> collisionRow;
+		std::vector<physicalCollMap> collisionRow;
 		collisionRow.reserve(row.size());
 		for (const auto& tile : row) {
-			collisionRow.push_back(Physics::physicalCollMap{ Config::TILE_SIZE, tile.collision });
+			collisionRow.push_back(physicalCollMap{ Config::TILE_SIZE, tile.collision });
 		}
 		physicalCollisionMap_.push_back(collisionRow);
 	}

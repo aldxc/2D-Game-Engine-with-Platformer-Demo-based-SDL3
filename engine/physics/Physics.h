@@ -4,12 +4,11 @@
 #include <cstdint>
 #include "RigidBody.h"
 
+struct physicalCollMap;
+
 class Physics {
 public:
-	struct physicalCollMap {
-		uint8_t size; // 瓦片大小全部相同，正方形瓦片，size表示瓦片的边长，单位为像素
-		uint8_t coll; // 碰撞类型
-	};
+
 	explicit Physics() = default;
 	~Physics() = default;
 
@@ -31,10 +30,7 @@ public:
 	static bool isColliding(const SDL_FRect& a, const SDL_FRect& b) noexcept {
 		return SDL_HasRectIntersectionFloat(&a, &b);
 	}
-
-	//static void gravity(float& velocityY, float gravity, float dt) noexcept {
-	//	velocityY += gravity * dt;
-	//}
+	static bool LineOfSight(const SDL_FRect& a, const SDL_FRect& b, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept; // 判断a和b之间是否有视线，考虑地图碰撞信息
 private:
 	std::vector<std::reference_wrapper<RigidBody>> rigidBodies_ = {}; // 物理对象列表
 	float gravity_ = 0.0f; // 重力加速度，单位为像素/秒²，后续增加重力缩放等功能

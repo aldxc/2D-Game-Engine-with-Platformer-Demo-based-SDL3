@@ -124,6 +124,12 @@
     <ClCompile Include="..\engine\physics\Physics.cpp">
       <Filter>Engine\physics</Filter>
     </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>src\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyManager.cpp">
+      <Filter>src\Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
@@ -257,6 +263,12 @@
     </ClInclude>
     <ClInclude Include="..\engine\core\Context.h">
       <Filter>Engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\physics\PhysicsCollMap.h">
+      <Filter>Engine\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyManager.h">
+      <Filter>src\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
