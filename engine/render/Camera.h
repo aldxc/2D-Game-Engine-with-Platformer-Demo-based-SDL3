@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL3/SDL.h>
-#include <core/Rect.h>
+#include "core/Rect.h"
+#include "core/Vec2.h"
 
 // 后续可属于组件，挂载在玩家、敌人等对象上，提供视口信息、坐标转换等功能，后续增加摄像机跟随、边界限制等功能
 // 本项目camera属于场景系统的一部分，负责管理视口位置、缩放等信息，提供坐标转换等功能，后续增加摄像机跟随、边界限制等功能
@@ -26,7 +27,8 @@ public:
 
 	// 获取视口信息
 	Rect getViewport() const noexcept { return Rect{ viewX_, viewY_, viewWidth_, viewHeight_ }; }
-	bool isVisible(const SDL_FRect& worldRect) const noexcept; // 判断世界坐标矩形是否在视口内，后续增加更多的可见性判断功能，如基于对象中心点、基于对象边界等不同的可见性判断方式
+	bool isVisible(const Rect& worldRect) const noexcept; // 判断世界坐标矩形是否在视口内
+	bool isVisible(const Vec2& worldPos) const noexcept; // 判断世界坐标点是否在视口内
 
 	// 后续加入
 	// 立即把相机居中到目标，不做平滑

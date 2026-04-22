@@ -4,16 +4,26 @@
 #include "input/Input.h"
 #include "StateType.h"
 #include "UIType.h"
+#include "GameSession.h"
+#include "AudioId.h"
 
 class Renderer;
 
-MenuUI::MenuUI(Input& iM, EventManager& eM, Renderer& r) : UI(UIType::MENU), inputManager_(iM), eventManager_(eM), renderer_(r) {
+MenuUI::MenuUI(Input& iM, EventManager& eM, Renderer& r, GameSession& gS) noexcept : UI(UIType::MENU), inputManager_(iM), eventManager_(eM), renderer_(r), gameSession_(gS) {
+
+	eventManager_.sendEvent({ EventType::Audio_PlayBgm, BgmId::Menu });
+
     // 初始化按钮
     SDL_FRect startRect{ (Config::LOGIC_WIDTH - Config::MENU_BUTTON_WIDTH) / 2, 100, Config::MENU_BUTTON_WIDTH, Config::MENU_BUTTON_HEIGHT };
 	bottons_[0] = { startRect, "Start", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE, 
 		// 点击 Start 按钮的回调
-		{[this]() { eventManager_.sendEvent(Event{ EventType::State_Transition, StateType::PLAYING });} ,
-		[this]() {eventManager_.sendEvent(Event{EventType::UI_Show, UIType::PLAYING}); }}
+		{ [this]() {
+			eventManager_.sendEvent(Event{EventType::Audio_PlaySfx, SfxId::UIButtonClick});
+			eventManager_.sendEvent(Event{ EventType::State_Transition, StateRequest{StateOperator::Replace, StateType::SELECT_HERO} });
+			eventManager_.sendEvent(Event{ EventType::UI_Show, UIType::SelectState });
+			gameSession_.reset();
+		}
+		}
 	};
 
 	SDL_FRect continueRect{ (Config::LOGIC_WIDTH - Config::MENU_BUTTON_WIDTH) / 2, 200, Config::MENU_BUTTON_WIDTH, Config::MENU_BUTTON_HEIGHT };
@@ -25,11 +35,14 @@ MenuUI::MenuUI(Input& iM, EventManager& eM, Renderer& r) : UI(UIType::MENU), inp
 	SDL_FRect quitRect{ (Config::LOGIC_WIDTH - Config::MENU_BUTTON_WIDTH) / 2, 400, Config::MENU_BUTTON_WIDTH, Config::MENU_BUTTON_HEIGHT };
 	bottons_[3] = { quitRect, "Quit", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE,
 		// 点击 Quit 按钮的回调
-		{ [this]() {eventManager_.sendEvent(Event{ EventType::App_Quit });}
+		{ [this]() {
+			eventManager_.sendEvent(Event{EventType::Audio_PlaySfx, SfxId::UIButtonClick});
+			eventManager_.sendEvent(Event{ EventType::App_Quit });}
 	} };
+
 }
 
-MenuUI::~MenuUI() {
+MenuUI::~MenuUI() noexcept {
 
 }
 
@@ -40,12 +53,15 @@ void MenuUI::handleInput() noexcept {
 		for(const auto& botton : bottons_) {
 			if (SDL_PointInRectFloat(&mousePoint, &botton.getRect())) {
 				botton.clickBottom();
-			 }
+                inputManager_.consumeMousePress();
+				break;
+			}
 		}
 	}
 }
 
-void MenuUI::update(float dt) noexcept {
+void MenuUI::update(double dt) noexcept {
+
 }
 
 void MenuUI::render() const noexcept {

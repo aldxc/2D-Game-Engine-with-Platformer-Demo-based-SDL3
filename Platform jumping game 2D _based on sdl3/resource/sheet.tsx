@@ -5,9 +5,9 @@
  <tile id="125" probability="5"/>
  <tile id="126">
   <animation>
-   <frame tileid="82" duration="500"/>
-   <frame tileid="83" duration="100"/>
-   <frame tileid="84" duration="100"/>
+   <frame tileid="82" duration="200"/>
+   <frame tileid="83" duration="200"/>
+   <frame tileid="84" duration="200"/>
   </animation>
  </tile>
 </tileset>

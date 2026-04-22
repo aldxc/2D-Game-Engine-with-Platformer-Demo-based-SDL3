@@ -6,7 +6,7 @@
 #include "render/Renderer.h"
 #include "physics/Physics.h"
 
-Game::Game() : renderContext_{ renderer_, camera_ }{
+Game::Game() : renderContext_{ renderer_, camera_ }, gameSession_(resourceManager_), audioService_(audioManager_, resourceManager_, eventManager_){
 	if (!init()) {
 		SDL_Log("Failed to initialize game.");
 		return;
@@ -42,7 +42,21 @@ void Game::Run() noexcept {
 }
 
 void Game::handleInput() noexcept {
-	//Input::getInstance().resetInputState();
+
+	if (inputManager_.getESCPressed()) {
+		inputManager_.consumeESCKeyPress(); // 消费ESC键按下事件，避免持续按键导致的重复输入问题
+		if (stateMachine_->getTopStateType() == StateType::PLAYING) {
+			eventManager_.triggerEvent(Event{ EventType::Audio_PlaySfx, SfxId::UIButtonClick });
+			eventManager_.triggerEvent(Event{ EventType::Audio_PauseBgm });
+			eventManager_.triggerEvent({ EventType::State_Transition, StateRequest{ StateOperator::Push, StateType::PAUSE } });
+			eventManager_.triggerEvent({ EventType::UI_Show, UIType::PAUSE });
+		}else if(stateMachine_->getTopStateType() == StateType::PAUSE) {
+			eventManager_.triggerEvent(Event{ EventType::Audio_PlaySfx, SfxId::UIButtonClick });
+			eventManager_.triggerEvent(Event{ EventType::Audio_ResumeBgm });
+			eventManager_.triggerEvent({ EventType::State_Transition, StateRequest{ StateOperator::Pop } });
+			eventManager_.triggerEvent({ EventType::UI_Show, UIType::PLAYING });
+		}
+	}
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
@@ -79,7 +93,7 @@ void Game::renderer() const noexcept {
 }
 
 bool Game::init() noexcept {
-	if (!SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO)) {
+	if (!SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
 		SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
 		return false;
 	}
@@ -90,6 +104,10 @@ bool Game::init() noexcept {
 
 	if (!renderer_.init(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT, Config::DEFAULT_TEXT_SIZE)) {
 		SDL_Log("Failed to initialize renderer.");
+		return false;
+	}
+	if(!audioManager_.init(Config::MAX_AUDIO_SFX_NUMS)) {
+		SDL_Log("Failed to initialize audio manager.");
 		return false;
 	}
 	if (!eventManager_.init()) {
@@ -112,16 +130,20 @@ bool Game::init() noexcept {
 		SDL_Log("Failed to initialize camera.");
 		return false;
 	}
+	if(!gameSession_.init()) {
+		SDL_Log("Failed to initialize game session.");
+		return false;
+	}
 
 	quitSubscriptionId_ = eventManager_.subscribe(EventType::App_Quit, [this](const Event&) {
 		isRunning_ = false;
 	});
 
-	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU, renderContext_, physicsEngine_, inputManager_, eventManager_, resourceManager_);
-	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU, inputManager_, eventManager_, renderer_);
+	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU, renderContext_, physicsEngine_, inputManager_, eventManager_, resourceManager_, gameSession_);
+	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU, inputManager_, eventManager_, renderer_, gameSession_);
 	lastFrameTime_ = std::chrono::high_resolution_clock::now();
 	auto mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
-	MAX_FPS_ = !mode ? 60 : std::min(Config::TARGET_RENDER_FPS, static_cast<int>(mode->refresh_rate)); // 如果无法获取显示模式信息，默认使用较低的帧率限制
+	MAX_FPS_ = !mode ? 60 : std::min(Config::TARGET_RENDER_FPS, static_cast<uint32_t>(mode->refresh_rate)); // 如果无法获取显示模式信息，默认使用较低的帧率限制
 
 	currentFPS_ = 0;
 	fpsAccumulatedTime_ = 0;

@@ -12,7 +12,7 @@ public:
 	UI& operator=(UI&&) = delete;
 
 	virtual void handleInput() noexcept = 0;
-	virtual void update(float dt) noexcept = 0;
+	virtual void update(double dt) noexcept = 0;
 	virtual void render() const noexcept = 0;
 
 	bool isType(TUIType type) const noexcept { return type_ == type; }

@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include "Vec2.h"
 
 class Rect {
 public:
@@ -17,6 +18,7 @@ public:
 	void setW(float w) noexcept { rect_.w = w; }
 	void setH(float h) noexcept { rect_.h = h; }
 	float distance(const Rect& rect) const noexcept;
+	bool hasIntersection(const Vec2& point) const noexcept;
 
 	// 隐式转换 引擎内部使用
 	operator SDL_FRect() const noexcept { return rect_; }

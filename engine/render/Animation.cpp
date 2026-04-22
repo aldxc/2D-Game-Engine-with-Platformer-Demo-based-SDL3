@@ -4,7 +4,7 @@ bool Animation::init() noexcept{
 	return true;
 }
 
-void Animation::update(float dt) noexcept{
+void Animation::update(double dt) noexcept{
 	if (currentClip_.frames.empty()) {
 		finished_ = true;
 		return; // 如果当前动画剪辑没有帧，直接标记为完成并返回

@@ -53,6 +53,9 @@
     <Filter Include="Engine\physics">
       <UniqueIdentifier>{4b75bb2e-b5dc-4258-a6bc-798b12bb07ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Audio">
+      <UniqueIdentifier>{48fb3075-6c47-4675-bceb-bd7564502738}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\engine\render\Renderer.cpp">
@@ -129,6 +132,27 @@
     </ClCompile>
     <ClCompile Include="EnemyManager.cpp">
       <Filter>src\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectState.cpp">
+      <Filter>src\state\SpecificState</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectUI.cpp">
+      <Filter>src\UI\SpecificUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSession.cpp">
+      <Filter>src\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseUI.cpp">
+      <Filter>src\UI\SpecificUI</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseState.cpp">
+      <Filter>src\state\SpecificState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\audio\Audio.cpp">
+      <Filter>Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioService.cpp">
+      <Filter>src\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -269,6 +293,27 @@
     </ClInclude>
     <ClInclude Include="EnemyManager.h">
       <Filter>src\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectState.h">
+      <Filter>src\state\SpecificState</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectUI.h">
+      <Filter>src\UI\SpecificUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSession.h">
+      <Filter>src\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseUI.h">
+      <Filter>src\UI\SpecificUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\audio\Audio.h">
+      <Filter>Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioId.h">
+      <Filter>src\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioService.h">
+      <Filter>src\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

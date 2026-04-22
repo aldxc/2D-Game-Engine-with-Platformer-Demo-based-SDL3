@@ -9,18 +9,23 @@ bool Input::init() noexcept {
 	keyBindings_[SDL_SCANCODE_UP] = InputAction::UP;
 	keyBindings_[SDL_SCANCODE_DOWN] = InputAction::DOWN;
 	keyBindings_[SDL_SCANCODE_X] = InputAction::SPRINT;
+	keyBindings_[SDL_SCANCODE_ESCAPE] = InputAction::PAUSE;
 	resetInputState();
 	return true;
 }
 
 void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
+
+	// 鼠标位置始终更新
+	if (SDL_EVENT_MOUSE_MOTION) {
+		float mouseX = 0.0f, mouseY = 0.0f;
+		SDL_RenderCoordinatesFromWindow(renderer.getSDLRenderer(), event.button.x, event.button.y, &mouseX, &mouseY);
+		mousePos_ = { mouseX, mouseY };
+	}
+
 	switch (event.type) {
 	case SDL_EVENT_MOUSE_BUTTON_DOWN: {
 		isMousePressed_ = true;
-		float mouseX = 0.0f, mouseY = 0.0f;
-		SDL_RenderCoordinatesFromWindow(renderer.getSDLRenderer(), event.button.x, event.button.y, &mouseX, &mouseY);
-		//SDL_Log("MousePos,%f, %f", mouseX, mouseY);
-		mousePos_ = { mouseX, mouseY };
 		break;
 	}
 	case SDL_EVENT_KEY_DOWN: {
@@ -55,6 +60,9 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 		case InputAction::SPRINT:
 			isSprintPressed_ = true;
 			break;
+		case InputAction::PAUSE:
+			isESCPressed_ = true;
+			break;
 		default:
 			break;
 		}
@@ -83,6 +91,10 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 			isDownPressed_ = false;
 			break;
 		}
+		case InputAction::PAUSE: {
+			isESCPressed_ = false;
+			break;
+		}
 		default:
 			break;
 		}
@@ -96,7 +108,6 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 void Input::resetInputState() noexcept{
 	isKeyPressed_ = false;
 	isMousePressed_ = false;
-	mousePos_ = { 0, 0 };
 	isJumpPressed_ = false;// 跳跃状态通常在按键按下时设置，在每帧开始时重置，确保跳跃动作只在按键按下的那一帧触发
 	isAttackPressed_ = false;
 	isSprintPressed_ = false;

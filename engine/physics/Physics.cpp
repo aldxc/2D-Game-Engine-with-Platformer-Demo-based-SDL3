@@ -30,7 +30,7 @@ void Physics::unregisterRigidBody(RigidBody& body) noexcept{
 	}
 }
 
-void Physics::update(float dt) noexcept{
+void Physics::update(double dt) noexcept{
 	for (RigidBody& body : rigidBodies_) {
 		// 只有在空中时才应用重力，着陆后重力不再影响速度，保持玩家在地面上的稳定状态
 		body.velocity.setY(body.velocity.getY() + (body.isLanded ? 0 : gravity_ * body.gravityScale * dt) + body.acceleration.getY() * dt); // 速度积分
@@ -44,7 +44,7 @@ void Physics::update(float dt) noexcept{
 	}
 }
 
-void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>& collmap, float dt, float epsilon) noexcept{
+void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>& collmap, double dt, float epsilon) noexcept{
 	if(collmap.empty() || collmap[0].empty()) {
 		SDL_Log("Warning: Collision map is empty, skipping collision resolution.");
 		return; // 碰撞地图无效，直接返回
@@ -55,12 +55,12 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 		const float tileSize = collmap[0][0].size; // 瓦片大小,所有瓦片大小相同
 		RigidBody nextState = body; // 计算物体的下一个状态，初始为当前状态，根据速度积分进行预测
 
-		auto isInBounds = [&collmap](int row, int col) noexcept -> bool {
-			return row >= 0 && row < static_cast<int>(collmap.size()) && col >= 0 && col < static_cast<int>(collmap[0].size());
+		auto isInBounds = [&collmap](int32_t row, int32_t col) noexcept -> bool {
+			return row >= 0 && row < static_cast<int32_t>(collmap.size()) && col >= 0 && col < static_cast<int32_t>(collmap[0].size());
 			};
 
-		auto getTileRect = [tileSize](int row, int col) noexcept -> SDL_FRect {
-			return SDL_FRect{
+		auto getTileRect = [tileSize](int32_t row, int32_t col) noexcept -> SDL_FRect {
+			return Rect{
 				col * tileSize,
 				row * tileSize,
 				tileSize,
@@ -71,13 +71,14 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 		// 先处理 X 轴：只处理 FULL，HALF 不参与水平阻挡 full - 2, half - 1, none - 0
 		nextState.hitBox.setX(nextState.hitBox.x() + nextState.velocity.getX() * dt);
 
-		int rowStart = static_cast<int>(nextState.hitBox.y() / tileSize);
-		int rowEnd = static_cast<int>((nextState.hitBox.y() + nextState.hitBox.h() - epsilon) / tileSize);
-		int colStart = static_cast<int>(nextState.hitBox.x() / tileSize);
-		int colEnd = static_cast<int>((nextState.hitBox.x() + nextState.hitBox.w() - epsilon) / tileSize);
+		int32_t rowStart = static_cast<int32_t>(nextState.hitBox.y() / tileSize);
+		int32_t rowEnd = static_cast<int32_t>((nextState.hitBox.y() + nextState.hitBox.h() - epsilon) / tileSize);
+		int32_t colStart = static_cast<int32_t>(nextState.hitBox.x() / tileSize);
+		int32_t colEnd = static_cast<int32_t>((nextState.hitBox.x() + nextState.hitBox.w() - epsilon) / tileSize);
 
-		for (int row = rowStart; row <= rowEnd; ++row) {
-			for (int col = colStart; col <= colEnd; ++col) {
+		// 索引使用int32_t 防止越界是强转为size_t补码后变成一个很大的正数，导致访问collmap越界崩溃
+		for (int32_t row = rowStart; row <= rowEnd; ++row) {
+			for (int32_t col = colStart; col <= colEnd; ++col) {
 				if (!isInBounds(row, col)) {
 					continue;
 				}
@@ -115,13 +116,13 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 		const float sweepTop = std::min(previousTop, currentTop);
 		const float sweepBottom = std::max(previousBottom, currentBottom);
 
-		rowStart = static_cast<int>(std::floor((sweepTop - epsilon) / tileSize));
-		rowEnd = static_cast<int>(std::floor((sweepBottom + epsilon) / tileSize));
-		colStart = static_cast<int>(std::floor(nextState.hitBox.x() / tileSize));
-		colEnd = static_cast<int>(std::floor((nextState.hitBox.x() + nextState.hitBox.w() - epsilon) / tileSize));
+		rowStart = static_cast<int32_t>(std::floor((sweepTop - epsilon) / tileSize));
+		rowEnd = static_cast<int32_t>(std::floor((sweepBottom + epsilon) / tileSize));
+		colStart = static_cast<int32_t>(std::floor(nextState.hitBox.x() / tileSize));
+		colEnd = static_cast<int32_t>(std::floor((nextState.hitBox.x() + nextState.hitBox.w() - epsilon) / tileSize));
 
-		for (int row = rowStart; row <= rowEnd; ++row) {
-			for (int col = colStart; col <= colEnd; ++col) {
+		for (int32_t row = rowStart; row <= rowEnd; ++row) {
+			for (int32_t col = colStart; col <= colEnd; ++col) {
 				if (!isInBounds(row, col)) {
 					continue;
 				}
@@ -192,6 +193,11 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 			nextState.hitBox.setX(collmap[0].size() * tileSize - nextState.hitBox.w());
 			nextState.velocity.setX(0.0f);
 		}
+		// y轴上边界处理
+		if (nextState.hitBox.y() < 0.0f) {
+			nextState.hitBox.setY(0.0f);
+			nextState.velocity.setY(0.0f);
+		}
 
 		nextState.wantsDropDown = false; // 每帧重置希望下落标志，等待下一帧根据输入重新设置
 
@@ -199,22 +205,28 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 	}
 }
 
+bool Physics::isCollidingPosition(const Rect& hitBox, const Vec2& postion) noexcept{
+	SDL_FRect hitBoxF = hitBox; // 隐式转换为SDL_FRect
+	SDL_FPoint postionF = { postion.getX(), postion.getY() }; // 转换为SDL_FPoint
+	return SDL_PointInRectFloat(&postionF, &hitBoxF);
+}
+
 bool Physics::LineOfSight(const SDL_FRect& start, const SDL_FRect& end, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept{
 	// 射线检测
 	if (collmap.empty() || collmap[0].empty()) return false;
 	const float tileSize = static_cast<float>(collmap[0][0].size);
-	const int mapRows = static_cast<int>(collmap.size());
-	const int mapCols = static_cast<int>(collmap[0].size());
+	const int32_t mapRows = static_cast<int32_t>(collmap.size());
+	const int32_t mapCols = static_cast<int32_t>(collmap[0].size());
 	// 1. 起点终点的中心转为网格索引
 	float sx = start.x + start.w * 0.5f;
 	float sy = start.y + start.h * 0.5f;
 	float ex = end.x + end.w * 0.5f;
 	float ey = end.y + end.h * 0.5f;
 
-	int x0 = static_cast<int>(sx / tileSize);
-	int y0 = static_cast<int>(sy / tileSize);
-	int x1 = static_cast<int>(ex / tileSize);
-	int y1 = static_cast<int>(ey / tileSize);
+	int32_t x0 = static_cast<int32_t>(sx / tileSize);
+	int32_t y0 = static_cast<int32_t>(sy / tileSize);
+	int32_t x1 = static_cast<int32_t>(ex / tileSize);
+	int32_t y1 = static_cast<int32_t>(ey / tileSize);
 
 	// 边界检查
 	x0 = std::clamp(x0, 0, mapCols - 1);
@@ -227,8 +239,8 @@ bool Physics::LineOfSight(const SDL_FRect& start, const SDL_FRect& end, const st
 	float dy = ey - sy;
 
 	// 3. 步进方向
-	int stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
-	int stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
+	int32_t stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
+	int32_t stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
 
 	// 4. tDelta
 	float tDeltaX = (dx != 0) ? std::abs(tileSize / dx) : INFINITY;
@@ -257,8 +269,8 @@ bool Physics::LineOfSight(const SDL_FRect& start, const SDL_FRect& end, const st
 	}
 
 	// 6. 步进
-	int x = x0, y = y0;
-	int maxSteps = mapRows + mapCols;  // 安全上限，防止死循环
+	int32_t x = x0, y = y0;
+	int32_t maxSteps = mapRows + mapCols;  // 安全上限，防止死循环
 	while (maxSteps-- > 0) {
 		// 越界检查
 		if (x < 0 || x >= mapCols || y < 0 || y >= mapRows) {
@@ -287,4 +299,64 @@ bool Physics::LineOfSight(const SDL_FRect& start, const SDL_FRect& end, const st
 	}
 
 	return true; // 没有被墙阻挡
+}
+
+bool Physics::hasGroundAhead(const SDL_FRect& hitBox, bool facingRight, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept{
+	if (collmap.empty() || collmap[0].empty()) {
+		return false;
+	}
+
+	const float tileSize = static_cast<float>(collmap[0][0].size);
+
+	const float probeX = facingRight
+		? (hitBox.x + hitBox.w + 2.0f)
+		: (hitBox.x - 2.0f);
+	const float probeY = hitBox.y + hitBox.h + 2.0f;
+
+	const int col = static_cast<int>(std::floor(probeX / tileSize));
+	const int row = static_cast<int>(std::floor(probeY / tileSize));
+
+	if (row < 0 || row >= static_cast<int>(collmap.size()) ||
+		col < 0 || col >= static_cast<int>(collmap[0].size())) {
+		return false;
+	}
+
+	const auto coll = static_cast<TileColl>(collmap[row][col].coll);
+	return coll == TileColl::FULL || coll == TileColl::HALF;
+}
+
+bool Physics::hasWallAhead(const SDL_FRect& hitBox, bool facingRight, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept{
+	if (collmap.empty() || collmap[0].empty()) {
+		return false;
+	}
+
+	const float tileSize = static_cast<float>(collmap[0][0].size);
+
+	const float probeX = facingRight
+		? (hitBox.x + hitBox.w + 2.0f)
+		: (hitBox.x - 2.0f);
+
+	const float topY = hitBox.y + 2.0f;
+	const float bottomY = hitBox.y + hitBox.h - 2.0f;
+
+	const int col = static_cast<int>(std::floor(probeX / tileSize));
+	const int rowStart = static_cast<int>(std::floor(topY / tileSize));
+	const int rowEnd = static_cast<int>(std::floor(bottomY / tileSize));
+
+	if (col < 0 || col >= static_cast<int>(collmap[0].size())) {
+		return true;
+	}
+
+	for (int row = rowStart; row <= rowEnd; ++row) {
+		if (row < 0 || row >= static_cast<int>(collmap.size())) {
+			continue;
+		}
+
+		const auto coll = static_cast<TileColl>(collmap[row][col].coll);
+		if (coll == TileColl::FULL) {
+			return true;
+		}
+	}
+
+	return false;
 }

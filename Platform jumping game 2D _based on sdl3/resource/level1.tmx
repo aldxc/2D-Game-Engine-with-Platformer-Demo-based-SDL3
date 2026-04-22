@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="400" height="18" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="44">
+ <tileset firstgid="1" name="sheet" tilewidth="16" tileheight="16" tilecount="136" columns="17" tilerendersize="grid">
+  <grid orientation="orthogonal" width="32" height="32"/>
+  <image source="sheet.png" width="272" height="128"/>
+  <tile id="7">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="10">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="11">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="12">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="13">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="25">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="26">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="27">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="29">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="30">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="41">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="42">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="43">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="44">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="45">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="46">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="47">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="59">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="60">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="61">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="63">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="64">
+   <properties>
+    <property name="collision" value="full"/>
+   </properties>
+  </tile>
+  <tile id="125" probability="5"/>
+ </tileset>
+ <tileset firstgid="137" source="logictile.tsx"/>
+ <tileset firstgid="143" source="sheet.tsx"/>
+ <layer id="5" name="bk" width="400" height="18">
+  <data encoding="base64" compression="zlib">
+   eJzt1VlNpQEQhNGbsBmAAQNsBmAGA2wG2AwwgAE2c9cYZeJPU8k5yffeT9Xr1Wq11q8JoMX0Xsr/ADpN76X8D6DT9F7K/wA6Te+l/A+g0/Reyv8AOk3v5ZJtpM20lbbTTsEtAC2mN37JdtNe+pP200HBLQAtpjd+yQ7TUTpOJ+m04BaAFtMbv2Rn6Tz9Tf/SRcEtAC2mN37JLtNVuk436bbgFoAW0xu/ZHfpPj2kx/RUcAtAi+mNX7Ln9D+9pNf0VnALQIvpjV+y9/SRPtNX+i64BaDF9MbL/wA6Te+l/A+g0/Reyv8AOk3vpfwPoNMPL9cynA==
+  </data>
+ </layer>
+ <layer id="7" name="collision" width="400" height="18">
+  <data encoding="base64" compression="zlib">
+   eJztmdGuwiAQRPvn95kb/WefTAwBBLowu3hOMkljtGyHdafW6wIAgBFS52sAAACfkB8AADAD+QEAO0gfgjLR/CE/AGA16frt/PgvqEQ0j8gPAFhJnh3f5ktp1o4qKtFylvwAgFWUsiPCfFFlUzSvvNcH8KtYzSvVPXktO5g5dSL4lSrHABCDVh54eIbTyg7VzFn5zMvqnN48y8lr4fkVAFhmzrfsYL7U8exbqQ7yo4+/TB7YtU8n/C8ZgRP87ckO5ksdr97VaiA/NFj8lmafYnF6BvdmB31bx6N/o+uzv/7puQ+YoTfDTp+FMMZIdsz06qOgFZTWWbVWCW8ZPLL2Y/D9OxnNv9X9vJu8lyNeA5zJzPcN2WglPevmx17m6x3fvOylurd296H6GrzodNT+onX99r5H7V0zdX5mB1aeqfbxmUndV3dqn5H6GrzIwkvPUvuL7HpRXZ9KLbzsldqjO7UzV7ReepbaX2TXi+r6VGrhZa/UHt2pnbmi9dKz1P4iu15U16dSi5nzvQDHbfVH
+  </data>
+ </layer>
+ <layer id="1" name="land" width="400" height="18">
+  <data encoding="base64" compression="zlib">
+   eJztnMdv1EAUxh1CSRP3JAT+IQ7AHU5wZU/An5HQBIEcQl1aIjp3+gWJXi4UiS5uiK5IfKuslaeX6R639fuUn9Zej2eeZ8bzzdirJIlIJBKJfDTn+J1IJBKJRFTiHyKRqCjNlx2AKKrEP0QiURE6Aw6Bs2UHUmFNg6NlB+Eh8Q+RSJS3Ot5xvsuFkmMpQ6l3pug89FyyWEd18RDxD5FIlKeod7j4Bx9rfanz+ib1j7p4iPhH72oSTIG9YB/YDw6Agw2PRVScuHcErT/68AdW9EUOziCdh+XtTdQ/6uAh4hW9q1lwDBwHJ8BJcAqcbngsdVFnDIsxXsXKJ6Rc7h1NfX7lKu4fVfSQGbId2z9knlkdXQKXwRVwFVwD18GNhsfSC5oxHCvLL3gMKu8o0z8676aPaMg6RqvWKyFtoPKPKnlIpw5p+6n8w9Q3bZpNZJ5ZFd0Et8BtcAfcBffA/YbHIlqumJ6j8o52l55ef0R4zpb6R1pXVfKQ6WR5+8V+/yHzzOK01nL8CXgKnoHn4AV4CV55ljMGBsG4b4A5xNLLyjJvq4pM646y1x91kG79UbaHpN6Rt3/IPNOujcnSmKxivJvGpg2W4+/BB/ARfAKfwRfwNSjqbKpSLGWpCs+V8pRu3SH+4S6bf5ThIdQ7XNovi39UcZ55kWy/634+BI/A4+LDSbZGSDMM1pN91VrkB/gJfoHf4A/4C/4Z8nVda4w5pMkai6g+Mq072uxTN/6sMjz3mWRMBeThIl5OHmWZznPxjyI9hHqHrf0mSfrQd0t5zTPpuy9bPL6/Hz8cGNMuj3S7yf5OdnwT2Ay2aNLsSZb6cdqX14EJMNKFegn1xjXoqwNgEAyBYTACtuPYDsf4s6rzPytW9+lj0ek1eAPeku/6kX4l+J4s3Yf9LI8HFmi+trQm5tl+U8W9g77r0KF7j910TP5btIfwdYfKP2YM6UPWm7Hmmfy3Ej7xuHo4ZYQxkCzOw4c8jnHx81zycP1+osso2TbFbCOGfMs0UfZ9nIVeF79em1cI/rjWKfeQfs2cylXpPFXlBdQ/0jnTHDmHj7s+v5dwmfPaRD3DVKeh/kHX0bx9+FgcwjZGlrxcGGWfWa6Bxx5CSNmqc0ztFPv+i3V/0/1vPY5r/ZjqKKRefdvU1H+K6FdthmsevulNcxlbW/qsg1Rl8m1dXZW1dlPh4x+qtlDt8/FYNa6Zjnf2W93tluIc27hvG1MnDGX7+IsuXUtzjH9Pr7FlSKcql8beJt+3Fee6jh2+Y1SW9Ka09NgC+7RhS7eQMS/Xc0PyUtWJrs5c5wWu42uIH9nyDKknn3hixWGqd1VfVPUjU7/Ick2x6sKn3m33Nd3P+vyKlkf9w3csN421uvHYJ29fn4iB6RpM19QKiIPXO/cU375U1L3rC79PXcZzVx/I0xtcz6sidXumlnffi9l3Yl6LbX6fB3m8//gPQIewOg==
+  </data>
+ </layer>
+ <objectgroup id="6" name="object">
+  <object id="4" name="birth" type="spawn" x="182" y="361">
+   <point/>
+  </object>
+  <object id="6" name="enemy" type="spawn" x="1106" y="282">
+   <point/>
+  </object>
+  <object id="7" name="enemy" type="spawn" x="1733" y="374">
+   <point/>
+  </object>
+  <object id="8" name="enemy" type="spawn" x="946" y="287">
+   <point/>
+  </object>
+  <object id="9" name="enemy" type="spawn" x="837" y="399">
+   <point/>
+  </object>
+  <object id="10" name="enemy" type="spawn" x="1374" y="384">
+   <point/>
+  </object>
+  <object id="11" name="enemy" type="spawn" x="3407" y="381">
+   <point/>
+  </object>
+  <object id="12" name="enemy" type="spawn" x="4085" y="384">
+   <point/>
+  </object>
+  <object id="13" name="enemy" type="spawn" x="7284" y="335">
+   <point/>
+  </object>
+  <object id="14" name="enemy" type="spawn" x="7367" y="328">
+   <point/>
+  </object>
+  <object id="15" name="enemy" type="spawn" x="7493" y="325">
+   <point/>
+  </object>
+  <object id="16" name="enemy" type="spawn" x="7613" y="320">
+   <point/>
+  </object>
+  <object id="17" name="enemy" type="spawn" x="7741" y="332">
+   <point/>
+  </object>
+  <object id="18" name="enemy" type="spawn" x="7647" y="349">
+   <point/>
+  </object>
+  <object id="19" name="enemy" type="spawn" x="7168" y="313">
+   <point/>
+  </object>
+  <object id="20" name="enemy" type="spawn" x="8067" y="343">
+   <point/>
+  </object>
+  <object id="21" name="enemy" type="spawn" x="8153" y="335">
+   <point/>
+  </object>
+  <object id="22" name="enemy" type="spawn" x="8321" y="327">
+   <point/>
+  </object>
+  <object id="23" name="enemy" type="spawn" x="8479" y="336">
+   <point/>
+  </object>
+  <object id="24" name="enemy" type="spawn" x="8581" y="329">
+   <point/>
+  </object>
+  <object id="25" name="enemy" type="spawn" x="8688" y="337">
+   <point/>
+  </object>
+  <object id="26" name="enemy" type="spawn" x="8855" y="337">
+   <point/>
+  </object>
+  <object id="27" name="enemy" type="spawn" x="8987" y="331">
+   <point/>
+  </object>
+  <object id="28" name="enemy" type="spawn" x="9169" y="311">
+   <point/>
+  </object>
+  <object id="29" name="enemy" type="spawn" x="9096" y="320">
+   <point/>
+  </object>
+  <object id="30" name="enemy" type="spawn" x="7881" y="320">
+   <point/>
+  </object>
+  <object id="31" name="enemy" type="spawn" x="7812" y="327">
+   <point/>
+  </object>
+  <object id="32" name="enemy" type="spawn" x="7969" y="332">
+   <point/>
+  </object>
+  <object id="33" name="enemy" type="spawn" x="11168" y="411">
+   <point/>
+  </object>
+  <object id="34" name="enemy" type="spawn" x="11620" y="405">
+   <point/>
+  </object>
+  <object id="35" name="enemy" type="spawn" x="11532" y="399">
+   <point/>
+  </object>
+  <object id="40" type="box" gid="225" x="289" y="448" width="32" height="32"/>
+  <object id="42" name="win" type="point" x="12625" y="367">
+   <point/>
+  </object>
+  <object id="43" x="12117" y="-181">
+   <point/>
+  </object>
+ </objectgroup>
+</map>

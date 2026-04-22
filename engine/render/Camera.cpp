@@ -63,13 +63,20 @@ SDL_FPoint Camera::worldToScreen(const SDL_FPoint& worldPos) const noexcept{
 	return screenPos;
 }
 
-bool Camera::isVisible(const SDL_FRect& worldRect) const noexcept{
-	if(worldRect.x + worldRect.w < viewX_ || worldRect.x > viewX_ + viewWidth_ ||
-	   worldRect.y + worldRect.h < viewY_ || worldRect.y > viewY_ + viewHeight_) {
+bool Camera::isVisible(const Rect& worldRect) const noexcept{
+	if(worldRect.x() + worldRect.w() < viewX_ || worldRect.x() > viewX_ + viewWidth_ ||
+	   worldRect.y() + worldRect.h() < viewY_ || worldRect.y() > viewY_ + viewHeight_) {
 		return false;
 	}
 	return true;
 }
 
+bool Camera::isVisible(const Vec2& worldPos) const noexcept{
+	if(worldPos.getX() < viewX_ || worldPos.getX() > viewX_ + viewWidth_ ||
+	   worldPos.getY() < viewY_ || worldPos.getY() > viewY_ + viewHeight_) {
+		return false;
+	}
+	return true;
+}
 
 

@@ -21,11 +21,6 @@ public:
 	explicit EventManager() noexcept = default;
 	~EventManager() noexcept= default;
 
-	//static EventManager& getInstance() {
-	//	static EventManager instance;
-	//	return instance;
-	//}
-
 	EventManager(const EventManager&) = delete;
 	EventManager& operator=(const EventManager&) = delete;
 	EventManager(EventManager&&) = delete;
@@ -37,11 +32,13 @@ public:
 	SubscriptionId subscribe(EventType type, EventListener listener) noexcept;
 
 	// 取消订阅（需要保留返回的 ID，简单实现中可用 token，这里暂略）
-	// 实际项目中可返回一个 Subscription 对象用于取消
 	void unsubscribe(const SubscriptionId& id) noexcept; // 需要精确匹配函数对象，较复杂，暂略
 
 	// 发送事件（放入队列）
 	void sendEvent(const Event& event) noexcept;
+
+	// 立即处理事件（不使用队列，直接调用监听器，适用于需要立即响应的事件）
+	void triggerEvent(const Event& event) noexcept;
 
 	// 处理队列中的所有事件（通常在游戏主循环末尾调用）
 	void update() noexcept;

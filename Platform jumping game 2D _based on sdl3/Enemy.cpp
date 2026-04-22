@@ -1,10 +1,10 @@
 #include <string>
+#include <algorithm>
 #include "Enemy.h"
 #include "resource/Resource.h"
 #include "render/Renderer.h"
 #include "core/Rect.h"
 #include "render/Camera.h"
-//#include "physics/PhysicsCollMap.h"
 #include "physics/Physics.h"
 
 Enemy::Enemy(Renderer& renderer, Resource& rM) noexcept : rigidBody_(Vec2(0, 0), Rect{ 0,0,0,0 } , Config::MAX_SPEED), renderer_(renderer) {
@@ -35,16 +35,20 @@ void Enemy::init(Rect enemyInfo) noexcept{
 	isRegisteredToPhysics_ = false; 
 }
 
-void Enemy::update(float dt) noexcept {
+void Enemy::update(double dt) noexcept {
 	// AI移动逻辑，只根据face移动，face通过地图碰撞信息玩家等调整
 	int dir = isFacingRight_ ? 1 : -1;
-	if(isAlreadyTracking_) {
+	if(isAlreadyTracking_ || !rigidBody_.isLanded) {
 		dir = 0; // 已经跟踪到玩家位置，停止移动
 	}
-	rigidBody_.velocity.setX(dir * Config::ENEMY_MAX_SPEED);
+	if (!isHited_ && !hitInvincibleTimer_.isActive() && isAlive_) {
+		rigidBody_.velocity.setX(dir * Config::ENEMY_MAX_SPEED);
+	}
 
+	isHited_ = hitInvincibleTimer_.isActive(); // 根据受击无敌计时器状态更新受伤状态
 	deathTimer_.update(dt);
 	trackingTimer_.update(dt);
+	hitInvincibleTimer_.update(dt);
 
 	if(!isAlive_ && !deathTimer_.isActive()) {
 		// 死亡定时器结束，敌人可以被重置或销毁
@@ -63,7 +67,20 @@ void Enemy::render(const Camera& camera) const noexcept {
 	scaleTextureRect = camera.worldToScreen(scaleTextureRect); // 将敌人的世界坐标转换为屏幕坐标
 
 	Rect currentFrameRect = animation_.getCurrentFrameRect();
-	//renderer_.renderTexture(enemyTexture_.get(), currentFrameRect, scaleTextureRect);
+
+	if (!isAlive_) {
+		// deathTimer_ 还在倒计时，剩余时间 / 总时间 = 剩余 alpha 比例
+		float remaining = 1.0f - deathTimer_.getElapsedTime() / deathTimer_.getDurationTime();
+		SDL_SetTextureAlphaModFloat(enemyTexture_.get(), remaining);
+	}
+
+	// 显示血条
+	Rect currentHpRect = Rect{ rigidBody_.hitBox.x(), rigidBody_.hitBox.y() - 20, rigidBody_.hitBox.w() * (hp_ / static_cast<float>(maxHp_)), Config::BLOOD_RECT_HEIGHT };
+	Rect healthBarRect = Rect{ rigidBody_.hitBox.x(), rigidBody_.hitBox.y() - 20, rigidBody_.hitBox.w(), Config::BLOOD_RECT_HEIGHT };
+
+	renderer_.renderFillRect(camera.worldToScreen(currentHpRect), SDL_Color({ 255, 0, 0, 255 })); // 红色血条
+	renderer_.renderRect(camera.worldToScreen(healthBarRect), SDL_Color({ 255, 255, 255, 255 })); // 白色血条边框
+
 	if (isFacingRight_) {
 		renderer_.renderTexture(enemyTexture_.get(), currentFrameRect, scaleTextureRect);
 	}
@@ -71,6 +88,9 @@ void Enemy::render(const Camera& camera) const noexcept {
 		renderer_.reversePlayerFaceTexture(enemyTexture_.get(), currentFrameRect, scaleTextureRect);
 	}
 
+	if (!isAlive_) {
+		SDL_SetTextureAlphaMod(enemyTexture_.get(), 255);
+	}
 }
 
 void Enemy::renderDebug(const Camera& camera) const noexcept {
@@ -111,60 +131,61 @@ void Enemy::reset(Rect hitbox) noexcept {
 	isTrackingPlayer_ = false;  
 	isAlreadyTracking_ = false;  
 	isRegisteredToPhysics_ = false;
+	hp_ = Config::ENEMY_HP;
 	Object::reset();
 }
 
 void Enemy::setFacingRight(const Rect& player, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept{
-	// 跟踪：与玩家间有full时不跟踪，距离过远时不跟踪，其他情况（前方是悬崖也不跟踪）
-	bool playerOnRight = (player.x() > rigidBody_.hitBox.x());
-	// 不跟踪：检查敌人和玩家之间是否有完全碰撞，同时检查敌人和玩家之间的距离，前方为悬崖时不跟踪（启用计时器防止频繁回头）
-	float dis = rigidBody_.hitBox.distance(player);
-	bool f1 = dis >= Config::ENEMY_SCAN_DISTANCE;
-	bool f2 = !Physics::LineOfSight(rigidBody_.hitBox, player, collmap);
-	bool f3 = false;
-	if (playerOnRight) {
-		// 检查敌人右侧是否有地面
-		Rect rightCheckBox = rigidBody_.hitBox;
-		rightCheckBox.setX(rightCheckBox.x() + rightCheckBox.w() + 1); // 在敌人右侧稍微偏移一点
-		rightCheckBox.setY(rightCheckBox.y() + rightCheckBox.h() + 1); // 在敌人下方稍微偏移一点
-		f3 = !Physics::LineOfSight(rightCheckBox, rightCheckBox, collmap); // 如果右侧没有地面，则视为悬崖
-		isFacingRight_ = !f3;
-	} else {
-		// 检查敌人左侧是否有地面
-		Rect leftCheckBox = rigidBody_.hitBox;
-		leftCheckBox.setX(leftCheckBox.x() - 1); // 在敌人左侧稍微偏移一点
-		leftCheckBox.setY(leftCheckBox.y() + leftCheckBox.h() + 1); // 在敌人下方稍微偏移一点
-		f3 = !Physics::LineOfSight(leftCheckBox, leftCheckBox, collmap); // 如果左侧没有地面，则视为悬崖
-		isFacingRight_ = f3; // 如果左侧没有地面，敌人应该朝右，否则朝左
-	}
-	if (f3) {
-		trackingTimer_.start(Config::ENEMY_TRACKING_COOLDOWN); // 启动悬崖检测计时器，设置持续时间为0.5秒，后续可以根据需要调整时间
-	}
-	if (f1 || f2 || f3 || trackingTimer_.isActive()) { // 满足任一条件则不跟踪
-		isTrackingPlayer_ = false;
-	} else {
-		isTrackingPlayer_ = true;
+	if (!rigidBody_.isLanded || !isAlive_) {
+		return;
 	}
 
-	if(isTrackingPlayer_ && !trackingTimer_.isActive()) {
-		if (playerOnRight) {
-			// 玩家在右边，敌人朝右
-			isFacingRight_ = true;
+	const bool playerOnRight = (player.x() > rigidBody_.hitBox.x());
+	const bool desiredFacingRight = playerOnRight;
+
+	const float dis = rigidBody_.hitBox.distance(player);
+	const bool tooFar = dis >= Config::ENEMY_SCAN_DISTANCE;
+	const bool blockedByWall = !Physics::LineOfSight(rigidBody_.hitBox, player, collmap);
+
+	const bool canTrack = !trackingTimer_.isActive() && !tooFar && !blockedByWall;
+
+	if (!canTrack) {
+		isTrackingPlayer_ = false;
+		isAlreadyTracking_ = false;
+
+		const bool wallAhead = Physics::hasWallAhead(rigidBody_.hitBox, isFacingRight_, collmap);
+		const bool cliffAhead = !Physics::hasGroundAhead(rigidBody_.hitBox, isFacingRight_, collmap);
+
+		if (wallAhead || cliffAhead) {
+			isFacingRight_ = !isFacingRight_;
 		}
-		else {
-			// 玩家在左边，敌人朝左
-			isFacingRight_ = false;
-		}
-		if (std::abs(player.x() - rigidBody_.hitBox.x()) < 2.0f) {
-			isAlreadyTracking_ = true;
-		}
-		else {
-			isAlreadyTracking_ = false;
-		}
+		return;
 	}
+
+	const bool wallAheadDesired = Physics::hasWallAhead(rigidBody_.hitBox, desiredFacingRight, collmap);
+	const bool cliffAheadDesired = !Physics::hasGroundAhead(rigidBody_.hitBox, desiredFacingRight, collmap);
+
+	if (cliffAheadDesired) {
+		isFacingRight_ = !desiredFacingRight;
+		isTrackingPlayer_ = false;
+		isAlreadyTracking_ = false;
+		trackingTimer_.start(Config::ENEMY_TRACKING_COOLDOWN);
+		return;
+	}
+
+	if (wallAheadDesired) {
+		isFacingRight_ = !desiredFacingRight;
+		isTrackingPlayer_ = false;
+		isAlreadyTracking_ = false;
+		return;
+	}
+
+	isTrackingPlayer_ = true;
+	isFacingRight_ = desiredFacingRight;
+	isAlreadyTracking_ = std::abs(player.x() - rigidBody_.hitBox.x()) < 2.0f;
 }
 
-void Enemy::updateAnimationState(float dt) noexcept {
+void Enemy::updateAnimationState(double dt) noexcept {
 	// 这里可以添加根据敌人状态更新动画状态的逻辑，例如根据移动状态切换动画剪辑等
 	if (isStateChanged()) {
 		Animation::AnimationClip animationClip;
@@ -199,5 +220,20 @@ bool Enemy::isStateChanged() noexcept {
 
 void Enemy::kill() noexcept {
 	isAlive_ = false;
-	deathTimer_.start(2.0f); // 启动死亡定时器，设置持续时间为1秒，后续可以根据需要调整时间
+	deathTimer_.start(Config::ENEMY_DEAD_DURATION); // 启动死亡定时器，设置持续时间为1秒，后续可以根据需要调整时间
 }
+
+void Enemy::takeHit(int dir) noexcept{
+	if (!hitInvincibleTimer_.isActive()) {
+		rigidBody_.velocity.setX(dir * Config::ENEMY_HITBACK_VELOCITY);
+		sfxToplay_.push_back(SfxId::PlayerAttackHit);
+		if (--hp_ <= 0) {
+			kill();
+			return;
+		}
+		// 根据攻击方向调整敌人受伤后的反应，例如被击退等，后续增加更多的受伤逻辑如眩晕、状态变化等
+		hitInvincibleTimer_.start(Config::ENEMY_HIT_INVINCIBILITY_DURATION); // 启动受击无敌计时器，设置持续时间为0.5秒，后续可以根据需要调整时间
+		isHited_ = true;
+	}
+}
+

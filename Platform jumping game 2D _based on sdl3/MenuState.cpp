@@ -5,7 +5,7 @@ MenuState::MenuState(Renderer& r) noexcept : State<StateType>(StateType::MENU), 
 
 }
 
-void MenuState::update(float dt) noexcept{
+void MenuState::update(double dt) noexcept{
 
 }
 

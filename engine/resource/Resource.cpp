@@ -51,9 +51,9 @@ bool Resource::saveLevel(const std::string& filePath, const LevelData& level) co
 	return true;
 }
 
-bool Resource::loadMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles) noexcept{
+bool Resource::loadMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles, std::vector<ObjectDate>& objectDate) noexcept{
 	if (filePath.size() >= 4 && filePath.compare(filePath.size() - 4, 4, ".tmx") == 0) {
-		return loadTmxMap(filePath, Tiles);
+		return loadTmxMap(filePath, Tiles, objectDate);
 	}
 	else if (filePath.size() >= 4 && filePath.compare(filePath.size() - 4, 4, ".bin") == 0) {
 		// 直接从二进制文件加载地图数据
@@ -64,14 +64,17 @@ bool Resource::loadMap(const std::string& filePath, std::vector<std::vector<uint
 }
 
 
-bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& mapTiles) noexcept { 
+bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& mapTiles, std::vector<ObjectDate>& objectData) noexcept {
 	if(!mapData_.load(filePath)) {
 		SDL_Log("Failed to load tmx map: %s", filePath.c_str());
 		return false;
 	}
 	auto col = mapData_.getTileCount().x; // 获取地图宽度
 	auto row = mapData_.getTileCount().y; // 获取地图高度
-	tmxToPngSrcRectAndColl(); // 将tmx地图数据转换成png纹理的源矩形和碰撞信息，存储在tileTypeToSrcRectXY_和tileTypeToCollision_中，后续可以根据需要增加其他属性的转换和存储
+	std::unordered_map<uint32_t, std::vector<uint64_t>> tileIDToAnimationFrames; // 存储动画瓦片的帧数据，key为GID，value为帧的GID列表和帧率 低32位存储帧率，剩余部分存储帧的GID列表，每个GID占32位
+	tmxToPngSrcRectAndColl(tileIDToAnimationFrames); // 将tmx地图数据转换成png纹理的源矩形和碰撞信息
+
+
 	mapTiles.assign(row, std::vector<uint64_t>(col, 0));
 
 	auto& layers = mapData_.getLayers();
@@ -94,8 +97,8 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 				// 有限地图中layer 与 mapData_.getTileCount()中的宽高一致，无需考虑无限地图中的chunk数据
 				//int width = tileLayer->getSize().x;
 				//int height = tileLayer->getSize().y;
-				for (int i = 0; i < row; ++i) {
-					for (int j = 0; j < col; ++j) {
+				for (size_t i = 0; i < row; ++i) {
+					for (size_t j = 0; j < col; ++j) {
 						const int index = i * col + j;
 						const auto GID = tiles[index].ID; // 获取瓦片的全局ID
 						if (GID == 0) {
@@ -134,14 +137,32 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 				auto* objectGroup = dynamic_cast<tmx::ObjectGroup*>(layer.get());
 				const auto& objects = objectGroup->getObjects();
 				for(const auto& obj : objects) {
-					// 处理对象层中的对象数据，根据需要存储在Tiles二维数组中
-					// 例如，可以根据对象的类型、位置等信息设置对应的属性位
-					// 这里假设对象的类型存储在obj.getClass()中，位置存储在obj.getPosition()中
-					// 可以根据实际需求进行调整
-					//std::vector
-					//if(obj.getClass() == "spawn") {
-					//	if(obj.getName() )
-					//}
+					// 对象的类型存储在obj.getClass()中，位置存储在obj.getPosition()中
+					if(obj.getClass() == "spawn") {
+						Rect objRect(obj.getPosition().x, obj.getPosition().y, 0, 0);
+						objectData.emplace_back(ObjectDate{ obj.getName(),  objRect, false});
+					} else if (obj.getClass() == "box") {
+						const auto GID = obj.getTileID();
+						if (GID == 0) {
+							continue; // GID为0表示该对象没有关联的瓦片，跳过
+						}
+						const size_t j = obj.getPosition().y;
+						const size_t i = obj.getPosition().x;
+
+						if (tileIDToAnimationFrames.count(GID)) {
+							Rect animRect( j, i, 0, 0);
+							objectData.emplace_back(ObjectDate{ obj.getClass(), animRect, false, {} });
+							for (const auto& frameData : tileIDToAnimationFrames[GID]) {
+								uint32_t frameGID = static_cast<uint32_t>(frameData & 0xFFFFFFFF); // 获取帧的GID
+								uint32_t frameDuration = static_cast<uint32_t>(frameData >> 32); // 获取帧的持续时间
+								objectData.back().animationFrames.emplace_back(tileTypeToSrcRectXY_[frameGID], frameDuration);
+							}
+						}
+					}
+					else if (obj.getClass() == "point") {
+						Rect objRect(obj.getPosition().x, obj.getPosition().y, 0, 0);
+						objectData.emplace_back(ObjectDate{ obj.getName(), objRect, false });
+					}
 				}
 			}
 		}
@@ -150,8 +171,19 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 	return true;
 }
 
-void Resource::tmxToPngSrcRectAndColl() noexcept {
+void Resource::tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<uint64_t>>& tileIDToAnimationFrames) noexcept {
 	for (const auto& tileset : mapData_.getTilesets()) {
+		// 纹理集中的瓦片数据
+		const auto& specialtiles = tileset.getTiles();
+		for (const auto& tile : specialtiles) {
+			const auto& animation = tile.animation;
+			if (!animation.frames.empty()) {
+				for(const auto& frame : animation.frames) {
+					tileIDToAnimationFrames[tileset.getFirstGID() + tile.ID].push_back(static_cast<uint64_t>(frame.tileID) | static_cast<uint64_t>(frame.duration) << 32); // 存储动画帧的GID和帧率，帧率存储在高32位
+				}
+			}
+		}
+
 		// 纹理集名字
 		if (tileset.getName() == "sheet") { // sheet 获取瓦片纹理
 			int col = tileset.getColumnCount(); // tileset每行几个瓦片
@@ -208,3 +240,43 @@ std::shared_ptr<SDL_Texture> Resource::loadTexture(const std::string& filePath, 
 
 	return texturePtr;
 }
+
+void Resource::saveGameData(const std::string& filePath, const std::vector<int>& data) noexcept{
+
+}
+
+void Resource::saveGameData(const std::string& filePath, const uint32_t date) noexcept{
+	std::ofstream ofs(filePath, std::ios::binary);
+	if (!ofs.is_open()) {
+		SDL_Log("Failed to open file for writing: %s", filePath.c_str());
+		return;
+	}
+	ofs.write(reinterpret_cast<const char*>(&date), sizeof(date));
+
+}
+
+
+void Resource::loadGameData(const std::string& filePath, std::vector<int>& data) noexcept{
+
+}
+
+std::shared_ptr<MIX_Audio> Resource::loadAudio(const std::string& filePath, MIX_Mixer* mixer) noexcept{
+	auto it = audioCache_.find(filePath);
+	if(it != audioCache_.end()) {
+		return it->second; // 如果缓存中已经存在该音频，直接返回
+	}
+
+	MIX_Audio* audio = MIX_LoadAudio(mixer, filePath.c_str(), true);
+	if(!audio) {
+		SDL_Log("Failed to load audio: %s, error: %s", filePath.c_str(), SDL_GetError());
+		return nullptr;
+	}
+
+	std::shared_ptr<MIX_Audio> audioPtr(audio, [](MIX_Audio* aud) {
+		if(aud) MIX_DestroyAudio(aud);
+		});
+	audioCache_[filePath] = audioPtr; // 将新加载的音频添加到缓存中
+
+	return audioPtr;
+}
+

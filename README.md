@@ -1,5 +1,88 @@
 # Platform jumping game 2D _based on sdl3
 
+```mermaid
+flowchart TD
+    %% ÉîÉ«±³¾°ÑùÊ½
+    classDef app fill:#1A237E,stroke:#64B5F6,stroke-width:2px,color:#FFFFFF
+    classDef engine fill:#1B5E20,stroke:#81C784,stroke-width:2px,color:#FFFFFF
+    classDef base fill:#E65100,stroke:#FFB74D,stroke-width:2px,color:#FFFFFF
+    classDef third fill:#4A148C,stroke:#CE93D8,stroke-width:2px,color:#FFFFFF
+
+    subgraph L1 [?? Ó¦ÓÃ²ã - ¾ßÌåÓÎÏ·Âß¼­]
+        direction LR
+        Game["ÓÎÏ·Âß¼­<br/>½ÇÉ«¿ØÖÆ/Íæ·¨"]
+        EnemyMgr["EnemyManager<br/>µĞÈËÉú³É/»ØÊÕ"]
+    end
+
+    subgraph L2 [?? ÒıÇæºËĞÄ²ã - Í¨ÓÃ¿ò¼ÜÓëÏµÍ³]
+        direction LR
+        Core["Ö÷Ñ­»·<br/>while(acc>=dt)ÎïÀíÍÆ½ø"]
+        Renderer["äÖÈ¾ÏµÍ³<br/>ÈıÎÆÀí¼¯·Ö²ã¸üĞÂ"]
+        Physics["ÎïÀíÏµÍ³<br/>¸ÕÌå/Åö×²/ÉäÏß"]
+        Event["ÊÂ¼ş¶ÓÁĞ<br/>Ã¿Ö¡Í³Ò»·Ö·¢"]
+        Input["ÊäÈëÏµÍ³<br/>¼üÅÌ»º´æÂÖÑ¯"]
+        Resource["×ÊÔ´¹ÜÀí<br/>ÎÆÀí/ÎÄ¼şIO"]
+        Audio["ÒôÆµÏµÍ³<br/>ÒôĞ§/±³¾°ÒôÀÖ²¥·Å"]
+        FSM["×´Ì¬»ú<br/>Í¨ÓÃÁ÷³Ì/³¡¾°ÇĞ»»"]
+        UI["UI¹ÜÀíÆ÷<br/>Í¨ÓÃ½çÃæ/°´Å¥¹ÜÀí"]
+    end
+
+    subgraph L3 [?? »ù´¡¿â²ã - Í¨ÓÃ¹¤¾ßÓë×é¼ş]
+        direction LR
+        Math["ÊıÑ§¿â<br/>ÏòÁ¿/¾ØÕó"]
+        Timer["¼ÆÊ±Æ÷"]
+        Pool["¶ÔÏó³Ø<br/>µĞÈËÊµÀıËùÓĞÈ¨"]
+        TMX["TMX½âÎö<br/>Base64/Zlib"]
+        Animation["¶¯»­»ú<br/>Ö¡ĞòÁĞ¿ØÖÆ"]
+        Camera["ÉãÏñ»ú<br/>ÊÓ¿Ú¸úËæ"]
+    end
+
+    subgraph L4 [?? µÚÈı·½ÒÀÀµ]
+        direction LR
+        SDL3["SDL3<br/>¿çÆ½Ì¨´°¿Ú/äÖÈ¾/ÒôÆµ"]
+        Tmxlite["Tmxlite<br/>TMX½âÎö¿â"]
+    end
+
+    %% ²ã¼ä´¹Ö±ÒÀÀµ
+    L1 --> L2 --> L3 --> L4
+
+    %% ¹Ø¼üÊı¾İÁ÷
+    Core -.->|¹Ì¶¨²½³¤| Physics
+    Core -.->|¿É±äÖ¡ÂÊ| Renderer
+
+    Game -.->|ÂÖÑ¯| Input
+    FSM -.->|ÂÖÑ¯| Input
+    UI -.->|ÂÖÑ¯| Input
+
+    Event -.->|Í¨Öª| FSM
+    Event -.->|Í¨Öª| UI
+    Event -.->|Í¨Öª| Audio
+
+    Physics -.->|¶ÁÈ¡Î»ÖÃ| Animation
+    Animation -->|Ìá½»ÎÆÀí+Î»ÖÃ| Renderer
+
+    EnemyMgr -->|³ÖÓĞ| Pool
+    EnemyMgr -.->|Ê¹ÓÃ| Animation
+    EnemyMgr -.->|Ê¹ÓÃ| Physics
+
+    Resource -->|¼ÓÔØÎÆÀí/ÒôÆµ| Renderer
+    Resource -->|¼ÓÔØÒôÆµ| Audio
+    TMX -.->|µ÷ÓÃ| Tmxlite
+    Camera -->|ÉèÖÃÊÓ¿Ú| Renderer
+
+    %% Ó¦ÓÃÑùÊ½
+    class Game,EnemyMgr app
+    class Core,Renderer,Physics,Event,Input,Resource,Audio,FSM,UI engine
+    class Math,Timer,Pool,TMX,Animation,Camera base
+    class SDL3,Tmxlite third
+
+    %% ×ÓÍ¼±³¾°É«
+    style L1 fill:#0D1B2A,stroke:#64B5F6,stroke-width:2px,color:#FFFFFF
+    style L2 fill:#1B2A1E,stroke:#81C784,stroke-width:2px,color:#FFFFFF
+    style L3 fill:#2E1C0A,stroke:#FFB74D,stroke-width:2px,color:#FFFFFF
+    style L4 fill:#1E0F2E,stroke:#CE93D8,stroke-width:2px,color:#FFFFFF
+
+
 resource Ö»±£´æ´¿Êı¾İ£¬²»´æ´¢ÈÎºÎÆäËû×Ô¶¨ÒåÀàĞÍ£¬
 tmxToPngSrcRect tmx - Pngsrc tmxÓ³ÉäpngÎÆÀíÊ±´æ´¢µÄÎªxyµÄÏà¶Ô×ø±ê£¨²»°üº¬w¡¢h£©£¬È¡³öºó´¦ÀíÊ±Ó¦µ±³ËÒÔ¶ÔÓ¦widthºÍheightÓ³Éä³ö¶ÔÓ¦rectangle
 È¡Êı¾İÊ±Åö×²Ô¼¶¨£º0 - ÎŞÅö×²£¬1 - °ëÅö×²£¬2 - È«Åö×²£¨½öÉÏ°ë²¿·ÖÅö×²£© ...
@@ -16,5 +99,9 @@ tmxToPngSrcRect tmx - Pngsrc tmxÓ³ÉäpngÎÆÀíÊ±´æ´¢µÄÎªxyµÄÏà¶Ô×ø±ê£¨²»°üº¬w¡¢h£©£
 Ê¹ÓÃ¶ÔÏó³Ø¶¼µÄ¶ÔÏó¶¼ĞèÒªÊµÏÖinitºÍreset½Ó¿Ú¹©¶ÔÏó³õÊ¼»¯ºÍÖØÖÃ×´Ì¬£¬·ÀÖ¹ÔàÊı¾İ¡£
 ¶ÔÏó³ØÎª¶öººÄ£Ê½£¬ÓÎÏ·¿ªÊ¼Ê±¾Í´´½¨ºÃÔ¤¶¨ÒåÊıÁ¿¶ÔÏó£¬¿É½øĞĞÀ©Èİ¡£
 Íâ²¿¿É»ñÈ¡¶ÔÏó¹ÜÀíÆ÷ÖĞµÄËùÓĞ»îÔ¾¶ÔÏóÊı×é¹©ÆäËüÏµÍ³½»»¥ĞŞ¸Ä£¬µ«²»¿ÉĞŞ¸Ä¸ÃÊı×é´óĞ¡¡¢²»¿ÉÌí¼ÓÉ¾³ıÊı×éÖĞÔªËØ¡£
+
+ÊÂ¼şÏµÍ³£ººóĞøÌí¼ÓÑÓ³Ù¶©ÔÄ/ÍË¶©£¨±ê¼ÇÎªÔàºóÏÂ´ÎupdateÔÙ´¦Àí£©£¬·ÀÖ¹ÍË¶©ºóÊÂ¼şÈÔÉúĞ§£»·ÀÖ¹Í¬Ò»ÊÂ¼şÔÚÍ¬Ò»Ö¡ÄÚÎŞÏŞ´«²¥£¨ÉèÖÃ×î´óÉî¶È£©
+
+×´Ì¬»ú£ººóĞø½«×´Ì¬ÇĞ»»ÎªÎ¨Ò»Ö÷¶¯×÷£¬UI×´Ì¬ÓÉÖ÷×´Ì¬»úÇĞ»»Ê±°éËæ×´Ì¬»úÉú³ÉÊµÀıºóÇĞ»»¶ÔÓ¦UI×´Ì¬¡£
 
 ÖÂĞ»£º¸ĞĞ»ÒÔÏÂ×ÊÔ´ºÍ¹¤¾ßµÄÖ§³Ö£º

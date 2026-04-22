@@ -9,7 +9,7 @@ public:
 	explicit LoseState(Renderer& renderer) noexcept;
 	~LoseState() noexcept override = default;
 	void render() const noexcept override final;
-	void update(float dt) noexcept override final;
+	void update(double dt) noexcept override final;
 private:
 	Renderer& renderer_;
 };

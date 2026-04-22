@@ -6,7 +6,6 @@
 #include <unordered_map>
 #include "core/Rect.h"
 
-//µ¥ÀýÄ£Ê½
 class Renderer {
 public:
 	explicit Renderer() noexcept = default;

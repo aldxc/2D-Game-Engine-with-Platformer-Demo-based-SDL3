@@ -5,7 +5,7 @@ EnemyManager::EnemyManager(Renderer& renderer, Resource& rM, size_t poolSize) no
 	
 }
 
-void EnemyManager::update(float dt) noexcept {
+void EnemyManager::update(double dt) noexcept {
 	for (Enemy* enemy : activeEnemies_) {
 		enemy->update(dt);
 	}

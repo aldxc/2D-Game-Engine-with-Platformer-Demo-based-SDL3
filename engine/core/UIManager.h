@@ -8,14 +8,15 @@
 class Renderer;
 class Input;
 class EventManager;
+class GameSession;
 
 template<class TUIType, class TFactory>
 class UIManager {
 public:
-	explicit UIManager(TUIType initType, Input& iM, EventManager& eM, Renderer& r) noexcept;
+	explicit UIManager(TUIType initType, Input& iM, EventManager& eM, Renderer& r, GameSession& gS) noexcept;
 	~UIManager() noexcept;
 
-	void update(float dt) noexcept;
+	void update(double dt) noexcept;
 	void handleInput() noexcept;
 	void render() const noexcept;
 	void show(TUIType type) noexcept;
@@ -27,14 +28,15 @@ private:
 	Renderer& renderer_; // 渲染器引用，供UI内的渲染相关操作使用
 	EventManager& eventManager_; // 事件管理器引用，供UI内的事件相关操作使用
 	Input& inputManager_; // 输入管理器引用，供UI内的输入相关操作使用
+	GameSession& gameSession_; // 游戏会话引用，供UI内的游戏状态相关操作使用
 
 	std::unique_ptr<UI<TUIType>> currentUI_;
 	std::vector<SubscriptionId> uiSubscriptionIds_{};
 };
 
 template<class TUIType, class TFactory>
-UIManager<TUIType, TFactory>::UIManager(TUIType initType, Input& iM, EventManager& eM, Renderer& r) noexcept
-	: inputManager_(iM), eventManager_(eM), renderer_(r), currentUI_(createUI(initType)) {
+UIManager<TUIType, TFactory>::UIManager(TUIType initType, Input& iM, EventManager& eM, Renderer& r, GameSession& gS) noexcept
+	: inputManager_(iM), eventManager_(eM), renderer_(r), currentUI_(createUI(initType)), gameSession_(gS){
 	uiSubscriptionIds_.push_back(
 		eventManager_.subscribe(
 			EventType::UI_Show,
@@ -53,7 +55,7 @@ UIManager<TUIType, TFactory>::~UIManager() noexcept {
 }
 
 template<class TUIType, class TFactory>
-void UIManager<TUIType, TFactory>::update(float dt) noexcept {
+void UIManager<TUIType, TFactory>::update(double dt) noexcept {
 	if (currentUI_) {
 		currentUI_->update(dt);
 	}
@@ -85,7 +87,7 @@ void UIManager<TUIType, TFactory>::show(TUIType type) noexcept {
 
 template<class TUIType, class TFactory>
 std::unique_ptr<UI<TUIType>> UIManager<TUIType, TFactory>::createUI(TUIType type) noexcept {
-	currentUI_ = TFactory::create(type, inputManager_, eventManager_, renderer_);
+	currentUI_ = TFactory::create(type, inputManager_, eventManager_, renderer_, gameSession_);
 
 	// UI一般为静态元素，不需要频繁更新，现只在初始化中更新纹理
 	//后续增加血条等需要频繁更新的UI元素时可以订阅事件来更新UI纹理，避免每帧都更新UI纹理带来的性能问题

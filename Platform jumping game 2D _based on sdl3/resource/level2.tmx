@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="100" height="18" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="9">
+ <tileset firstgid="1" source="sheet.tsx"/>
+ <tileset firstgid="137" source="logictile.tsx"/>
+ <layer id="2" name="collision" width="100" height="18">
+  <data encoding="base64" compression="zlib">
+   eJzt1EEKwCAQBEG/H1+dS64qAXX2UAX9gFnQ1gAAANilf3GWO8M/3sw9O279aFhCenPlZk79O+nNlUtIb65cQnpz5RLSm1e9LIvYyA==
+  </data>
+ </layer>
+ <layer id="1" name="land" width="100" height="18">
+  <data encoding="base64" compression="zlib">
+   eJzt1TlPAlEUQGFAhF7ZGisWEQQaQSVACKBsvbjQs1oLCPx2ToIdCUyY5Tl59yRfNZO8m3czGY9HkiRJkiRpnxc+XMCPSwQQVDmUxl3hGiGEEUEUMZVDaVwcCSSRwi3SuFM5lMY9oIgSHvGEZ5RVDvVXBVXVQzjcC17RRgdd9NC38Uwd79lobxjgHR/4xBeGKofSuBHGmGCKGeb4dngOq76ZBpoGtCw469x+jjxbYIkVfrHGBlsLz7firnPIu0gGWdwbeH7q3WMKZi7VRDXciAP1E/dm179a9nHePuxK9iH7cIO6iTs103/fxw5T4kYm
+  </data>
+ </layer>
+ <objectgroup id="3" name="object">
+  <object id="1" name="birth" type="spawn" x="176" y="339">
+   <point/>
+  </object>
+  <object id="2" name="enemy" type="spawn" x="805" y="371">
+   <point/>
+  </object>
+  <object id="3" name="enemy" type="spawn" x="873" y="359">
+   <point/>
+  </object>
+  <object id="4" name="enemy" type="spawn" x="2223" y="339">
+   <point/>
+  </object>
+  <object id="5" name="enemy" type="spawn" x="2394" y="335">
+   <point/>
+  </object>
+  <object id="6" name="enemy" type="spawn" x="2566" y="327">
+   <point/>
+  </object>
+  <object id="7" name="enemy" type="spawn" x="2688" y="328">
+   <point/>
+  </object>
+  <object id="8" name="enemy" type="spawn" x="2476" y="323">
+   <point/>
+  </object>
+ </objectgroup>
+</map>

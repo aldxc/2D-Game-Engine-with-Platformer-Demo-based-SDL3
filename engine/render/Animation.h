@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 #include "core/Rect.h"
 
-enum class PlayerAnimationState { IDLE = 0, RUN = 1, JUMP = 2, FALL = 3, ATTACK = 4, CLIMB = 5, SPRINT = 6, FLASH = 7, HIT = 8 };
+enum class PlayerAnimationState { IDLE = 0, RUN = 1, JUMP = 2, FALL = 3, ATTACK = 4, CLIMB = 5, SPRINT = 6, FLASH = 7, HIT = 8 , WIN = 9};
 
 class Animation {
 public:
@@ -26,14 +26,14 @@ public:
 	bool init() noexcept;
 
 	void play(const AnimationClip& clip) noexcept; // 播放指定的动画剪辑，重置动画状态
-	void update(float dt) noexcept;
+	void update(double dt) noexcept;
 	const Rect& getCurrentFrameRect() const noexcept;
 	int getCurrentFrameIndex() const noexcept { return currentFrameIndex_; }
 	bool isFinished() const noexcept;
 private:
 	AnimationClip currentClip_; // 当前播放的动画剪辑
-	std::size_t currentFrameIndex_ = 0; // 当前帧索引
-	float elapsed_ = 0.0f; // 当前帧已播放的时间
+	size_t currentFrameIndex_ = 0; // 当前帧索引
+	double elapsed_ = 0.0f; // 当前帧已播放的时间
 	bool finished_ = false; // 动画是否已完成，非循环动画在播放完最后一帧后会设置为true，循环动画始终为false
 	//std::unordered_map<PlayerAnimationState, AnimationClip> animationClips_; // 不同玩家动画状态对应的动画剪辑映射
 };

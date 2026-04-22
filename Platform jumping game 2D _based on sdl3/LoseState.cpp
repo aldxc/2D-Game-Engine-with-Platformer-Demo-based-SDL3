@@ -11,6 +11,6 @@ void LoseState::render() const noexcept {
 	renderer_.clearDynamicTexture(); // 切换到动态纹理渲染目标并清除内容，准备渲染胜利界面等动态元素
 }
 
-void LoseState::update(float dt) noexcept {
+void LoseState::update(double dt) noexcept {
 
 }

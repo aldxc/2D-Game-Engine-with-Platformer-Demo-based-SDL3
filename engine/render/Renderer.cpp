@@ -157,7 +157,7 @@ void Renderer::renderStaticTexture() const noexcept{
 }
 
 void Renderer::renderDynamicTexture() const noexcept{
-	//SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
+	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
 	SDL_RenderTexture(renderer_.get(), dynamicTexture_.get(), nullptr, nullptr);
 }
 

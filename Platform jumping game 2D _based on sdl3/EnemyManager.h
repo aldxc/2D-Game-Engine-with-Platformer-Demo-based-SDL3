@@ -12,7 +12,7 @@ public:
 
 	std::vector<Enemy*>& getActiveEnemies() noexcept { return activeEnemies_; }
 
-	void update(float dt) noexcept;
+	void update(double dt) noexcept;
 
 	void spawnEnemy(const Rect& enemyInfo) noexcept; // 生成敌人，后续增加生成位置、类型等参数
 

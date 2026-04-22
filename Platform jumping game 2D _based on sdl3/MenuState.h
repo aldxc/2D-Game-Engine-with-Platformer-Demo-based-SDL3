@@ -9,7 +9,7 @@ class MenuState : public State<StateType> {
 public:
 	explicit MenuState(Renderer& r) noexcept;
 	~MenuState() noexcept override = default;
-	void update(float dt) noexcept override final;
+	void update(double dt) noexcept override final;
 	void render() const noexcept override final;
 private:
 	Renderer& renderer_;

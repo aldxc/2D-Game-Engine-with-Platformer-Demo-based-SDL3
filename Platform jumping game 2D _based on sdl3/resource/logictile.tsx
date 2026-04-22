@@ -13,22 +13,22 @@
  </tile>
  <tile id="2">
   <properties>
-   <property name="collision" type="int" value="0"/>
+   <property name="collision" type="int" value="3"/>
   </properties>
  </tile>
  <tile id="3">
   <properties>
-   <property name="collision" type="int" value="3"/>
+   <property name="collision" type="int" value="4"/>
   </properties>
  </tile>
  <tile id="4">
   <properties>
-   <property name="collision" type="int" value="4"/>
+   <property name="collision" type="int" value="5"/>
   </properties>
  </tile>
  <tile id="5">
   <properties>
-   <property name="collision" type="int" value="5"/>
+   <property name="collision" type="int" value="6"/>
   </properties>
  </tile>
 </tileset>

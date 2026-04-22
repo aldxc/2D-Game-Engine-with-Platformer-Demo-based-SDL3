@@ -5,9 +5,8 @@
 
 class Renderer;
 
-enum class InputAction { JUMP, MOVE_LEFT, MOVE_RIGHT, ATTACK, UP, DOWN, SPRINT, FLASH };//后续增加更多输入动作，冲刺、攻击等
+enum class InputAction { JUMP, MOVE_LEFT, MOVE_RIGHT, ATTACK, UP, DOWN, SPRINT, FLASH, PAUSE };//后续增加更多输入动作，冲刺、攻击等
 
-//最好单例
 class Input {
 public:
 	explicit Input() noexcept = default;
@@ -31,6 +30,9 @@ public:
 	bool getDownPressed() const noexcept { return isDownPressed_; } // 获取下状态，例如下落、下蹲等
 	bool getSprintPressed() const noexcept { return isSprintPressed_; } // 获取冲刺状态
 	bool getFlashPressed() const noexcept { return isFlashPressed_; } // 获取闪现状态
+	bool getESCPressed() const noexcept { return isESCPressed_; } // 获取ESC键状态
+	void consumeMousePress() noexcept { isMousePressed_ = false; }
+	void consumeESCKeyPress() noexcept { isESCPressed_ = false; }
 
 	void resetInputState() noexcept; // 重置输入状态，通常在每帧开始时调用
 private:
@@ -44,6 +46,7 @@ private:
 	bool isDownPressed_ = false; // 下
 	bool isSprintPressed_ = false; // 冲刺
 	bool isFlashPressed_ = false; // 闪现
+	bool isESCPressed_ = false; // ESC键状态
 	std::pair<float, float> mousePos_ = {};
 	std::unordered_map<SDL_Scancode, InputAction> keyBindings_; // 键盘绑定，后续支持自定义按键绑定
 };

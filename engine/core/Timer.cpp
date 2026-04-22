@@ -9,7 +9,7 @@ Timer::Timer() noexcept {
 	looped_ = false;
 }
 
-void Timer::start(float duration, bool isloop) noexcept {
+void Timer::start(double duration, bool isloop) noexcept {
 	isActive_ = true;
 	duration_ = duration;
 	elapsedTime_ = 0.0f;
@@ -22,11 +22,11 @@ void Timer::stop() noexcept {
 	elapsedTime_ = 0.0f;
 }
 
-void Timer::update(float dt) noexcept {
+void Timer::update(double dt) noexcept {
 	if (!isActive_) {
 		return;
 	}
-	const float maxDt = 0.02f; // 防止dt过大导致时间跳跃，尤其是在调试或帧率不稳定时
+	const double maxDt = 0.02f; // 防止dt过大导致时间跳跃，尤其是在调试或帧率不稳定时
 	dt = std::min(dt, maxDt);
 
 	elapsedTime_ += dt;

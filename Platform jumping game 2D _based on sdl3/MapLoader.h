@@ -11,7 +11,13 @@ class Renderer;
 namespace Maploader {
 	static std::unique_ptr<TileMap> loadMap(const std::string& filePath, Resource& rM, Renderer& r) {
 		std::vector<std::vector<uint64_t>> data;
-		rM.loadMap(filePath, data); // 从tmx文件加载地图数据，后续增加有限地图和无限地图的区分处理等功能
+		std::vector<Resource::ObjectDate> objectData; // 目前暂时没有使用地图对象数据，后续增加地图对象的处理功能，例如敌人出生点、道具位置等
+		// 从tmx文件加载地图数据，后续增加有限地图和无限地图的区分处理等功能
+		if (!rM.loadMap(filePath, data, objectData)) {
+			// 日志
+			return nullptr;
+		}
+			
 
 		auto tileMap = std::make_unique<TileMap>(r, rM);
 
@@ -31,7 +37,7 @@ namespace Maploader {
 				tilemap[i][j] = Tile{ srcX, srcY, collisionValue, flags };
 			}
 		}
-		tileMap->setTiles(tilemap);
+		tileMap->setData(tilemap, objectData);
 
 		return tileMap;
 	}

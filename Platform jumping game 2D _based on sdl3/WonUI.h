@@ -11,10 +11,10 @@ class Input;
 
 class WonUI : public UI<UIType> {
 public:
-	explicit WonUI(Input& iM, EventManager& eM, Renderer& r);
-	~WonUI() override;
+	explicit WonUI(Input& iM, EventManager& eM, Renderer& r) noexcept;
+	~WonUI() noexcept override;
 	void handleInput() noexcept override final;
-	void update(float dt) noexcept override final;
+	void update(double dt) noexcept override final;
 	void render() const noexcept override final;
 private:
 	Renderer& renderer_; // 渲染器引用，供UI内的渲染相关操作使用

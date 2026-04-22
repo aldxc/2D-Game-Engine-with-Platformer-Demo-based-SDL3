@@ -4,10 +4,14 @@
 #include "StateType.h"
 #include "Config.h"
 
+class Renderer;
+
 class PauseState : public State<StateType> {
 public:
-	explicit PauseState() noexcept;
+	explicit PauseState(Renderer& renderer) noexcept;
 	~PauseState() noexcept override = default;
-	void update(float dt) noexcept override final;
+	void update(double dt) noexcept override final;
 	void render() const noexcept override final;
+private:
+	Renderer& renderer_;
 };

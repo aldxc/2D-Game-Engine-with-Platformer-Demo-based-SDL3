@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-enum class CollisionType : uint8_t { NONE = 0, HALF = 1, FULL = 2, CLIMBABLE = 3 };
+enum class CollisionType : uint8_t { NONE = 0, HALF = 1, FULL = 2, CLIMBABLE = 3, HITED = 4, DEAD = 5 };
 
 struct Tile { // 依旧可以打包成64位数据
 	uint16_t srcX; // 瓦片在纹理中的源矩形左上角X坐标

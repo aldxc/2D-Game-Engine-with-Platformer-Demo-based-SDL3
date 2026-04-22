@@ -28,12 +28,31 @@ enum class EventType : uint8_t {
     // 应用事件
     App_Quit,
 
+    // 音频事件
+	Audio_PlayBgm,
+	Audio_PauseBgm,
+	Audio_StopBgm,
+	Audio_ResumeBgm,
+	Audio_PlaySfx,
+
     Custom,
 };
 
+enum class StateOperator : uint8_t {
+    Replace, // 替换当前状态
+    Push,    // 将新状态压入状态栈
+    Pop,      // 从状态栈弹出当前状态
+	ClearAndPush // 清空状态栈并将新状态压入
+};
+
+struct StateRequest {
+    StateOperator op; // 操作类型
+	std::any data; // 新状态类型
+};  
+
 struct Event {
     EventType type;
-    std::any data;//data 可优化
+	std::any data; //data 可优化为 std::variant 或者使用事件ID映射数据类型等方式来避免 std::any 的性能开销，但目前为了简化设计和接口，暂时使用 std::any 来支持任意类型的数据传递
 
     // 辅助方法：安全获取数据
     template<typename T>
@@ -46,22 +65,3 @@ struct Event {
         return data.has_value() && data.type() == typeid(T);
     }
 };
-
-//struct EventKeyDown {
-//    SDL_Keycode key;        // 按键码
-//};
-//
-//struct EventKeyUp {
-//    SDL_Keycode key;
-//};
-//
-//struct EventMouseButtonDown {
-//    float x, y;             // 鼠标位置
-//};
-//
-//struct EventMouseButtonUp {
-//    float x, y;
-//};
-//
-////事件联合体
-//using GameEvent = std::variant<EventKeyDown, EventKeyUp, EventMouseButtonDown>;

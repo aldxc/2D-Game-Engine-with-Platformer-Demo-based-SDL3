@@ -16,7 +16,7 @@ public:
 	Object(Object&&) = delete;
 	Object& operator=(Object&&) = delete;
 
-	virtual void update(float dt) noexcept = 0;
+	virtual void update(double dt) noexcept = 0;
 	virtual void render(const Camera& camera) const noexcept = 0; //camera参数用于将对象的世界坐标转换为屏幕坐标进行渲染
 	bool getIsActive() const noexcept { return isActive_; }
 	bool getIsDestroyed() const noexcept { return isDestroyed_; }

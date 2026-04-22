@@ -38,6 +38,15 @@ void EventManager::sendEvent(const Event& event) noexcept {
     eventQueue_.push(event);
 }
 
+void EventManager::triggerEvent(const Event& event) noexcept{
+    auto it = listeners_.find(event.type);
+    if (it != listeners_.end()) {
+        for (const auto& entry : it->second) {
+            entry.callback(event);
+        }
+	}
+}
+
 void EventManager::update() noexcept {
     while (!eventQueue_.empty()) {
         Event event = eventQueue_.front();
@@ -46,6 +55,7 @@ void EventManager::update() noexcept {
         // 查找该类型事件的监听器并调用
         auto it = listeners_.find(event.type);
         if (it != listeners_.end()) {
+            // 事件安全
             // 注意：回调执行期间可能修改监听器列表（比如 unsubscribe）
             // 为了防止迭代器失效，先复制一份回调列表
             std::vector<EventListener> callbacks;

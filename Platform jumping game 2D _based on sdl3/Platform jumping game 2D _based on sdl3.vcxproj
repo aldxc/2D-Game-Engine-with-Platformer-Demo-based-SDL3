@@ -113,7 +113,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL3.lib;SDL3_test.lib;SDL3_ttf.lib;SDL3_image.lib;tmxlite-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;SDL3_test.lib;SDL3_ttf.lib;SDL3_image.lib;tmxlite-s-d.lib;SDL3_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\engine\audio\Audio.cpp" />
     <ClCompile Include="..\engine\core\EventManager.cpp" />
     <ClCompile Include="..\engine\core\Rect.cpp" />
     <ClCompile Include="..\engine\core\Timer.cpp" />
@@ -142,11 +143,17 @@
     <ClCompile Include="..\engine\render\Camera.cpp" />
     <ClCompile Include="..\engine\render\Renderer.cpp" />
     <ClCompile Include="..\engine\resource\Resource.cpp" />
+    <ClCompile Include="AudioService.cpp" />
     <ClCompile Include="Botton.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyManager.cpp" />
+    <ClCompile Include="GameSession.cpp" />
     <ClCompile Include="LoseState.cpp" />
     <ClCompile Include="LoseUI.cpp" />
+    <ClCompile Include="PauseState.cpp" />
+    <ClCompile Include="PauseUI.cpp" />
+    <ClCompile Include="SelectState.cpp" />
+    <ClCompile Include="SelectUI.cpp" />
     <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="WonState.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -159,6 +166,7 @@
     <ClCompile Include="WonUI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\engine\audio\Audio.h" />
     <ClInclude Include="..\engine\core\Context.h" />
     <ClInclude Include="..\engine\core\EventManager.h" />
     <ClInclude Include="..\engine\core\EventType.h" />
@@ -182,12 +190,18 @@
     <ClInclude Include="..\engine\render\Renderer.h" />
     <ClInclude Include="..\engine\render\TextureAtlas.h" />
     <ClInclude Include="..\engine\resource\Resource.h" />
+    <ClInclude Include="AudioId.h" />
+    <ClInclude Include="AudioService.h" />
     <ClInclude Include="Botton.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="EnemyManager.h" />
+    <ClInclude Include="GameSession.h" />
     <ClInclude Include="LoseState.h" />
     <ClInclude Include="LoseUI.h" />
     <ClInclude Include="MapLoader.h" />
+    <ClInclude Include="PauseUI.h" />
+    <ClInclude Include="SelectState.h" />
+    <ClInclude Include="SelectUI.h" />
     <ClInclude Include="WonState.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameStateFactory.h" />

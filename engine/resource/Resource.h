@@ -5,7 +5,9 @@
 #include <unordered_map>
 #include <memory>
 #include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #include <tmxlite/Map.hpp>
+#include "core/Rect.h"
 
 //最好单例
 class Resource {
@@ -19,6 +21,14 @@ public:
 		std::vector<std::vector<uint64_t>> tiles = {};
 	};
 
+	struct ObjectDate {
+		std::string data;
+		Rect rect; // 对象的位置和大小
+		bool isAcitive = false;
+		// 其他属性，例如类型、ID等
+		std::vector<std::pair<uint16_t, uint32_t>> animationFrames; // 存储对象的动画帧数据，每帧包含一个源矩形位置和一个持续时间，持续时间存储在uint32_t中，单位为毫秒
+	};
+
 	//禁用拷贝与移动
 	Resource(const Resource&) = delete;
 	Resource& operator=(const Resource&) = delete;
@@ -30,14 +40,20 @@ public:
 	// 地图 level 文件读写
 	bool loadLevel(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles) const noexcept;
 	bool saveLevel(const std::string& filePath, const LevelData& level) const noexcept;
-	bool loadMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles) noexcept; 
+	bool loadMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles, std::vector<ObjectDate>& objectDate) noexcept;
 
 
 	//	瓦片纹理读取
 	std::shared_ptr<SDL_Texture> loadTexture(const std::string& filePath, SDL_Renderer* renderer) noexcept;
+
+	void saveGameData(const std::string& filePath, const std::vector<int>& data) noexcept; // 保存游戏进度数据
+	void saveGameData(const std::string& filePath, const uint32_t date) noexcept; // 保存
+	void loadGameData(const std::string& filePath, std::vector<int>& data) noexcept; // 加载游戏
+
+	std::shared_ptr<MIX_Audio> loadAudio(const std::string& filePath, MIX_Mixer* mixer) noexcept; // 加载音频
 private:
-	bool loadTmxMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles) noexcept; // 有限地图加载
-	void tmxToPngSrcRectAndColl() noexcept; // 将tmx地图数据转换成png纹理的源矩形和碰撞 // 只保存x y
+	bool loadTmxMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& Tiles, std::vector<ObjectDate>& objectDate) noexcept; // 有限地图加载
+	void tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<uint64_t>>& tileIDToAnimationFrames) noexcept; // 将tmx地图数据转换成png纹理的源矩形和碰撞 // 只保存x y
 
 private:
 	std::unordered_map<std::string, std::shared_ptr<SDL_Texture>> textureCache_; // 资源缓存，可以根据实际需求定义具体的资源类型和管理方式
@@ -46,4 +62,6 @@ private:
 	std::unordered_map<uint32_t, uint16_t> tileTypeToSrcRectXY_; // GID - 源矩形左上角坐标的映射关系 
 	//uint64_t的低16位存储srcX和srcY坐标（每个坐标8位）
 	std::unordered_map<uint32_t, uint8_t> tileTypeToCollision_; // GID - 碰撞类型的映射关系，0表示无碰撞，1表示半碰撞，2表示完全碰撞
+
+	std::unordered_map<std::string, std::shared_ptr<MIX_Audio>> audioCache_; // 音频缓存
 };
