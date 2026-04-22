@@ -69,10 +69,13 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 		SDL_Log("Failed to load tmx map: %s", filePath.c_str());
 		return false;
 	}
-	auto col = mapData_.getTileCount().x; // 获取地图宽度
-	auto row = mapData_.getTileCount().y; // 获取地图高度
-	std::unordered_map<uint32_t, std::vector<uint64_t>> tileIDToAnimationFrames; // 存储动画瓦片的帧数据，key为GID，value为帧的GID列表和帧率 低32位存储帧率，剩余部分存储帧的GID列表，每个GID占32位
-	tmxToPngSrcRectAndColl(tileIDToAnimationFrames); // 将tmx地图数据转换成png纹理的源矩形和碰撞信息
+	// 获取地图的宽高信息，后续增加对无限地图中chunk数据的处理
+	auto col = mapData_.getTileCount().x; 
+	auto row = mapData_.getTileCount().y; 
+	// 存储动画瓦片的帧数据，key为GID，value为帧的GID列表和帧率 低32位存储帧率，剩余部分存储帧的GID列表，每个GID占32位
+	std::unordered_map<uint32_t, std::vector<uint64_t>> tileIDToAnimationFrames; 
+	// 将tmx地图数据转换成png纹理的源矩形和碰撞信息
+	tmxToPngSrcRectAndColl(tileIDToAnimationFrames); 
 
 
 	mapTiles.assign(row, std::vector<uint64_t>(col, 0));
@@ -100,11 +103,14 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 				for (size_t i = 0; i < row; ++i) {
 					for (size_t j = 0; j < col; ++j) {
 						const int index = i * col + j;
-						const auto GID = tiles[index].ID; // 获取瓦片的全局ID
+						// 获取瓦片的全局ID
+						const auto GID = tiles[index].ID; 
 						if (GID == 0) {
-							continue; // GID为0表示该位置没有瓦片，跳过
+							// GID为0表示该位置没有瓦片，跳过
+							continue; 
 						}
-						mapTiles[i][j] |= (tileTypeToSrcRectXY_[GID] | (static_cast<uint64_t>(1) << 24)); // 根据GID获取对应的源矩形坐标和碰撞信息，并存储在Tiles二维数组中
+						// 根据GID获取对应的源矩形坐标和碰撞信息，并存储在Tiles二维数组中
+						mapTiles[i][j] |= (tileTypeToSrcRectXY_[GID] | (static_cast<uint64_t>(1) << 24)); 
 					}
 				}
 			}
@@ -124,11 +130,13 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 				for (int i = 0; i < row; ++i) {
 					for (int j = 0; j < col; ++j) {
 						const int index = i * col + j;
-						const auto GID = tiles[index].ID; // 获取瓦片的全局ID
+						const auto GID = tiles[index].ID; 
 						if (GID == 0) {
-							continue; // GID为0表示该位置没有瓦片，跳过
+							// GID为0表示该位置没有瓦片，跳过
+							continue; 
 						}
-						mapTiles[i][j] |= (static_cast<uint64_t>(tileTypeToCollision_[GID]) << 16); // 根据GID获取对应的源矩形坐标和碰撞信息，并存储在Tiles二维数组中
+						// 根据GID获取对应的源矩形坐标和碰撞信息，并存储在Tiles二维数组中
+						mapTiles[i][j] |= (static_cast<uint64_t>(tileTypeToCollision_[GID]) << 16); 
 					}
 				}
 			}
@@ -144,7 +152,8 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 					} else if (obj.getClass() == "box") {
 						const auto GID = obj.getTileID();
 						if (GID == 0) {
-							continue; // GID为0表示该对象没有关联的瓦片，跳过
+							// GID为0表示该对象没有关联的瓦片，跳过
+							continue; 
 						}
 						const size_t j = obj.getPosition().y;
 						const size_t i = obj.getPosition().x;
@@ -158,8 +167,7 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 								objectData.back().animationFrames.emplace_back(tileTypeToSrcRectXY_[frameGID], frameDuration);
 							}
 						}
-					}
-					else if (obj.getClass() == "point") {
+					} else if (obj.getClass() == "point") {
 						Rect objRect(obj.getPosition().x, obj.getPosition().y, 0, 0);
 						objectData.emplace_back(ObjectDate{ obj.getName(), objRect, false });
 					}
@@ -185,14 +193,16 @@ void Resource::tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<u
 		}
 
 		// 纹理集名字
-		if (tileset.getName() == "sheet") { // sheet 获取瓦片纹理
-			int col = tileset.getColumnCount(); // tileset每行几个瓦片
-			int tileSize = mapData_.getTileSize().x;
+		if (tileset.getName() == "sheet") { 
+			// tileset每行几个瓦片
+			size_t col = tileset.getColumnCount(); 
+			size_t tileSize = mapData_.getTileSize().x;
 			uint32_t firstGID = tileset.getFirstGID();
 
-			int tileCount = tileset.getTileCount(); // tileset里有多少瓦片
+			// tileset里有多少瓦片
+			size_t tileCount = tileset.getTileCount();
 
-			for (int i = 0; i < tileCount; ++i) {
+			for (size_t i = 0; i < tileCount; ++i) {
 				uint32_t tileID = firstGID + i;
 				uint8_t srcX = (i % col);
 				uint8_t srcY = (i / col);
@@ -208,9 +218,9 @@ void Resource::tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<u
 				for (const auto& prop : props) {
 					if (prop.getName() == "collision") {
 						uint8_t collisionType = 0;
-						if (prop.getType() == tmx::Property::Type::Int) { // 碰撞类型int存储 1 -- half 2 -- full
+						if (prop.getType() == tmx::Property::Type::Int) { 
 							int collInt = prop.getIntValue();
-							collisionType = collInt; // 存储的int值直接对应碰撞类型
+							collisionType = collInt; 
 						}
 						tileTypeToCollision_[tileID] = collisionType;
 					}
@@ -223,7 +233,8 @@ void Resource::tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<u
 std::shared_ptr<SDL_Texture> Resource::loadTexture(const std::string& filePath, SDL_Renderer* renderer) noexcept {
 	auto it = textureCache_.find(filePath);
 	if(it != textureCache_.end()) {
-		return it->second; // 如果缓存中已经存在该纹理，直接返回
+		// 如果缓存中已经存在该纹理，直接返回
+		return it->second; 
 	}
 
 	SDL_Texture* texture = IMG_LoadTexture(renderer, filePath.c_str());
@@ -235,8 +246,10 @@ std::shared_ptr<SDL_Texture> Resource::loadTexture(const std::string& filePath, 
 	std::shared_ptr<SDL_Texture> texturePtr(texture, [](SDL_Texture* tex) {
 		if(tex) SDL_DestroyTexture(tex);
 		});
-	textureCache_[filePath] = texturePtr; // 将新加载的纹理添加到缓存中
-	SDL_SetTextureScaleMode(texturePtr.get(), SDL_SCALEMODE_NEAREST);//就近采样
+	// 将新加载的纹理添加到缓存中
+	textureCache_[filePath] = texturePtr; 
+	//就近采样
+	SDL_SetTextureScaleMode(texturePtr.get(), SDL_SCALEMODE_NEAREST);
 
 	return texturePtr;
 }
@@ -263,7 +276,8 @@ void Resource::loadGameData(const std::string& filePath, std::vector<int>& data)
 std::shared_ptr<MIX_Audio> Resource::loadAudio(const std::string& filePath, MIX_Mixer* mixer) noexcept{
 	auto it = audioCache_.find(filePath);
 	if(it != audioCache_.end()) {
-		return it->second; // 如果缓存中已经存在该音频，直接返回
+		// 如果缓存中已经存在该音频，直接返回
+		return it->second; 
 	}
 
 	MIX_Audio* audio = MIX_LoadAudio(mixer, filePath.c_str(), true);
@@ -275,7 +289,8 @@ std::shared_ptr<MIX_Audio> Resource::loadAudio(const std::string& filePath, MIX_
 	std::shared_ptr<MIX_Audio> audioPtr(audio, [](MIX_Audio* aud) {
 		if(aud) MIX_DestroyAudio(aud);
 		});
-	audioCache_[filePath] = audioPtr; // 将新加载的音频添加到缓存中
+	// 将新加载的音频添加到缓存中
+	audioCache_[filePath] = audioPtr; 
 
 	return audioPtr;
 }

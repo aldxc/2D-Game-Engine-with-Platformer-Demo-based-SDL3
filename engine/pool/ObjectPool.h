@@ -52,7 +52,7 @@ public:
 		if(obj == nullptr) {
 			return; // 不允许归还空指针，直接返回
 		}
-		// 已经约定obj必须有 reset 方法，重置对象状态，否则可能出现状态混乱的问题
+		// 已经约定obj必须有 reset 方法，重置对象状态，否则可能出现不可控的问题
 		obj->reset();
 		availableObjects_.push(obj);
 	}
@@ -73,7 +73,8 @@ public:
 
 	void expansion(size_t addCount) noexcept {
 		if(addCount == 0) {
-			addCount = objects_.size(); // 默认扩容为当前大小的两倍
+			// 默认扩容为当前大小的两倍
+			addCount = objects_.size(); 
 		}
 		size_t currentSize = objects_.size();
 		objects_.reserve(currentSize + addCount);
@@ -84,7 +85,10 @@ public:
 		}
 	}
 private:
-	std::vector<PoolPtr<TObject, TDeleter>> objects_; // 对象池拥有对象所有权，使用智能指针管理对象生命周期
-	std::queue<TObject*> availableObjects_; // 可用对象队列，存储对象指针，指向objects_中的对象
-	std::function<PoolPtr<TObject, TDeleter>()> factory_; // 对象工厂函数，用于创建新对象
+	// 对象池拥有对象所有权，使用智能指针管理对象生命周期
+	std::vector<PoolPtr<TObject, TDeleter>> objects_; 
+	// 可用对象队列，存储对象指针，指向objects_中的对象
+	std::queue<TObject*> availableObjects_; 
+	// 对象工厂函数，用于创建新对象
+	std::function<PoolPtr<TObject, TDeleter>()> factory_; 
 };

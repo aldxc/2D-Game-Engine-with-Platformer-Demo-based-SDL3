@@ -2,6 +2,7 @@
 #include "render/Renderer.h"
 
 bool Input::init() noexcept {
+	// 默认键盘绑定
 	keyBindings_[SDL_SCANCODE_LEFT] = InputAction::MOVE_LEFT;
 	keyBindings_[SDL_SCANCODE_RIGHT] = InputAction::MOVE_RIGHT;
 	keyBindings_[SDL_SCANCODE_C] = InputAction::JUMP;
@@ -29,14 +30,15 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 		break;
 	}
 	case SDL_EVENT_KEY_DOWN: {
+		// 忽略按键重复事件，确保输入状态只在按键首次按下的那一帧更新，避免持续按键导致的重复输入问题
 		if (event.key.repeat) {
-			break; // 忽略按键重复事件，确保输入状态只在按键首次按下的那一帧更新，避免持续按键导致的重复输入问题
+			break; 
 		}
 
 		isKeyPressed_ = true;
-		const auto it = keyBindings_.find(event.key.scancode);//不需要二次查找，直接使用迭代器访问绑定的动作，避免重复查找带来的性能问题
+		const auto it = keyBindings_.find(event.key.scancode);
 		if (it == keyBindings_.end()) {
-			break; // 如果按键没有绑定任何动作，直接返回
+			break; 
 		}
 		switch (it->second) {
 		case InputAction::MOVE_LEFT:
@@ -69,9 +71,9 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 		break;
 	}
 	case SDL_EVENT_KEY_UP: {
-		const auto it = keyBindings_.find(event.key.scancode);//不需要二次查找，直接使用迭代器访问绑定的动作，避免重复查找带来的性能问题
+		const auto it = keyBindings_.find(event.key.scancode);
 		if (it == keyBindings_.end()) {
-			break; // 如果按键没有绑定任何动作，直接返回
+			break;
 		}
 
 		switch (it->second) {
@@ -108,7 +110,7 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 void Input::resetInputState() noexcept{
 	isKeyPressed_ = false;
 	isMousePressed_ = false;
-	isJumpPressed_ = false;// 跳跃状态通常在按键按下时设置，在每帧开始时重置，确保跳跃动作只在按键按下的那一帧触发
+	isJumpPressed_ = false;
 	isAttackPressed_ = false;
 	isSprintPressed_ = false;
 }

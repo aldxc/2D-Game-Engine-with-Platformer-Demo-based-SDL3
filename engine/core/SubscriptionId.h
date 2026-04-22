@@ -4,7 +4,7 @@
 
 class SubscriptionId {
 public:
-    explicit SubscriptionId() : id_(0), type_(EventType::Custom) {}
+    explicit SubscriptionId() : id_(0), type_(EventType::CUSTOM) {}
     SubscriptionId(uint64_t id, EventType type) : id_(id), type_(type) {}
 
     uint64_t getId() const { return id_; }
@@ -18,6 +18,8 @@ public:
     }
 
 private:
-    uint64_t id_;       // 唯一 ID（全局递增）
-    EventType type_;    // 所属事件类型，便于快速定位
+    // 唯一 ID（全局递增）
+    uint64_t id_;       
+    // 所属事件类型，便于快速定位
+    EventType type_;    
 };

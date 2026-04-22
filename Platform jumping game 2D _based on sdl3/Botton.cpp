@@ -21,5 +21,4 @@ void Botton::clickBottom() const noexcept {
 
 void Botton::render(Renderer& renderer) const noexcept {
 	renderer.renderText(text_, rect_, color_, tsize_);
-	//Renderer::getInstance().renderRect(rect_, color_);
 }

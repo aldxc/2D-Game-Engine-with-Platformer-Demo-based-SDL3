@@ -7,42 +7,44 @@
 
 //后续可设计成更通用的事件系统，支持更多类型的事件和数据，甚至可以增加事件优先级、事件过滤等功能
 
-// 强枚举：事件类型
+// 事件类型
 enum class EventType : uint8_t {
     //UI事件
-    UI_ButtonClicked,
-    UI_SliderChanged,
+    UI_BUTTON_CLICKED,
+    UI_SLIDER_CHANGED,
 
     // 状态机事件（由其他系统发送）
-    State_Enter,      // 进入某个状态
-    State_Exit,       // 退出某个状态
-    State_Transition, // 请求状态切换
+    STATE_ENTER,      // 进入某个状态
+    STATE_EXIT,       // 退出某个状态
+    STATE_TRANSITION, // 请求状态切换
 
 	//UI状态事件
-	UI_Show,
-	UI_Hide,
-	UI_Change,
+    UI_SHOW,
+    UI_HIDE,
+    UI_CHANGE,
 
-    Debug_TogglePlayerInfo,
+	// 调试事件
+    DEBUG_TOGGLE_PLAYER_INFO,
 
     // 应用事件
-    App_Quit,
+    APP_QUIT,
 
     // 音频事件
-	Audio_PlayBgm,
-	Audio_PauseBgm,
-	Audio_StopBgm,
-	Audio_ResumeBgm,
-	Audio_PlaySfx,
+	AUDIO_PLAY_BGM,
+	AUDIO_PAUSE_BGM,
+	AUDIO_STOP_BGM,
+	AUDIO_RESUME_BGM,
+	AUDIO_PLAY_SFX,
 
-    Custom,
+    // 自定义事件
+	CUSTOM
 };
 
 enum class StateOperator : uint8_t {
-    Replace, // 替换当前状态
-    Push,    // 将新状态压入状态栈
-    Pop,      // 从状态栈弹出当前状态
-	ClearAndPush // 清空状态栈并将新状态压入
+    REPLACE, // 替换当前状态
+    PUSH,    // 将新状态压入状态栈
+    POP,      // 从状态栈弹出当前状态
+    CLEAR_AND_PUSH // 清空状态栈并将新状态压入
 };
 
 struct StateRequest {

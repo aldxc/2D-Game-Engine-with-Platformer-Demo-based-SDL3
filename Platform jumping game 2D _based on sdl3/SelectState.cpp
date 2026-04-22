@@ -6,7 +6,7 @@
 #include "Config.h"
 
 SelectState::SelectState(Renderer& renderer, Resource& rM, Input& iM) noexcept : State<StateType>(StateType::SELECT_HERO), renderer_(renderer), resourceManager_(rM), inputManager_(iM){
-	playerTexture_ = resourceManager_.loadTexture("resource/characters.png", renderer_.getSDLRenderer());
+	playerTexture_ = resourceManager_.loadTexture(Config::PLAYER_TEXTURE_PATH, renderer_.getSDLRenderer());
 
 	Animation::AnimationClip animationClip;
 	const auto src = Config::PLAYER_IDLE_SRC;
@@ -18,16 +18,15 @@ SelectState::SelectState(Renderer& renderer, Resource& rM, Input& iM) noexcept :
 	for(int i = 0; i < Config::SELECT_BUTTONS_NUM; ++i) {
 		animationClip.frames.push_back(Rect{ static_cast<float>(src[0]), static_cast<float>(src[1] + offsets[i]), static_cast<float>(src[2]), static_cast<float>(src[3])});
 		animations_[i].play(animationClip);
-		animationClip.frames.clear(); // 清除当前帧数据，为下一个玩家的动画剪辑准备
-		animationStates_[i] = PlayerAnimationState::IDLE; // 初始化动画状态为IDLE
+		animationClip.frames.clear(); 
+		animationStates_[i] = PlayerAnimationState::IDLE; 
 	}
-
 }
 
 void SelectState::render() const noexcept{
-	renderer_.clearStaticTexture(); // 切换到静态纹理渲染目标并清除内容，准备渲染地图等静态元素
+	renderer_.clearStaticTexture();
 
-	renderer_.clearDynamicTexture(); // 切换到动态纹理渲染目标并清除内容，准备渲染胜利界面等动态元素
+	renderer_.clearDynamicTexture(); 
 	for(int i = 0; i < Config::SELECT_BUTTONS_NUM; ++i) {
 		Rect currentFrameRect = animations_[i].getCurrentFrameRect();
 		renderer_.renderTexture(playerTexture_.get(), currentFrameRect, Config::SELECT_SHOW_RECT[i]);
@@ -41,9 +40,8 @@ void SelectState::render() const noexcept{
 }
 
 void SelectState::update(double dt) noexcept{
-
-	updateAnimationState(dt); // 根据输入状态更新动画状态
-
+	// 根据输入状态更新动画状态
+	updateAnimationState(dt);
 }
 
 void SelectState::updateAnimationState(float dt) noexcept {

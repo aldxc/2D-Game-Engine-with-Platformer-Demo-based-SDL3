@@ -12,7 +12,8 @@ void Camera::setViewport(float x, float y, float width, float height, float zoom
 	viewWidth_ = width;
 	viewHeight_ = height;
 	zoom_ = zoom;
-	deadZone_ = { viewWidth_ * 0.25f, viewHeight_ * 0.25f, viewWidth_ * 0.5f, viewHeight_ * 0.5f }; // 死区设置为视口中心的50%区域，后续增加自定义死区设置功能
+	// 死区设置为视口中心的50%区域，后续增加自定义死区设置功能
+	deadZone_ = { viewWidth_ * 0.25f, viewHeight_ * 0.25f, viewWidth_ * 0.5f, viewHeight_ * 0.5f }; 
 }
 
 void Camera::setPosition(float x, float y) noexcept {
@@ -26,8 +27,6 @@ void Camera::setWorldBounds(float x, float y, float width, float height) noexcep
 }
 
 void Camera::followTarget(const SDL_FRect& target, float dt, bool smooth, float followSpeed) noexcept{
-	//clampToBounds();// 在跟随目标后限制摄像机位置在世界边界内
-
 	if(target.x + target.w > viewX_ + deadZone_.x + deadZone_.w) {
 		float targetX = target.x + target.w - (viewX_ + deadZone_.x + deadZone_.w);
 		viewX_ += smooth ? (targetX * followSpeed * dt) : targetX;
@@ -35,8 +34,8 @@ void Camera::followTarget(const SDL_FRect& target, float dt, bool smooth, float 
 		float targetX = target.x - (viewX_ + deadZone_.x);
 		viewX_ += smooth ? (targetX * followSpeed * dt) : targetX;
 	}
-
-	clampToBounds();// 在跟随目标后限制摄像机位置在世界边界内
+	// 在跟随目标后限制摄像机位置在世界边界内
+	clampToBounds();
 }
 
 void Camera::clampToBounds() noexcept{
@@ -72,8 +71,8 @@ bool Camera::isVisible(const Rect& worldRect) const noexcept{
 }
 
 bool Camera::isVisible(const Vec2& worldPos) const noexcept{
-	if(worldPos.getX() < viewX_ || worldPos.getX() > viewX_ + viewWidth_ ||
-	   worldPos.getY() < viewY_ || worldPos.getY() > viewY_ + viewHeight_) {
+	if(worldPos.x() < viewX_ || worldPos.x() > viewX_ + viewWidth_ ||
+	   worldPos.y() < viewY_ || worldPos.y() > viewY_ + viewHeight_) {
 		return false;
 	}
 	return true;

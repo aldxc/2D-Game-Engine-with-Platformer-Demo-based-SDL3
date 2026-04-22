@@ -1,5 +1,6 @@
 #pragma once
 
+// State.h - 定义游戏状态基类，使用CRTP模式实现状态类型的静态多态
 template<class TStateType>
 class State {
 public:
@@ -14,10 +15,12 @@ public:
 
 	virtual void update(double dt) noexcept = 0;
 	virtual void render() const noexcept = 0;
-	bool isType(TStateType type) const noexcept { return type_ == type; } // 比较接口
-	TStateType getType() const noexcept { return type_; } // 获取状态类型接口
+	// 比较接口
+	bool isType(TStateType type) const noexcept { return type_ == type; } 
+	// 获取状态类型接口
+	TStateType getType() const noexcept { return type_; } 
 
-	// 钩子函数，允许在状态切换时执行特定操作
+	// 钩子函数，允许在状态切换时执行特定操作，暂时未使用
 	virtual void onEnter() noexcept {}
 	virtual void onExit() noexcept {}
 	virtual void onPause() noexcept {}

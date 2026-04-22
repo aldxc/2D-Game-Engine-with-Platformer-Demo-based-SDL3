@@ -7,15 +7,14 @@
 #include "EventType.h"
 #include "SubscriptionId.h"
 
-//最好单例
-//事件总线
 using EventListener = std::function<void(const Event&)>;
-
-struct ListenerEntry {
+// 监听器条目，包含订阅ID和回调函数
+struct ListenerEntry { 
 	SubscriptionId Id;
 	EventListener callback;
 };
 
+//事件总线
 class EventManager {
 public:
 	explicit EventManager() noexcept = default;
@@ -48,8 +47,8 @@ public:
 private:
 	// 事件类型 -> 监听器列表
 	std::unordered_map<EventType, std::vector<ListenerEntry>> listeners_;
-
 	// 事件队列
 	std::queue<Event> eventQueue_;
-	static std::atomic<uint64_t> nextId_; //原子操作保证后续添加多线程时线程安全
+	//原子操作保证后续添加多线程时线程安全
+	static std::atomic<uint64_t> nextId_; 
 };

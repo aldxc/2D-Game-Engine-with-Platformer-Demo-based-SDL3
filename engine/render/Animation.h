@@ -10,7 +10,8 @@ class Animation {
 public:
 	struct AnimationClip {
 		std::vector<Rect> frames; 
-		float frameDuration; // 每帧持续时间，单位为秒
+		// 每帧持续时间，单位为秒
+		float frameDuration; 
 		bool loop = true;
 		AnimationClip() : frames({}), frameDuration(0.2f), loop(true) {};
 		AnimationClip(std::vector<Rect> rects) : frames(rects), frameDuration(0.2f), loop(true) {};
@@ -18,22 +19,31 @@ public:
 
 	explicit Animation() = default;
 	~Animation() = default;
+
 	// 禁用拷贝与移动
 	Animation(const Animation&) = delete;
 	Animation& operator=(const Animation&) = delete;
 	Animation(Animation&&) = delete;
 	Animation& operator=(Animation&&) = delete;
+
 	bool init() noexcept;
 
-	void play(const AnimationClip& clip) noexcept; // 播放指定的动画剪辑，重置动画状态
+	// 播放指定的动画剪辑，重置动画状态
+	void play(const AnimationClip& clip) noexcept; 
+
 	void update(double dt) noexcept;
+
 	const Rect& getCurrentFrameRect() const noexcept;
+
 	int getCurrentFrameIndex() const noexcept { return currentFrameIndex_; }
 	bool isFinished() const noexcept;
 private:
-	AnimationClip currentClip_; // 当前播放的动画剪辑
-	size_t currentFrameIndex_ = 0; // 当前帧索引
-	double elapsed_ = 0.0f; // 当前帧已播放的时间
-	bool finished_ = false; // 动画是否已完成，非循环动画在播放完最后一帧后会设置为true，循环动画始终为false
-	//std::unordered_map<PlayerAnimationState, AnimationClip> animationClips_; // 不同玩家动画状态对应的动画剪辑映射
+	// 当前播放的动画剪辑
+	AnimationClip currentClip_; 
+	// 当前帧索引
+	size_t currentFrameIndex_ = 0; 
+	// 当前帧已播放的时间
+	double elapsed_ = 0.0f;
+	// 动画是否已完成，非循环动画在播放完最后一帧后会设置为true，循环动画始终为false
+	bool finished_ = false; 
 };

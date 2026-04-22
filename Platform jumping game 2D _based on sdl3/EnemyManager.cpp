@@ -24,10 +24,10 @@ void EnemyManager::update(double dt) noexcept {
 void EnemyManager::spawnEnemy(const Rect& enemyInfo) noexcept{
 	Enemy* enemy = enemyPool_.acquire();
 	if (enemy) {
-		enemy->reset(enemyInfo); // 重置敌人状态，例如位置、动画状态等
-		activeEnemies_.push_back(enemy); // 将敌人添加到活跃列表中
-	}
-	else {
+		// 重置敌人状态，例如位置、动画状态等并将敌人添加到活跃列表中
+		enemy->reset(enemyInfo); 
+		activeEnemies_.push_back(enemy); 
+	} else {
 		SDL_Log("Warning: Enemy pool exhausted, cannot spawn new enemy.");
 	}
 }

@@ -20,21 +20,32 @@ public:
 
 	bool init(float gravity) noexcept;
 
-	void registerRigidBody(RigidBody& body) noexcept; //注册物理对象
-	void unregisterRigidBody(RigidBody& body) noexcept;  // 解绑物理对象
+	//注册、解绑物理对象
+	void registerRigidBody(RigidBody& body) noexcept; 
+	void unregisterRigidBody(RigidBody& body) noexcept; 
 
-	void update(double dt) noexcept; // 更新物理系统，速度积分
-	void resolveCollisions(const std::vector<std::vector<physicalCollMap>>& collmap, double dt, float epsilon) noexcept; // 位移积分，处理碰撞检测和响应
-	bool isCollidingPosition(const Rect& hitBox, const Vec2& postion) noexcept; // 判断位置是否在碰撞盒内
+	// 更新物理系统，速度积分
+	void update(double dt) noexcept; 
+
+	// 位移积分，处理碰撞检测和响应
+	void resolveCollisions(const std::vector<std::vector<physicalCollMap>>& collmap, double dt, float epsilon) noexcept; 
 
 	// AABB碰撞检测函数
 	static bool isColliding(const SDL_FRect& a, const SDL_FRect& b) noexcept {
 		return SDL_HasRectIntersectionFloat(&a, &b);
 	}
-	static bool LineOfSight(const SDL_FRect& a, const SDL_FRect& b, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept; // 判断a和b之间是否有视线，考虑地图碰撞信息
+
+	// 判断a和b之间是否有视线，考虑地图碰撞信息
+	static bool LineOfSight(const SDL_FRect& a, const SDL_FRect& b, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept; 
+
+	// 判断玩家前方是否有地面，考虑地图碰撞信息，facingRight表示玩家朝向，hitBox表示玩家的碰撞盒
 	static bool hasGroundAhead(const SDL_FRect& hitBox, bool facingRight, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept;
+
+	// 判断玩家前方是否有墙，考虑地图碰撞信息，facingRight表示玩家朝向，hitBox表示玩家的碰撞盒
 	static bool hasWallAhead(const SDL_FRect& hitBox, bool facingRight, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept;
 private:
-	std::vector<std::reference_wrapper<RigidBody>> rigidBodies_ = {}; // 物理对象列表
-	float gravity_ = 0.0f; // 重力加速度，单位为像素/秒²，后续增加重力缩放等功能
+	// 物理对象列表
+	std::vector<std::reference_wrapper<RigidBody>> rigidBodies_ = {}; 
+	// 重力加速度，单位为像素/秒²
+	float gravity_ = 0.0f; 
 };

@@ -17,12 +17,13 @@ public:
 	~SelectState() noexcept override = default;
 	void render() const noexcept override final;
 	void update(double dt) noexcept override final;
-	void updateAnimationState(float dt) noexcept; // 根据输入状态更新动画状态
-	bool animationStateChange(PlayerAnimationState& animationState_, int index) noexcept; // 根据输入状态变化更新动画状态
+	void updateAnimationState(float dt) noexcept; 
+	bool animationStateChange(PlayerAnimationState& animationState_, int index) noexcept; 
 private:
 	Renderer& renderer_;
 	Resource& resourceManager_;
 	Input& inputManager_;
+
 	std::shared_ptr<SDL_Texture> playerTexture_ = nullptr;
 
 	std::array<Animation, 3> animations_;

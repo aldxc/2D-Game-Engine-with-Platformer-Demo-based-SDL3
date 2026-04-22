@@ -5,6 +5,7 @@
 #include "render/Renderer.h"
 #include "SubscriptionId.h"
 
+// 前置声明，避免头文件循环依赖
 class Renderer;
 class Input;
 class EventManager;
@@ -25,10 +26,11 @@ private:
 	std::unique_ptr<UI<TUIType>> createUI(TUIType type) noexcept ;
 
 private:
-	Renderer& renderer_; // 渲染器引用，供UI内的渲染相关操作使用
-	EventManager& eventManager_; // 事件管理器引用，供UI内的事件相关操作使用
-	Input& inputManager_; // 输入管理器引用，供UI内的输入相关操作使用
-	GameSession& gameSession_; // 游戏会话引用，供UI内的游戏状态相关操作使用
+	// 持有引擎组件的引用，供UI内的渲染、事件、输入和游戏状态相关操作使用
+	Renderer& renderer_; 
+	EventManager& eventManager_; 
+	Input& inputManager_;
+	GameSession& gameSession_; 
 
 	std::unique_ptr<UI<TUIType>> currentUI_;
 	std::vector<SubscriptionId> uiSubscriptionIds_{};
@@ -39,7 +41,7 @@ UIManager<TUIType, TFactory>::UIManager(TUIType initType, Input& iM, EventManage
 	: inputManager_(iM), eventManager_(eM), renderer_(r), currentUI_(createUI(initType)), gameSession_(gS){
 	uiSubscriptionIds_.push_back(
 		eventManager_.subscribe(
-			EventType::UI_Show,
+			EventType::UI_SHOW,
 			[this](const Event& event) {
 				if (event.hasData<TUIType>()) {
 					show(event.getData<TUIType>());
@@ -70,9 +72,7 @@ void UIManager<TUIType, TFactory>::handleInput() noexcept {
 
 template<class TUIType, class TFactory>
 void UIManager<TUIType, TFactory>::render() const noexcept {
-
-	//后续增加需要频繁更新的UI元素时可以订阅事件来更新UI纹理，避免每帧都更新UI纹理带来的性能问题
-
+	//后续增加血条等需要频繁更新的UI元素时可以订阅事件来更新UI纹理，避免每帧都更新UI纹理带来的性能问题
 	renderer_.renderUITexture();
 }
 
@@ -88,9 +88,7 @@ void UIManager<TUIType, TFactory>::show(TUIType type) noexcept {
 template<class TUIType, class TFactory>
 std::unique_ptr<UI<TUIType>> UIManager<TUIType, TFactory>::createUI(TUIType type) noexcept {
 	currentUI_ = TFactory::create(type, inputManager_, eventManager_, renderer_, gameSession_);
-
 	// UI一般为静态元素，不需要频繁更新，现只在初始化中更新纹理
-	//后续增加血条等需要频繁更新的UI元素时可以订阅事件来更新UI纹理，避免每帧都更新UI纹理带来的性能问题
 	renderer_.clearUITexture();
 
 	if (currentUI_) {

@@ -27,7 +27,7 @@ bool Renderer::init(int w, int h, int logicW, int logicH, int fontSize) noexcept
 	}
 	renderer_.reset(renderer);
 	SDL_SetRenderTarget(renderer_.get(), nullptr);
-	SDL_SetRenderLogicalPresentation(renderer_.get(), logicW, logicH, SDL_LOGICAL_PRESENTATION_LETTERBOX); // 后续根据返回值添加判断，后续抽象为成员方法
+	SDL_SetRenderLogicalPresentation(renderer_.get(), logicW, logicH, SDL_LOGICAL_PRESENTATION_LETTERBOX); 
 
 	TTF_TextEngine* textEngine = TTF_CreateRendererTextEngine(renderer_.get());
 	if (!textEngine) {
@@ -36,7 +36,7 @@ bool Renderer::init(int w, int h, int logicW, int logicH, int fontSize) noexcept
 	}
 	textEngine_.reset(textEngine);
 
-	std::string path = "font.ttf";
+	std::string path = "resource/font.ttf";
 	TTF_Font* font = TTF_OpenFont(path.c_str(), fontSize);
 	if (!font) {
 		SDL_Log("Failed to open font: %s", SDL_GetError());
@@ -69,7 +69,7 @@ bool Renderer::init(int w, int h, int logicW, int logicH, int fontSize) noexcept
 }
 
 void Renderer::beginRender() const noexcept{
-	SDL_SetRenderDrawColor(renderer_.get(), 0, 0, 0, 255);//重置颜色
+	SDL_SetRenderDrawColor(renderer_.get(), 0, 0, 0, 255);
 	SDL_RenderClear(renderer_.get());
 }
 
@@ -78,7 +78,7 @@ void Renderer::restoreDefaultAndPresent() const noexcept {
 
 	//重置字体
 	TTF_SetFontSize(font_.get(), 30);
-	SDL_RenderPresent(renderer_.get());//更新屏幕
+	SDL_RenderPresent(renderer_.get());
 }
 
 void Renderer::renderRect(const SDL_FRect& rect, const SDL_Color& color) const noexcept{
@@ -151,18 +151,21 @@ void Renderer::clearDynamicTexture(const SDL_Color color) noexcept{
 }
 
 void Renderer::renderStaticTexture() const noexcept{
-	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
+	// 开启混合模式以支持动态纹理的透明度
+	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); 
 	SDL_RenderTexture(renderer_.get(), staticTexture_.get(), nullptr, nullptr);
 
 }
 
 void Renderer::renderDynamicTexture() const noexcept{
-	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持动态纹理的透明度
+	// 开启混合模式以支持动态纹理的透明度
+	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); 
 	SDL_RenderTexture(renderer_.get(), dynamicTexture_.get(), nullptr, nullptr);
 }
 
 void Renderer::renderUITexture() const noexcept{
-	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); // 开启混合模式以支持UI纹理的透明度
+	// 开启混合模式以支持动态纹理的透明度
+	SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND); 
 	SDL_RenderTexture(renderer_.get(), UITexture_.get(), nullptr, nullptr);
 }
 

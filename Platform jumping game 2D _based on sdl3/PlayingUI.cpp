@@ -8,34 +8,34 @@
 class Renderer;
 
 PlayingUI::PlayingUI(Input& iM, EventManager& eM, Renderer& r) noexcept : UI(UIType::PLAYING), inputManager_(iM), eventManager_(eM), renderer_(r){
-	eventManager_.sendEvent({ EventType::Audio_PlayBgm, BgmId::Playing });
+	eventManager_.sendEvent({ EventType::AUDIO_PLAY_BGM, BgmId::PLAYING });
 	//test botton
 	SDL_FRect bottonRect{ 0, 300, 100, 100 };
 	bottons_[0] = { bottonRect, "Won", SDL_Color({ 100, 200, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
 		[this]() { 
-			eventManager_.sendEvent(Event{EventType::Audio_PlaySfx, SfxId::UIButtonClick});
-			eventManager_.sendEvent(Event{ EventType::State_Transition, StateRequest{StateOperator::Replace, StateType::WON} }); },
-		[this]() { eventManager_.sendEvent(Event{ EventType::UI_Show, UIType::WON }); }
+			eventManager_.sendEvent(Event{EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK});
+			eventManager_.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::REPLACE, StateType::WON} }); },
+		[this]() { eventManager_.sendEvent(Event{ EventType::UI_SHOW, UIType::WON }); }
 	} };
 	SDL_FRect bottonRect2{ Config::LOGIC_WIDTH - 100, 300, 100, 100 };
-	bottons_[1] = { bottonRect2, "Lose", SDL_Color({ 200, 100, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
+	bottons_[1] = { bottonRect2, "LOSE", SDL_Color({ 200, 100, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
 		[this]() { 
-			eventManager_.sendEvent(Event{EventType::Audio_PlaySfx, SfxId::UIButtonClick});
-			eventManager_.sendEvent(Event{ EventType::State_Transition,StateRequest{StateOperator::Replace, StateType::LOSE} }); },
-		[this]() { eventManager_.sendEvent(Event{ EventType::UI_Show, UIType::LOSE }); }
+			eventManager_.sendEvent(Event{EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK});
+			eventManager_.sendEvent(Event{ EventType::STATE_TRANSITION,StateRequest{StateOperator::REPLACE, StateType::LOSE} }); },
+		[this]() { eventManager_.sendEvent(Event{ EventType::UI_SHOW, UIType::LOSE }); }
 	} };
 	SDL_FRect debugBottonRect{ Config::LOGIC_WIDTH / 2 - 50, 0, 100, 100 };
 	bottons_[2] = { debugBottonRect, "Debug", SDL_Color({ 255, 100, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
 		[this]() { 
-			eventManager_.sendEvent(Event{EventType::Audio_PlaySfx, SfxId::UIButtonClick});
-			eventManager_.sendEvent(Event{EventType::Debug_TogglePlayerInfo, {}}); }
+			eventManager_.sendEvent(Event{EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK});
+			eventManager_.sendEvent(Event{EventType::DEBUG_TOGGLE_PLAYER_INFO, {}}); }
 	} };
 	Rect pauseBottonRect{ Config::LOGIC_WIDTH - 100, 0, 100, 100 };
 	bottons_[3] = { pauseBottonRect, "Pause", SDL_Color({ 255, 255, 100, 255 }), Config::DEFAULT_TEXT_SIZE, {
 		[this]() { 
-			eventManager_.sendEvent(Event{EventType::Audio_PlaySfx, SfxId::UIButtonClick});
-			eventManager_.sendEvent(Event{ EventType::State_Transition, StateRequest{StateOperator::Push, StateType::PAUSE} }); },
-		[this]() { eventManager_.sendEvent(Event{ EventType::UI_Show, UIType::PAUSE }); }
+			eventManager_.sendEvent(Event{EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK});
+			eventManager_.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::PUSH, StateType::PAUSE} }); },
+		[this]() { eventManager_.sendEvent(Event{ EventType::UI_SHOW, UIType::PAUSE }); }
 	} };
 
 }
@@ -62,10 +62,6 @@ void PlayingUI::update(double dt) noexcept{
 }
 
 void PlayingUI::render() const noexcept{
-
-	//test ÊÇ·ñ±»¸²¸Ç
-	//Renderer::getInstance().renderFillRect(SDL_FRect{ 0, 0, 200, 200 }, SDL_Color({ 0, 0, 255, 255 }));
-
 	for(const auto& botton : bottons_) {
 		botton.render(renderer_);
 	}

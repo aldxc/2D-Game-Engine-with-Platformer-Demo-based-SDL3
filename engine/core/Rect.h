@@ -17,12 +17,12 @@ public:
 	void setY(float y) noexcept { rect_.y = y; }
 	void setW(float w) noexcept { rect_.w = w; }
 	void setH(float h) noexcept { rect_.h = h; }
+	// 功能
 	float distance(const Rect& rect) const noexcept;
 	bool hasIntersection(const Vec2& point) const noexcept;
 
 	// 隐式转换 引擎内部使用
 	operator SDL_FRect() const noexcept { return rect_; }
-	//operator const SDL_FRect& () const noexcept { return rect_; }
 private:
 	SDL_FRect rect_ = SDL_FRect{};
 };

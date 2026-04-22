@@ -33,11 +33,13 @@ void Physics::unregisterRigidBody(RigidBody& body) noexcept{
 void Physics::update(double dt) noexcept{
 	for (RigidBody& body : rigidBodies_) {
 		// 只有在空中时才应用重力，着陆后重力不再影响速度，保持玩家在地面上的稳定状态
-		body.velocity.setY(body.velocity.getY() + (body.isLanded ? 0 : gravity_ * body.gravityScale * dt) + body.acceleration.getY() * dt); // 速度积分
-		body.velocity.setX(body.velocity.getX() + body.acceleration.getX() * dt); // 速度积分
+		// 速度积分
+		body.velocity.setY(body.velocity.y() + (body.isLanded ? 0 : gravity_ * body.gravityScale * dt) + body.acceleration.y() * dt); 
+		body.velocity.setX(body.velocity.x() + body.acceleration.x() * dt); 
 
-		body.velocity.setX(std::clamp(body.velocity.getX(), -body.maxSpeed, body.maxSpeed)); // 限速
-		body.velocity.setY(std::clamp(body.velocity.getY(), -body.maxSpeed, body.maxFallSpeed)); // 限速
+		// 速度限制，防止物体移动过快导致穿透问题
+		body.velocity.setX(std::clamp(body.velocity.x(), -body.maxSpeed, body.maxSpeed)); 
+		body.velocity.setY(std::clamp(body.velocity.y(), -body.maxSpeed, body.maxFallSpeed));
 
 		// 重置加速度，等待下一帧根据输入重新设置
 		body.acceleration.set(0, 0);
@@ -47,19 +49,23 @@ void Physics::update(double dt) noexcept{
 void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>& collmap, double dt, float epsilon) noexcept{
 	if(collmap.empty() || collmap[0].empty()) {
 		SDL_Log("Warning: Collision map is empty, skipping collision resolution.");
-		return; // 碰撞地图无效，直接返回
+		// 碰撞地图无效，直接返回
+		return; 
 	}
 
 	for (RigidBody& body : rigidBodies_) {
 		// 这里可以添加物体之间的碰撞检测和响应逻辑，例如玩家与地图的碰撞检测等
-		const float tileSize = collmap[0][0].size; // 瓦片大小,所有瓦片大小相同
-		RigidBody nextState = body; // 计算物体的下一个状态，初始为当前状态，根据速度积分进行预测
+		const float tileSize = collmap[0][0].size; 
+		// 计算物体的下一个状态，初始为当前状态，根据速度积分进行预测
+		RigidBody nextState = body;
 
+		// 边界检查函数，确保访问collmap时不会越界
 		auto isInBounds = [&collmap](int32_t row, int32_t col) noexcept -> bool {
 			return row >= 0 && row < static_cast<int32_t>(collmap.size()) && col >= 0 && col < static_cast<int32_t>(collmap[0].size());
 			};
 
-		auto getTileRect = [tileSize](int32_t row, int32_t col) noexcept -> SDL_FRect {
+		// 获取瓦片矩形的函数，根据行列索引计算瓦片在世界坐标中的位置和大小
+		auto getTileRect = [tileSize](int32_t row, int32_t col) noexcept -> Rect {
 			return Rect{
 				col * tileSize,
 				row * tileSize,
@@ -69,7 +75,7 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 			};
 
 		// 先处理 X 轴：只处理 FULL，HALF 不参与水平阻挡 full - 2, half - 1, none - 0
-		nextState.hitBox.setX(nextState.hitBox.x() + nextState.velocity.getX() * dt);
+		nextState.hitBox.setX(nextState.hitBox.x() + nextState.velocity.x() * dt);
 
 		int32_t rowStart = static_cast<int32_t>(nextState.hitBox.y() / tileSize);
 		int32_t rowEnd = static_cast<int32_t>((nextState.hitBox.y() + nextState.hitBox.h() - epsilon) / tileSize);
@@ -92,10 +98,10 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 					continue;
 				}
 
-				if (nextState.velocity.getX() > 0.0f) {
+				if (nextState.velocity.x() > 0.0f) {
 					nextState.hitBox.setX(tileRect.x - nextState.hitBox.w());
 				}
-				else if (nextState.velocity.getX() < 0.0f) {
+				else if (nextState.velocity.x() < 0.0f) {
 					nextState.hitBox.setX(tileRect.x + tileRect.w);
 				}
 
@@ -104,15 +110,18 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 		}
 
 		// 再处理 Y 轴：FULL 正常阻挡，HALF 仅在下落且从上方穿过平台顶面时生效
-		const float previousTop = nextState.hitBox.y();
-		const float previousBottom = previousTop + nextState.hitBox.h();
+		// 记录物体顶部底部的初始位置
+		const float previousTop = nextState.hitBox.y(); 
+		const float previousBottom = previousTop + nextState.hitBox.h(); 
 
-		nextState.hitBox.setY(previousTop + nextState.velocity.getY() * dt);
+		nextState.hitBox.setY(previousTop + nextState.velocity.y() * dt);
 		nextState.isLanded = false;
 
+		// 计算物体在垂直方向上的扫掠区域，考虑物体的移动范围，确保在高速移动时也能正确检测到碰撞
 		const float currentTop = nextState.hitBox.y();
 		const float currentBottom = currentTop + nextState.hitBox.h();
 
+		// 扫掠区域的上下边界
 		const float sweepTop = std::min(previousTop, currentTop);
 		const float sweepBottom = std::max(previousBottom, currentBottom);
 
@@ -130,13 +139,14 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 				const uint8_t collision = collmap[row][col].coll;
 				const SDL_FRect tileRect = getTileRect(row, col);
 
+				// 计算物体与瓦片在水平轴上的重叠情况，确保只有在水平上有重叠时才考虑垂直方向的碰撞响应
 				const bool overlapX =
 					nextState.hitBox.x() < tileRect.x + tileRect.w &&
 					nextState.hitBox.x() + nextState.hitBox.w() > tileRect.x;
 
 				if (static_cast<TileColl>(collision) == TileColl::FULL) {
 					const bool touchingOrCrossingTop =
-						nextState.velocity.getY() >= 0.0f &&
+						nextState.velocity.y() >= 0.0f &&
 						overlapX &&
 						previousBottom <= tileRect.y + epsilon &&
 						currentBottom >= tileRect.y - epsilon;
@@ -152,12 +162,12 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 						continue;
 					}
 
-					if (nextState.velocity.getY() > 0.0f) {
+					if (nextState.velocity.y() > 0.0f) {
 						nextState.hitBox.setY(tileRect.y - nextState.hitBox.h());
 						nextState.velocity.setY(0.0f);
 						nextState.isLanded = true;
 					}
-					else if (nextState.velocity.getY() < 0.0f) {
+					else if (nextState.velocity.y() < 0.0f) {
 						nextState.hitBox.setY(tileRect.y + tileRect.h);
 						nextState.velocity.setY(0.0f);
 					}
@@ -167,11 +177,12 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 						continue;
 					}
 
+					// 只有当物体在下落且从上方穿过平台顶面时才考虑半碰撞平台的碰撞响应
 					const bool touchingOrCrossingPlatformTop =
-						nextState.velocity.getY() >= 0.0f &&
+						nextState.velocity.y() >= 0.0f &&
 						overlapX &&
 						previousBottom <= tileRect.y + epsilon &&
-						currentBottom >= tileRect.y - epsilon; // 允许一定的误差，确保在玩家站在平台边缘时也能正确检测到碰撞
+						currentBottom >= tileRect.y - epsilon; 
 
 					if (!touchingOrCrossingPlatformTop) {
 						continue;
@@ -205,19 +216,14 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 	}
 }
 
-bool Physics::isCollidingPosition(const Rect& hitBox, const Vec2& postion) noexcept{
-	SDL_FRect hitBoxF = hitBox; // 隐式转换为SDL_FRect
-	SDL_FPoint postionF = { postion.getX(), postion.getY() }; // 转换为SDL_FPoint
-	return SDL_PointInRectFloat(&postionF, &hitBoxF);
-}
-
 bool Physics::LineOfSight(const SDL_FRect& start, const SDL_FRect& end, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept{
 	// 射线检测
 	if (collmap.empty() || collmap[0].empty()) return false;
 	const float tileSize = static_cast<float>(collmap[0][0].size);
 	const int32_t mapRows = static_cast<int32_t>(collmap.size());
 	const int32_t mapCols = static_cast<int32_t>(collmap[0].size());
-	// 1. 起点终点的中心转为网格索引
+
+	// 起点终点的中心转为网格索引
 	float sx = start.x + start.w * 0.5f;
 	float sy = start.y + start.h * 0.5f;
 	float ex = end.x + end.w * 0.5f;
@@ -234,19 +240,19 @@ bool Physics::LineOfSight(const SDL_FRect& start, const SDL_FRect& end, const st
 	x1 = std::clamp(x1, 0, mapCols - 1);
 	y1 = std::clamp(y1, 0, mapRows - 1);
 
-	// 2. 射线方向
+	// 射线方向
 	float dx = ex - sx;
 	float dy = ey - sy;
 
-	// 3. 步进方向
+	// 步进方向
 	int32_t stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
 	int32_t stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
 
-	// 4. tDelta
+	// tDelta
 	float tDeltaX = (dx != 0) ? std::abs(tileSize / dx) : INFINITY;
 	float tDeltaY = (dy != 0) ? std::abs(tileSize / dy) : INFINITY;
 
-	// 5. tMax — 到达第一个网格边界
+	// tMax — 到达第一个网格边界
 	float tMaxX, tMaxY;
 	if (dx > 0) {
 		tMaxX = ((x0 + 1) * tileSize - sx) / dx;
@@ -268,7 +274,7 @@ bool Physics::LineOfSight(const SDL_FRect& start, const SDL_FRect& end, const st
 		tMaxY = INFINITY;
 	}
 
-	// 6. 步进
+	// 步进
 	int32_t x = x0, y = y0;
 	int32_t maxSteps = mapRows + mapCols;  // 安全上限，防止死循环
 	while (maxSteps-- > 0) {
@@ -298,7 +304,8 @@ bool Physics::LineOfSight(const SDL_FRect& start, const SDL_FRect& end, const st
 		}
 	}
 
-	return true; // 没有被墙阻挡
+	// 没有被墙阻挡
+	return true; 
 }
 
 bool Physics::hasGroundAhead(const SDL_FRect& hitBox, bool facingRight, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept{

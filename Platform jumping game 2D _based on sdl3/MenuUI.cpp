@@ -11,16 +11,16 @@ class Renderer;
 
 MenuUI::MenuUI(Input& iM, EventManager& eM, Renderer& r, GameSession& gS) noexcept : UI(UIType::MENU), inputManager_(iM), eventManager_(eM), renderer_(r), gameSession_(gS) {
 
-	eventManager_.sendEvent({ EventType::Audio_PlayBgm, BgmId::Menu });
+	eventManager_.sendEvent({ EventType::AUDIO_PLAY_BGM, BgmId::MENU });
 
     // 初始化按钮
     SDL_FRect startRect{ (Config::LOGIC_WIDTH - Config::MENU_BUTTON_WIDTH) / 2, 100, Config::MENU_BUTTON_WIDTH, Config::MENU_BUTTON_HEIGHT };
 	bottons_[0] = { startRect, "Start", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE, 
 		// 点击 Start 按钮的回调
 		{ [this]() {
-			eventManager_.sendEvent(Event{EventType::Audio_PlaySfx, SfxId::UIButtonClick});
-			eventManager_.sendEvent(Event{ EventType::State_Transition, StateRequest{StateOperator::Replace, StateType::SELECT_HERO} });
-			eventManager_.sendEvent(Event{ EventType::UI_Show, UIType::SelectState });
+			eventManager_.sendEvent(Event{EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK});
+			eventManager_.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::REPLACE, StateType::SELECT_HERO} });
+			eventManager_.sendEvent(Event{ EventType::UI_SHOW, UIType::SELECT_STATE });
 			gameSession_.reset();
 		}
 		}
@@ -36,8 +36,8 @@ MenuUI::MenuUI(Input& iM, EventManager& eM, Renderer& r, GameSession& gS) noexce
 	bottons_[3] = { quitRect, "Quit", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE,
 		// 点击 Quit 按钮的回调
 		{ [this]() {
-			eventManager_.sendEvent(Event{EventType::Audio_PlaySfx, SfxId::UIButtonClick});
-			eventManager_.sendEvent(Event{ EventType::App_Quit });}
+			eventManager_.sendEvent(Event{EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK});
+			eventManager_.sendEvent(Event{ EventType::APP_QUIT });}
 	} };
 
 }

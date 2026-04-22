@@ -20,7 +20,6 @@ namespace Config {
 	constexpr size_t SELECT_BUTTONS_NUM = 3;
 	constexpr size_t PAUSE_BOTTONS_NUM = 3;
 
-	inline static const std::string PATH_FONT = "font.ttf";
 	constexpr uint8_t DEFAULT_TEXT_SIZE = 30;
 
 	constexpr uint8_t MENU_BUTTON_WIDTH = 200;
@@ -91,6 +90,10 @@ namespace Config {
 	constexpr float JUMP_BUFFER_TIME = 0.2f; // 跳跃缓冲时间，单位秒
 	constexpr float COYOTE_TIME = 0.1f; // coyote time（土狼时间），单位秒
 
+	inline static const std::string PATH_FONT = "resource/font.ttf";
+	inline static const std::string PLAYER_TEXTURE_PATH = "resource/characters.png";
+	inline static const std::string ENEMY_TEXTURE_PATH = "resource/characters.png";
+	inline static const std::string ATTACK_TEXTURE_PATH = "resource/swoosh.png";
 	inline static const std::array<std::string, 3> LEVEL_PATH = {
 		"resource/level1.tmx",
 		"resource/level2.tmx",

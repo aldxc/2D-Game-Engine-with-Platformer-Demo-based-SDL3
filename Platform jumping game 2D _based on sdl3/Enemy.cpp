@@ -9,13 +9,12 @@
 
 Enemy::Enemy(Renderer& renderer, Resource& rM) noexcept : rigidBody_(Vec2(0, 0), Rect{ 0,0,0,0 } , Config::MAX_SPEED), renderer_(renderer) {
 	// 这里可以添加敌人的初始化逻辑，例如设置初始位置、加载纹理等
-	enemyTexture_ = rM.loadTexture("resource/characters.png", renderer_.getSDLRenderer());
+	enemyTexture_ = rM.loadTexture(Config::ENEMY_TEXTURE_PATH, renderer_.getSDLRenderer());
 
 	reset();
 }
 
 void Enemy::init(Rect enemyInfo) noexcept{
-	// 这里可以添加敌人状态初始化的逻辑，例如设置位置、动画状态等，后续增加更多的初始化功能如AI状态等
 	rigidBody_.velocity = Vec2(0, 0);
 	rigidBody_.hitBox = enemyInfo;
 	rigidBody_.isLanded = false;
@@ -39,21 +38,22 @@ void Enemy::update(double dt) noexcept {
 	// AI移动逻辑，只根据face移动，face通过地图碰撞信息玩家等调整
 	int dir = isFacingRight_ ? 1 : -1;
 	if(isAlreadyTracking_ || !rigidBody_.isLanded) {
-		dir = 0; // 已经跟踪到玩家位置，停止移动
+		// 已经跟踪到玩家位置，停止移动
+		dir = 0; 
 	}
 	if (!isHited_ && !hitInvincibleTimer_.isActive() && isAlive_) {
 		rigidBody_.velocity.setX(dir * Config::ENEMY_MAX_SPEED);
 	}
 
-	isHited_ = hitInvincibleTimer_.isActive(); // 根据受击无敌计时器状态更新受伤状态
+	isHited_ = hitInvincibleTimer_.isActive(); 
 	deathTimer_.update(dt);
 	trackingTimer_.update(dt);
 	hitInvincibleTimer_.update(dt);
 
 	if(!isAlive_ && !deathTimer_.isActive()) {
 		// 死亡定时器结束，敌人可以被重置或销毁
-		setIsDestroyed(true); // 使敌人失活，等待重置或销毁
-		deathTimer_.stop(); // 停止定时器，重置状态
+		setIsDestroyed(true); 
+		deathTimer_.stop(); 
 	}
 }
 
@@ -64,7 +64,7 @@ void Enemy::render(const Camera& camera) const noexcept {
 	scaleTextureRect.setH(scaleTextureRect.h() * 2);
 	scaleTextureRect.setX(scaleTextureRect.x() - 16);
 	scaleTextureRect.setY(scaleTextureRect.y() - 32);
-	scaleTextureRect = camera.worldToScreen(scaleTextureRect); // 将敌人的世界坐标转换为屏幕坐标
+	scaleTextureRect = camera.worldToScreen(scaleTextureRect); 
 
 	Rect currentFrameRect = animation_.getCurrentFrameRect();
 
@@ -78,8 +78,8 @@ void Enemy::render(const Camera& camera) const noexcept {
 	Rect currentHpRect = Rect{ rigidBody_.hitBox.x(), rigidBody_.hitBox.y() - 20, rigidBody_.hitBox.w() * (hp_ / static_cast<float>(maxHp_)), Config::BLOOD_RECT_HEIGHT };
 	Rect healthBarRect = Rect{ rigidBody_.hitBox.x(), rigidBody_.hitBox.y() - 20, rigidBody_.hitBox.w(), Config::BLOOD_RECT_HEIGHT };
 
-	renderer_.renderFillRect(camera.worldToScreen(currentHpRect), SDL_Color({ 255, 0, 0, 255 })); // 红色血条
-	renderer_.renderRect(camera.worldToScreen(healthBarRect), SDL_Color({ 255, 255, 255, 255 })); // 白色血条边框
+	renderer_.renderFillRect(camera.worldToScreen(currentHpRect), SDL_Color({ 255, 0, 0, 255 })); 
+	renderer_.renderRect(camera.worldToScreen(healthBarRect), SDL_Color({ 255, 255, 255, 255 })); 
 
 	if (isFacingRight_) {
 		renderer_.renderTexture(enemyTexture_.get(), currentFrameRect, scaleTextureRect);
@@ -112,7 +112,6 @@ void Enemy::renderDebug(const Camera& camera) const noexcept {
 }
 
 void Enemy::reset(Rect hitbox) noexcept {
-	// 这里可以添加敌人状态重置的逻辑，例如重置位置、动画状态等
 	rigidBody_.velocity = Vec2(0, 0);
 	rigidBody_.hitBox = hitbox;
 	rigidBody_.isLanded = false;
@@ -186,7 +185,6 @@ void Enemy::setFacingRight(const Rect& player, const std::vector<std::vector<phy
 }
 
 void Enemy::updateAnimationState(double dt) noexcept {
-	// 这里可以添加根据敌人状态更新动画状态的逻辑，例如根据移动状态切换动画剪辑等
 	if (isStateChanged()) {
 		Animation::AnimationClip animationClip;
 		switch (currentAnimationState_) {
@@ -210,7 +208,7 @@ void Enemy::updateAnimationState(double dt) noexcept {
 
 bool Enemy::isStateChanged() noexcept {
 	PlayerAnimationState nextState = PlayerAnimationState::IDLE;
-	if(rigidBody_.velocity.getX() > 0.1f || rigidBody_.velocity.getX() < -0.1f) {
+	if(rigidBody_.velocity.x() > 0.1f || rigidBody_.velocity.x() < -0.1f) {
 		nextState = PlayerAnimationState::RUN;
 	}
 	bool changed = (nextState != currentAnimationState_);
@@ -220,19 +218,20 @@ bool Enemy::isStateChanged() noexcept {
 
 void Enemy::kill() noexcept {
 	isAlive_ = false;
-	deathTimer_.start(Config::ENEMY_DEAD_DURATION); // 启动死亡定时器，设置持续时间为1秒，后续可以根据需要调整时间
+	// 启动死亡定时器
+	deathTimer_.start(Config::ENEMY_DEAD_DURATION); 
 }
 
 void Enemy::takeHit(int dir) noexcept{
 	if (!hitInvincibleTimer_.isActive()) {
 		rigidBody_.velocity.setX(dir * Config::ENEMY_HITBACK_VELOCITY);
-		sfxToplay_.push_back(SfxId::PlayerAttackHit);
+		sfxToplay_.push_back(SfxId::PLAYER_ATTACK_HIT);
 		if (--hp_ <= 0) {
 			kill();
 			return;
 		}
-		// 根据攻击方向调整敌人受伤后的反应，例如被击退等，后续增加更多的受伤逻辑如眩晕、状态变化等
-		hitInvincibleTimer_.start(Config::ENEMY_HIT_INVINCIBILITY_DURATION); // 启动受击无敌计时器，设置持续时间为0.5秒，后续可以根据需要调整时间
+		// 启动受击无敌计时器
+		hitInvincibleTimer_.start(Config::ENEMY_HIT_INVINCIBILITY_DURATION); 
 		isHited_ = true;
 	}
 }

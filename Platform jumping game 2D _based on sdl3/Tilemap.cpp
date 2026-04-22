@@ -2,6 +2,7 @@
 #include "TileMap.h"
 #include "Config.h"
 #include "render/Renderer.h"
+#include "render/Camera.h"
 #include "resource/Resource.h"
 
 TileMap::TileMap(Renderer& renderer, Resource& rM)noexcept : renderer_(renderer){
@@ -11,12 +12,13 @@ TileMap::TileMap(Renderer& renderer, Resource& rM)noexcept : renderer_(renderer)
 void TileMap::update(float dt) noexcept {
 	// 这里可以添加地图更新逻辑，例如动画、动态元素等
 	updateTileAnimations(dt);
-	cleanUpActiveObject(); // 清理已经激活的地图对象
+	// 清理已经激活的地图对象
+	cleanUpActiveObject(); 
 }
 
 void TileMap::render(const Camera& camera) const noexcept {
 
-	renderer_.renderFillRect(SDL_FRect{ 0,0,Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT }, SDL_Color({ 173, 216, 230, 255 }));
+	renderer_.renderFillRect(SDL_FRect{ 0, 0,Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT }, SDL_Color({ 173, 216, 230, 255 }));
 
 	if (tiles_.empty() || tiles_[0].empty()) {
 		return;
@@ -39,7 +41,6 @@ void TileMap::render(const Camera& camera) const noexcept {
 			const Tile& tile = tiles_[i][j];
 			if (tile.flags == 0) continue;
 			Rect srcRect = { static_cast<float>(tile.srcX), static_cast<float>(tile.srcY), Config::TILE_SRC_WIDTH, Config::TILE_SRC_HEIGHT };
-			//SDL_FRect dstRect = camera.worldToScreen(SDL_FRect{ float(j * Config::TILE_SIZE), float(i * Config::TILE_SIZE), Config::TILE_SIZE, Config::TILE_SIZE });
 
 			const float worldX = static_cast<float>(j) * Config::TILE_SIZE;
 			const float worldY = static_cast<float>(i) * Config::TILE_SIZE;
@@ -161,12 +162,12 @@ void TileMap::addAnimationFrame(size_t i, size_t j, const std::vector<std::pair<
 	size_t row = j / Config::TILE_SIZE;
 	size_t col = i / Config::TILE_SIZE;
 	size_t line = tiles_[0].size();
-	animationFrames_[col * line + row] = std::make_pair(frames, Timer());
+	//animationFrames_[col * line + row] = std::make_pair(frames, Timer());
 
-	if (i < tiles_.size() && j < tiles_[i].size()) { //前八位为x坐标, 后八位为y坐标
-		tiles_[i][j].srcX = (frames.front().second & 0xFF) * Config::TILE_SRC_WIDTH; // 获取当前帧的源矩形X坐标
-		tiles_[i][j].srcY = ((frames.front().second >> 8) & 0xFF) * Config::TILE_SRC_HEIGHT; // 获取当前帧的源矩形Y坐标
-		// 这里可以根据需要添加更多的动画属性更新，例如碰撞属性等
+	if (i < tiles_.size() && j < tiles_[i].size()) { 
+		//前八位为x坐标, 后八位为y坐标
+		tiles_[i][j].srcX = (frames.front().second & 0xFF) * Config::TILE_SRC_WIDTH; 
+		tiles_[i][j].srcY = ((frames.front().second >> 8) & 0xFF) * Config::TILE_SRC_HEIGHT; 
 	}
 }
 

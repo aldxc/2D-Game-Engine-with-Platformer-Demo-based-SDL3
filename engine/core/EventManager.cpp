@@ -1,9 +1,9 @@
 #include "EventManager.h"
 
-std::atomic<uint64_t> EventManager::nextId_ = { 1 }; // 从1开始，0表示无效ID
+// 从1开始，0表示无效ID
+std::atomic<uint64_t> EventManager::nextId_ = { 1 }; 
 
 bool EventManager::init() noexcept {
-	// 目前没有复杂的初始化需求，只是为了保持接口一致性和未来扩展，为了在game中统一初始化全部单例资源
 
     return true;
 }

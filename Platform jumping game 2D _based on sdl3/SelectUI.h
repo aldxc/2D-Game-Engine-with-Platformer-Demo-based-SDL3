@@ -18,9 +18,10 @@ public:
 	void update(double dt) noexcept override final;
 	void render() const noexcept override final;
 private:
-	Renderer& renderer_; // 渲染器引用，供UI内的渲染相关操作使用
-	EventManager& eventManager_; // 事件管理器引用，供UI内的事件相关操作使用
-	Input& inputManager_; // 输入管理器引用，供UI内的输入相关操作使用
+	// 依赖组件
+	Renderer& renderer_;
+	EventManager& eventManager_; 
+	Input& inputManager_; 
 	GameSession& gameSession_;
 
 	std::array<Botton, Config::SELECT_BUTTONS_NUM> bottons_; // pass the level next level  back to menu 

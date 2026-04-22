@@ -7,11 +7,11 @@ bool Animation::init() noexcept{
 void Animation::update(double dt) noexcept{
 	if (currentClip_.frames.empty()) {
 		finished_ = true;
-		return; // 如果当前动画剪辑没有帧，直接标记为完成并返回
+		// 如果当前动画剪辑没有帧，直接标记为完成并返回
+		return; 
 	}
 	elapsed_ += dt;
 	while (elapsed_ >= currentClip_.frameDuration) {
-		//SDL_Log("Animation index: %d", currentFrameIndex_);
 		elapsed_ -= currentClip_.frameDuration;
 		currentFrameIndex_++;
 		if (currentFrameIndex_ >= currentClip_.frames.size()) {
@@ -36,10 +36,12 @@ void Animation::play(const AnimationClip& clip) noexcept{
 const Rect& Animation::getCurrentFrameRect() const noexcept{
 	if (currentClip_.frames.empty()) {
 		static const Rect emptyRect{ 0, 0, 0, 0 };
-		return emptyRect; // 如果当前动画剪辑没有帧，返回一个空的矩形
+		// 如果当前动画剪辑没有帧，返回一个空的矩形
+		return emptyRect; 
 	}
 	else {
-		return currentClip_.frames[currentFrameIndex_]; // 返回当前帧的矩形
+		// 返回当前帧的矩形
+		return currentClip_.frames[currentFrameIndex_]; 
 	}
 }
 

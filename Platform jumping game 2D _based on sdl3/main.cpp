@@ -5,7 +5,8 @@
 
 
 int SDL_main(int argc, char* argv[]) {
-	std::filesystem::create_directories("saves"); // 创建保存目录，后续增加存档管理等功能)
+	// 创建保存目录
+	std::filesystem::create_directories("saves"); 
 	Game game;
 	game.Run();
 

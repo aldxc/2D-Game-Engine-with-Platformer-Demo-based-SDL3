@@ -1,5 +1,6 @@
 #pragma once
 
+// UI基类，与state类似，使用CRTP模式实现UI类型的静态多态，提供输入处理、更新和渲染接口，以及UI类型比较和获取接口
 template<class TUIType>
 class UI {
 public:

@@ -9,8 +9,8 @@
 #include "core/Rect.h"
 
 Player::Player(Renderer& renderer, Resource& rM) noexcept : renderer_(renderer){
-	playerTexture_ = rM.loadTexture("resource/characters.png", renderer_.getSDLRenderer());
-	attackTexture_ = rM.loadTexture("resource/swoosh.png", renderer_.getSDLRenderer());
+	playerTexture_ = rM.loadTexture(Config::PLAYER_TEXTURE_PATH, renderer_.getSDLRenderer());
+	attackTexture_ = rM.loadTexture(Config::ATTACK_TEXTURE_PATH, renderer_.getSDLRenderer());
 	command_ = {};
 
 	currentAnimationState_ = PlayerAnimationState::IDLE;
@@ -25,7 +25,7 @@ Player::Player(Renderer& renderer, Resource& rM) noexcept : renderer_(renderer){
 	sprintMaxCount_ = Config::SPRINT_MAX_COUNT;
 	sprintCount_ = 0;
 	birthPoint_ = Vec2(0, 0);
-	rigidBody_ = RigidBody(Vec2(0, 0), Rect(birthPoint_.getX(), birthPoint_.getY(), Config::PLAYER_WIDTH, Config::PLAYER_HEIGHT), Config::MAX_SPEED);
+	rigidBody_ = RigidBody(Vec2(0, 0), Rect(birthPoint_.x(), birthPoint_.y(), Config::PLAYER_WIDTH, Config::PLAYER_HEIGHT), Config::MAX_SPEED);
 }
 
 void Player::update(double dt) noexcept{
@@ -47,19 +47,18 @@ void Player::render(const Camera& camera) const noexcept{
 	std::array<float, 3> offsets = { Config::PLAYER_1_Y_OFFSET, Config::PLAYER_2_Y_OFFSET, Config::PLAYER_3_Y_OFFSET };
 
 	Rect currentFrameRect = animation_.getCurrentFrameRect();
-	currentFrameRect.setY(currentFrameRect.y() + offsets[playerId_]); // 根据玩家编号调整动画状态的y坐标，支持多个玩家使用同一纹理图
+	currentFrameRect.setY(currentFrameRect.y() + offsets[playerId_]); 
 
-	scaleTextureRect = camera.worldToScreen(scaleTextureRect); // 将玩家的世界坐标转换为屏幕坐标
+	scaleTextureRect = camera.worldToScreen(scaleTextureRect);
 
 	// 显示血条
 	Rect currentHpRect = Rect{ rigidBody_.hitBox.x(), rigidBody_.hitBox.y() - 20, rigidBody_.hitBox.w() * (hp_ / static_cast<float>(maxHp_)), Config::BLOOD_RECT_HEIGHT };
 	Rect healthBarRect = Rect{ rigidBody_.hitBox.x(), rigidBody_.hitBox.y() - 20, rigidBody_.hitBox.w(), Config::BLOOD_RECT_HEIGHT };
 
-	renderer_.renderFillRect(camera.worldToScreen(currentHpRect), SDL_Color({ 255, 0, 0, 255 })); // 红色血条
-	renderer_.renderRect(camera.worldToScreen(healthBarRect), SDL_Color({ 255, 255, 255, 255 })); // 白色血条边框
+	renderer_.renderFillRect(camera.worldToScreen(currentHpRect), SDL_Color({ 255, 0, 0, 255 })); 
+	renderer_.renderRect(camera.worldToScreen(healthBarRect), SDL_Color({ 255, 255, 255, 255 }));
 
 	// 受击时闪烁效果，后续可以根据需要调整闪烁频率、持续时间等参数
-	
 	// 这里使用正弦函数来实现闪烁效果，alpha值在0.3到1.0之间变化，频率为10Hz
 	if (isHited_ && hitTimer_.isActive()) {
 		float progress = hitTimer_.getElapsedTime();
@@ -98,8 +97,8 @@ void Player::renderDebug(const Camera& camera) const noexcept{
 	SDL_FRect debugInfoRect = { Config::LOGIC_WIDTH - 200, 0, 200, 200 };
 	std::string str = (rigidBody_.isLanded) ? "Landed" : "Air";
 	renderer_.renderText("IsLand:" + str, debugInfoRect, debugTextColor, 20);
-	std::string velocityXStr = "VelX: " + std::to_string(static_cast<int>(rigidBody_.velocity.getX()));
-	std::string velocityYStr = "VelY: " + std::to_string(static_cast<int>(rigidBody_.velocity.getY()));
+	std::string velocityXStr = "VelX: " + std::to_string(static_cast<int>(rigidBody_.velocity.x()));
+	std::string velocityYStr = "VelY: " + std::to_string(static_cast<int>(rigidBody_.velocity.y()));
 	renderer_.renderText(velocityXStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 30, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	renderer_.renderText(velocityYStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 60, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	std::string currState = "State: ";
@@ -118,7 +117,7 @@ void Player::renderDebug(const Camera& camera) const noexcept{
 	renderer_.renderText(playerPosStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 120, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	std::string cameraMoveStr = "CameraMove: (" + std::to_string(static_cast<int>(camera.getViewport().x())) + ", " + std::to_string(static_cast<int>(camera.getViewport().y())) + ")";
 	renderer_.renderText(cameraMoveStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 150, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
-	std::string moveModeStr = "MoveMode: " + std::string((moveMode_ == MoveMode::Normal) ? "Normal" : (moveMode_ == MoveMode::Climb) ? "Climb" : "Sprint");
+	std::string moveModeStr = "MoveMode: " + std::string((moveMode_ == MoveMode::NORMAL) ? "Normal" : (moveMode_ == MoveMode::CLIMB) ? "Climb" : "Sprint");
 	renderer_.renderText(moveModeStr, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 180, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
 	std::string hit = "is hited: " + std::string((isHited_) ? "true" : "false");
 	renderer_.renderText(hit, SDL_FRect{ debugInfoRect.x, debugInfoRect.y + 210, debugInfoRect.w, debugInfoRect.h }, debugTextColor, 20);
@@ -128,7 +127,7 @@ void Player::renderDebug(const Camera& camera) const noexcept{
 
 void Player::reset() noexcept {
 	rigidBody_.velocity = Vec2(0, 0);
-	rigidBody_.hitBox = Rect(birthPoint_.getX(), birthPoint_.getY(), Config::PLAYER_WIDTH, Config::PLAYER_HEIGHT);
+	rigidBody_.hitBox = Rect(birthPoint_.x(), birthPoint_.y(), Config::PLAYER_WIDTH, Config::PLAYER_HEIGHT);
 	rigidBody_.isLanded = false;
 	rigidBody_.acceleration = Vec2(0, 0);
 	rigidBody_.gravityScale = 1.0f;
@@ -151,17 +150,17 @@ void Player::reset() noexcept {
 bool Player::isStateChanged() noexcept{
 	PlayerAnimationState nextState = PlayerAnimationState::IDLE;
 	if (rigidBody_.isLanded) {
-		if (rigidBody_.velocity.getX() <= 0.1f && rigidBody_.velocity.getX() >= -0.1f) {
+		if (rigidBody_.velocity.x() <= 0.1f && rigidBody_.velocity.x() >= -0.1f) {
 			nextState = PlayerAnimationState::IDLE;
 		}
 		else 
 			nextState = PlayerAnimationState::RUN;
 	}
 	else {
-		if (rigidBody_.velocity.getY() < -0.1f) {
+		if (rigidBody_.velocity.y() < -0.1f) {
 			nextState = PlayerAnimationState::JUMP;
 		}
-		else if (rigidBody_.velocity.getY() > 0.1f) {
+		else if (rigidBody_.velocity.y() > 0.1f) {
 			nextState = PlayerAnimationState::FALL;
 		}
 		else {
@@ -189,7 +188,7 @@ void Player::updateAnimationState(double dt) noexcept{
 	if (isStateChanged()) {
 		Animation::AnimationClip animationClip;
 		animationClip.frameDuration = 0.1f;
-		animationClip.frames.reserve(4); // 预分配空间，避免多次动态扩容，后续可以根据实际帧数调整
+		animationClip.frames.reserve(4); 
 		switch (currentAnimationState_) {
 		case PlayerAnimationState::IDLE: {
 			const auto src = Config::PLAYER_IDLE_SRC;
@@ -208,7 +207,8 @@ void Player::updateAnimationState(double dt) noexcept{
 			for (const auto& rect : src) {
 				animationClip.frames.push_back(Rect{ static_cast<float>(rect[0]), static_cast<float>(rect[1]), static_cast<float>(rect[2]), static_cast<float>(rect[3]) });
 			}
-			animationClip.loop = false; // 跳跃动画不循环，播放完后停在最后一帧，直到状态改变
+			// 跳跃动画不循环
+			animationClip.loop = false; 
 			break;
 		}
 		case PlayerAnimationState::FALL: {
@@ -216,7 +216,8 @@ void Player::updateAnimationState(double dt) noexcept{
 			for (const auto& rect : src) {
 				animationClip.frames.push_back(Rect{ static_cast<float>(rect[0]), static_cast<float>(rect[1]), static_cast<float>(rect[2]), static_cast<float>(rect[3]) });
 			}
-			animationClip.loop = false; // 下降动画不循环，播放完后停在最后一帧，直到状态改变
+			// 下降动画不循环
+			animationClip.loop = false; 
 			break;
 		}
 		case PlayerAnimationState::ATTACK: {
@@ -224,8 +225,10 @@ void Player::updateAnimationState(double dt) noexcept{
 			for (const auto& rect : src) {
 				animationClip.frames.push_back(Rect{ static_cast<float>(rect[0]), static_cast<float>(rect[1]), static_cast<float>(rect[2]), static_cast<float>(rect[3]) });
 			}
-			animationClip.frameDuration = attackDuration_ / src.size(); // 根据攻击持续时间和帧数计算每帧持续时间
-			animationClip.loop = false; // 攻击动画不循环，播放完后停在最后一帧，直到状态改变
+			// 根据攻击持续时间和帧数计算每帧持续时间
+			animationClip.frameDuration = attackDuration_ / src.size(); 
+			// 攻击动画不循环
+			animationClip.loop = false; 
 			break;
 		}
 		case PlayerAnimationState::SPRINT: {
@@ -256,7 +259,7 @@ void Player::updateAnimationState(double dt) noexcept{
 			break;
 		}
 		}
-		animation_.play(animationClip); // 根据当前状态获取对应的动画剪辑并播放
+		animation_.play(animationClip); 
 	}
 	animation_.update(dt);
 }
@@ -264,12 +267,12 @@ void Player::updateAnimationState(double dt) noexcept{
 void Player::postPhysicsUpdate() noexcept{
 	// 根据物理系统更新后的状态进行最终调整
 	// 土狼时间
-	if (wasLanded_ && !rigidBody_.isLanded && rigidBody_.velocity.getY() >= 0.0f) {
+	if (wasLanded_ && !rigidBody_.isLanded && rigidBody_.velocity.y() >= 0.0f) {
 		coyoteTimer_.start(Config::COYOTE_TIME);
 	}
 	if(rigidBody_.isLanded) {
 		coyoteTimer_.stop();
-		isJumping_ = false; // 着陆后重置跳跃状态
+		isJumping_ = false; 
 	}
 	wasLanded_ = rigidBody_.isLanded;
 	// 跳跃结束
@@ -285,8 +288,10 @@ void Player::setHit() noexcept{
 }
 
 void Player::updatePublicStatus(double dt) noexcept{
-	int dir = (command_.moveRight ? 1 : command_.moveLeft ? -1 : 0); // 根据输入确定移动方向，优先级：右 > 左 > 无
-	facingRight_ = (dir > 0) ? true : (dir < 0) ? false : facingRight_; // 根据输入更新朝向，优先级：右 > 左 > 保持当前
+	// 根据输入确定移动方向，优先级：右 > 左 > 无
+	int dir = (command_.moveRight ? 1 : command_.moveLeft ? -1 : 0); 
+	// 根据输入更新朝向，优先级：右 > 左 > 保持当前
+	facingRight_ = (dir > 0) ? true : (dir < 0) ? false : facingRight_; 
 
 	// 冲刺方向：输入方向优先，如果没有输入则根据当前朝向决定水平冲刺方向，垂直方向根据up down输入决定，如果没有输入则不进行垂直冲刺
 	// 无输入时：水平冲刺方向根据当前朝向决定，垂直冲刺方向不进行冲刺
@@ -296,22 +301,26 @@ void Player::updatePublicStatus(double dt) noexcept{
 		sprintDirection_.setY(command_.up ? -1 : command_.down ? 1 : 0);
 		sprintDirection_.setX(dir);
 	} else {
-		sprintDirection_.setX(dir == 0 ? (facingRight_ ? 1 : -1) : dir); // 没有垂直输入时，水平冲刺方向根据dir或者当前朝向决定
+		// 没有垂直输入时，水平冲刺方向根据dir或者当前朝向决定
+		sprintDirection_.setX(dir == 0 ? (facingRight_ ? 1 : -1) : dir); 
 		sprintDirection_.setY(0);
 	}
 
 	if (command_.jump) {
-		dropDownTimer_.start(Config::DROP_DOWN_BUFFER_TIME); // 启动下落缓冲计时，允许在平台上短暂时间内仍然可以下落
+		// 启动下落缓冲计时，允许在平台上短暂时间内仍然可以下落
+		dropDownTimer_.start(Config::DROP_DOWN_BUFFER_TIME); 
 	}
 
-	rigidBody_.wantsDropDown = command_.down && dropDownTimer_.isActive(); // 根据输入更新希望下落标志，物理系统会根据这个标志处理平台穿透逻辑
+	// 根据输入更新希望下落标志，物理系统会根据这个标志处理平台穿透逻辑
+	rigidBody_.wantsDropDown = command_.down && dropDownTimer_.isActive(); 
 
 	if (rigidBody_.isLanded) {
-		sprintCount_ = 0; // 在地面上重置冲刺次数
+		// 在地面上重置冲刺次数
+		sprintCount_ = 0; 
 	}
 
 	if (isHited_ && !hitTimer_.isActive()) {
-		sfxToPlay_.push_back(SfxId::PlayerHurt);
+		sfxToPlay_.push_back(SfxId::PLAYER_HURT);
 		hitTimer_.start(Config::HIT_TIMER);
 		setIsCollidable(false);
 	}
@@ -327,11 +336,12 @@ void Player::updatePublicStatus(double dt) noexcept{
 	isDown_ = command_.down;
 
 	if(command_.jump && !command_.down) {
-		jumpTimer_.start(Config::JUMP_BUFFER_TIME); // 启动跳跃缓冲计时，允许在离地面短暂时间内仍然可以跳跃
+		// 启动跳跃缓冲计时，允许在离地面短暂时间内仍然可以跳跃
+		jumpTimer_.start(Config::JUMP_BUFFER_TIME); 
 	}
 
 	// 判断是否可以攀爬
-	if(moveMode_ == MoveMode::Climb && command_.up) {
+	if(moveMode_ == MoveMode::CLIMB && command_.up) {
 		isClimbing_ = true;
 	} else {
 		isClimbing_ = false;
@@ -339,10 +349,10 @@ void Player::updatePublicStatus(double dt) noexcept{
 
 	// 冲刺逻辑，在攀爬后调用
 	if (command_.sprint && !isSprinting_ && sprintCount_ < sprintMaxCount_) {
-		sfxToPlay_.push_back(SfxId::PlayerSprint);
-		moveMode_ = MoveMode::Sprint;
+		sfxToPlay_.push_back(SfxId::PLAYER_SPRINT);
+		moveMode_ = MoveMode::SPRINT;
 		isSprinting_ = true;
-		sprintTimer_.start(Config::SPRINT_DURATION); // 冲刺持续时间，单位秒
+		sprintTimer_.start(Config::SPRINT_DURATION); 
 		sprintCount_++;
 	}
 
@@ -350,17 +360,18 @@ void Player::updatePublicStatus(double dt) noexcept{
 		jumpRequested_ = true;
 		isJumping_ = true;
 		rigidBody_.isLanded = false;
-		jumpTimer_.stop(); // 跳跃后停止跳跃缓冲计时
-		coyoteTimer_.stop(); //
+		jumpTimer_.stop(); 
+		coyoteTimer_.stop();
 	}
 
 	if (command_.attack && !isAttacking_) {
-		sfxToPlay_.push_back(SfxId::PlayerAttackSwing);
+		sfxToPlay_.push_back(SfxId::PLAYER_ATTACK_SWING);
 		isAttacking_ = true;
 		attackTimer_.start(attackDuration_);
 		attackHitBox_.setY(rigidBody_.hitBox.y());
-		attackHitBox_.setX(rigidBody_.hitBox.x() + (facingRight_ ? 1 : -1) * rigidBody_.hitBox.w()); // 根据朝向调整攻击碰撞盒位置
-		attackFacingRight_ = facingRight_; // 攻击时的朝向快照
+		// 根据朝向调整攻击碰撞盒位置
+		attackHitBox_.setX(rigidBody_.hitBox.x() + (facingRight_ ? 1 : -1) * rigidBody_.hitBox.w()); 
+		attackFacingRight_ = facingRight_; 
 	}
 }
 
@@ -368,44 +379,46 @@ void Player::updateMovementAcceleration(double dt) noexcept{
 	int dir = (command_.moveRight ? 1 : command_.moveLeft ? -1 : 0); // 根据输入确定移动方向，优先级：右 > 左 > 无
 
 	switch (moveMode_) {
-	case MoveMode::Sprint: {
+	case MoveMode::SPRINT: {
 		if (isSprinting_) {
-			rigidBody_.acceleration.set(0, 0); // 冲刺时不受输入加速度影响，保持当前速度
+			rigidBody_.acceleration.set(0, 0); 
 			rigidBody_.velocity = sprintDirection_.normalized() * Config::SPRINT_MAX_SPEED;
-			rigidBody_.gravityScale = 0.0f; // 冲刺时不受重力影响
-			rigidBody_.maxSpeed = Config::SPRINT_MAX_SPEED; // 冲刺时的最大速度
-			if (sprintDirection_.getY() >= -0.1f && sprintDirection_.getY() <= 0.1f) { // 水平冲刺时保持着陆状态，允许在地面上进行水平冲刺
+			// 冲刺时不受重力影响
+			rigidBody_.gravityScale = 0.0f; 
+			rigidBody_.maxSpeed = Config::SPRINT_MAX_SPEED; 
+			if (sprintDirection_.y() >= -0.1f && sprintDirection_.y() <= 0.1f) { 
 				rigidBody_.isLanded = false;
 			}
 		}
 		break;
 	}
-	case MoveMode::Climb: {
+	case MoveMode::CLIMB: {
 		// 暂时不实现
 		break;
 	}
-	case MoveMode::Normal :{
-		rigidBody_.gravityScale = 1.0f; // 恢复正常重力
-		rigidBody_.maxSpeed = Config::MAX_SPEED; // 恢复正常最大速度
-		rigidBody_.maxFallSpeed = Config::MAX_SPEED; // 恢复正常最大下落速度
+	case MoveMode::NORMAL :{
+		rigidBody_.gravityScale = 1.0f; 
+		rigidBody_.maxSpeed = Config::MAX_SPEED; 
+		rigidBody_.maxFallSpeed = Config::MAX_SPEED; 
 
 		// 摩擦在此处结算（为调整手感使用，而不是通用摩擦力）
-		if (dir != 0) { // 水平输入
-			rigidBody_.acceleration.setX(dir * (rigidBody_.isLanded ? Config::ACCELERATION : Config::AIR_ACCEL)); // 有输入 根据是否着陆选择不同的加速度
+		if (dir != 0) { 
+			rigidBody_.acceleration.setX(dir * (rigidBody_.isLanded ? Config::ACCELERATION : Config::AIR_ACCEL)); 
 		} else if (rigidBody_.isLanded) {
 			// 无输入 + 在地面：摩擦减速
-			float vx = rigidBody_.velocity.getX();
+			float vx = rigidBody_.velocity.x();
 			if (std::abs(vx) > Config::GROUND_FRICTION * dt) {
 				rigidBody_.acceleration.setX(-std::copysign(Config::GROUND_FRICTION, vx));
-			}
-			else {
-				rigidBody_.velocity.setX(0.0f);   // 积分前归零，防止抖动
-				rigidBody_.acceleration.setX(0.0f); // 已归零，不再施加加速度
+			} else {
+				// 积分前归零，防止抖动
+				rigidBody_.velocity.setX(0.0f);   
+				rigidBody_.acceleration.setX(0.0f); 
 			}
 		} else {
 			if (isDown_) {
 				rigidBody_.acceleration.setY(0.5 * Config::GRAVITY);
-				rigidBody_.maxFallSpeed = Config::MAX_FALL_SPEED_WHILE_DOWN; // 按下下键时增加最大下落速度，允许更快地落地
+				// 按下下键时增加最大下落速度，允许更快地落地
+				rigidBody_.maxFallSpeed = Config::MAX_FALL_SPEED_WHILE_DOWN; 
 			}
 			// 无输入 + 在空中：不施加水平加速度，保持当前水平速度（不受空气摩擦影响）
 			rigidBody_.acceleration.setX(0.0f);
@@ -417,9 +430,9 @@ void Player::updateMovementAcceleration(double dt) noexcept{
 		break;
 	}
 	if(jumpRequested_) {
-		sfxToPlay_.push_back(SfxId::PlayerJump);
-		rigidBody_.velocity.setY(Config::JUMP_VELOCITY); // 跳跃初始速度，单位像素/秒
-		jumpRequested_ = false; // 重置跳跃请求
+		sfxToPlay_.push_back(SfxId::PLAYER_JUMP);
+		rigidBody_.velocity.setY(Config::JUMP_VELOCITY);
+		jumpRequested_ = false; 
 	}
 }
 
@@ -428,7 +441,7 @@ void Player::finalizeState() noexcept{
 	if (isSprinting_ && !sprintTimer_.isActive()) {
 		isSprinting_ = false;
 		sprintDirection_ = Vec2(0, 0);
-		moveMode_ = MoveMode::Normal; // 冲刺结束后重置移动模式
+		moveMode_ = MoveMode::NORMAL; 
 	}
 	// 攻击结束
 	if (isAttacking_ && !attackTimer_.isActive()) {
@@ -449,8 +462,8 @@ void Player::finalizeState() noexcept{
 }
 
 void Player::judgeClimb(bool canClimb) noexcept{
-	if (moveMode_ == MoveMode::Sprint) {
+	if (moveMode_ == MoveMode::SPRINT) {
 		return;
 	}
-	moveMode_ = canClimb ? MoveMode::Climb : MoveMode::Normal;
+	moveMode_ = canClimb ? MoveMode::CLIMB : MoveMode::NORMAL;
 }

@@ -6,6 +6,7 @@
 #include "State.h"
 #include "EventType.h"
 
+// 前置声明
 struct RenderContext;
 class EventManager;
 class Physics;
@@ -21,18 +22,21 @@ public:
 
 	void update(double dt) noexcept;
 	void render() const noexcept;
-	TStateType getTopStateType() const noexcept { return stateStack_.empty() ? TStateType{} : stateStack_.back()->getType(); } // 获取当前状态类型，后续增加异常处理等功能
+	// 获取当前状态类型
+	TStateType getTopStateType() const noexcept { return stateStack_.empty() ? TStateType{} : stateStack_.back()->getType(); } 
 
 private:
-	RenderContext& renderContext_; // 渲染上下文，存储全局共享的数据和资源
-	EventManager& eventManager_; // 事件管理器实例
-	Physics& physics_; // 物理引擎实例
-	Input& inputManager_; // 输入管理器实例
-	Resource& resourceManager_; // 资源管理器实例
+	// 引擎核心系统的引用，供状态创建、管理和注入使用
+	RenderContext& renderContext_; 
+	EventManager& eventManager_; 
+	Physics& physics_; 
+	Input& inputManager_; 
+	Resource& resourceManager_;
 	GameSession& gameSession_;
 
 	std::unique_ptr<State<TStateType>> createState(TStateType stateType) noexcept;
-	std::vector<std::unique_ptr<State<TStateType>>> stateStack_; // 状态栈，支持状态的压入和弹出
+	// 状态栈，支持状态的压入和弹出
+	std::vector<std::unique_ptr<State<TStateType>>> stateStack_; 
 	SubscriptionId stateTransitionSubscriptionId_{};
 };
 
@@ -41,33 +45,36 @@ StateMachine<TStateType, TFactory>::StateMachine(TStateType initState, RenderCon
 	: renderContext_(renderContext), physics_(pm), inputManager_(iM), eventManager_(eM), resourceManager_(rM), gameSession_(gS) {
 	stateStack_.push_back(createState(initState));
 	stateTransitionSubscriptionId_ = eventManager_.subscribe(
-		EventType::State_Transition,
+		EventType::STATE_TRANSITION,
 		[this](const Event& event) {
 			if (event.hasData<StateRequest>()) {
 				auto req = event.getData<StateRequest>();
 
 				switch (req.op) {
-				case StateOperator::Push: {
-						TStateType newStateType = std::any_cast<TStateType>(req.data); // StateRequest中data字段存储了新的状态类型
+				case StateOperator::PUSH: {
+						// StateRequest中data字段存储了新的状态类型
+						TStateType newStateType = std::any_cast<TStateType>(req.data); 
 						stateStack_.push_back(createState(newStateType));
 						break;
 					}
-					case StateOperator::Pop:{
+					case StateOperator::POP:{
 						if (!stateStack_.empty()) {
 							stateStack_.pop_back();
 						}
 						break;
 					}
-					case StateOperator::Replace:{
-						TStateType newStateType = std::any_cast<TStateType>(req.data); // StateRequest中data字段存储了新的状态类型
+					case StateOperator::REPLACE:{
+						// StateRequest中data字段存储了新的状态类型
+						TStateType newStateType = std::any_cast<TStateType>(req.data); 
 						if (!stateStack_.empty()) {
 							stateStack_.pop_back();
 						}
 						stateStack_.push_back(createState(newStateType));
 						break;
 					}
-					case StateOperator::ClearAndPush:{
-						TStateType newStateType = std::any_cast<TStateType>(req.data); // StateRequest中data字段存储了新的状态类型
+					case StateOperator::CLEAR_AND_PUSH:{
+						// StateRequest中data字段存储了新的状态类型
+						TStateType newStateType = std::any_cast<TStateType>(req.data); 
 						stateStack_.clear();
 						stateStack_.push_back(createState(newStateType));
 						break;
@@ -91,14 +98,13 @@ void StateMachine<TStateType, TFactory>::update(double dt) noexcept {
 
 template<class TStateType, class TFactory>
 void StateMachine<TStateType, TFactory>::render() const noexcept {
-
 	for(const auto& state : stateStack_) {
 		state->render();
 	}
 
-	renderContext_.renderer.resetRenderTarget(); // 渲染状态的动态元素后重置渲染目标为默认，准备将动态纹理内容呈现到屏幕
-	renderContext_.renderer.renderStaticTexture(); // 将静态纹理渲染到默认渲染目标，呈现当前状态的静态元素，后续可优化为根据状态类型选择性渲染
-	renderContext_.renderer.renderDynamicTexture(); // 将动态纹理渲染到默认渲染目标，呈现当前状态的动态元素，后续可优化为根据状态类型选择性渲染
+	renderContext_.renderer.resetRenderTarget(); 
+	renderContext_.renderer.renderStaticTexture(); 
+	renderContext_.renderer.renderDynamicTexture(); 
 }
 
 template<class TStateType, class TFactory>

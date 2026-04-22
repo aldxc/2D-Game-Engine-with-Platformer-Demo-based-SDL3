@@ -44,17 +44,18 @@ void Game::Run() noexcept {
 void Game::handleInput() noexcept {
 
 	if (inputManager_.getESCPressed()) {
-		inputManager_.consumeESCKeyPress(); // 消费ESC键按下事件，避免持续按键导致的重复输入问题
+		// 消费ESC键按下事件，避免持续按键导致的重复输入问题
+		inputManager_.consumeESCKeyPress(); 
 		if (stateMachine_->getTopStateType() == StateType::PLAYING) {
-			eventManager_.triggerEvent(Event{ EventType::Audio_PlaySfx, SfxId::UIButtonClick });
-			eventManager_.triggerEvent(Event{ EventType::Audio_PauseBgm });
-			eventManager_.triggerEvent({ EventType::State_Transition, StateRequest{ StateOperator::Push, StateType::PAUSE } });
-			eventManager_.triggerEvent({ EventType::UI_Show, UIType::PAUSE });
+			eventManager_.triggerEvent(Event{ EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK });
+			eventManager_.triggerEvent(Event{ EventType::AUDIO_PAUSE_BGM });
+			eventManager_.triggerEvent({ EventType::STATE_TRANSITION, StateRequest{ StateOperator::PUSH, StateType::PAUSE } });
+			eventManager_.triggerEvent({ EventType::UI_SHOW, UIType::PAUSE });
 		}else if(stateMachine_->getTopStateType() == StateType::PAUSE) {
-			eventManager_.triggerEvent(Event{ EventType::Audio_PlaySfx, SfxId::UIButtonClick });
-			eventManager_.triggerEvent(Event{ EventType::Audio_ResumeBgm });
-			eventManager_.triggerEvent({ EventType::State_Transition, StateRequest{ StateOperator::Pop } });
-			eventManager_.triggerEvent({ EventType::UI_Show, UIType::PLAYING });
+			eventManager_.triggerEvent(Event{ EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK });
+			eventManager_.triggerEvent(Event{ EventType::AUDIO_RESUME_BGM });
+			eventManager_.triggerEvent({ EventType::STATE_TRANSITION, StateRequest{ StateOperator::POP } });
+			eventManager_.triggerEvent({ EventType::UI_SHOW, UIType::PLAYING });
 		}
 	}
 
@@ -76,8 +77,9 @@ void Game::update() noexcept {
 	// 使用固定时间步长更新游戏逻辑，确保游戏在不同帧率下的行为一致
 	while (accumulator_ >= Config::DELTAFREAM) {
 		stateMachine_->update(Config::DELTAFREAM);
-		inputManager_.resetInputState();//在每次逻辑更新后重置输入状态，确保输入状态只在当前逻辑帧内有效，避免输入状态在多帧之间持续导致的重复输入问题
-		GlobalTime_ += Config::DELTAFREAM;
+		//在每次逻辑更新后重置输入状态，确保输入状态只在当前逻辑帧内有效，避免输入状态在多帧之间持续导致的重复输入问题
+		inputManager_.resetInputState();
+		globalTime_ += Config::DELTAFREAM;
 		accumulator_ -= Config::DELTAFREAM;
 	}
 }
@@ -135,7 +137,7 @@ bool Game::init() noexcept {
 		return false;
 	}
 
-	quitSubscriptionId_ = eventManager_.subscribe(EventType::App_Quit, [this](const Event&) {
+	quitSubscriptionId_ = eventManager_.subscribe(EventType::APP_QUIT, [this](const Event&) {
 		isRunning_ = false;
 	});
 
@@ -143,7 +145,8 @@ bool Game::init() noexcept {
 	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU, inputManager_, eventManager_, renderer_, gameSession_);
 	lastFrameTime_ = std::chrono::high_resolution_clock::now();
 	auto mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
-	MAX_FPS_ = !mode ? 60 : std::min(Config::TARGET_RENDER_FPS, static_cast<uint32_t>(mode->refresh_rate)); // 如果无法获取显示模式信息，默认使用较低的帧率限制
+	// 如果无法获取显示模式信息，默认使用较低的帧率限制
+	MAX_FPS_ = !mode ? 60 : std::min(Config::TARGET_RENDER_FPS, static_cast<uint32_t>(mode->refresh_rate)); 
 
 	currentFPS_ = 0;
 	fpsAccumulatedTime_ = 0;

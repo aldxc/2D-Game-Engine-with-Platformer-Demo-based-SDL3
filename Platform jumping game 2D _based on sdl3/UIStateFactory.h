@@ -27,7 +27,7 @@ struct GameUIFactory {
 			return std::make_unique<WonUI>(iM, eM, r);
 		case UIType::LOSE:
 			return std::make_unique<LoseUI>(iM, eM, r);
-		case UIType::SelectState:
+		case UIType::SELECT_STATE:
 			return std::make_unique<SelectUI>(iM, eM, r, gS);
 		default:
 			return std::make_unique<MenuUI>(iM, eM, r, gS);
