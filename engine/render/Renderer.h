@@ -91,6 +91,6 @@ private:
 	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> UITexture_; 
 	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> staticTexture_; 
 	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> dynamicTexture_; 
-	// 文本缓存，键为文本内容和属性的组合，值为对应的TTF_Text对象，避免重复创建相同文本对象带来的性能问题
+	// 文本缓存，键为文本内容，值为对应的TTF_Text对象，避免重复创建相同文本对象带来的性能问题
 	mutable std::unordered_map<std::string, std::unique_ptr<TTF_Text, TTF_TEXTDeleter>> textCache_; 
 };

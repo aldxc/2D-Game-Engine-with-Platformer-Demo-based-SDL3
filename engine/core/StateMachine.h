@@ -6,7 +6,7 @@
 #include "State.h"
 #include "EventType.h"
 
-// 前置声明
+// 前置声明，避免循环依赖
 struct RenderContext;
 class EventManager;
 class Physics;

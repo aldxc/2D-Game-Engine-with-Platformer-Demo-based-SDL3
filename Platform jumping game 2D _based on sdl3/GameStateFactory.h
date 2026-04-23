@@ -28,7 +28,7 @@ struct GameStateFactory {
 		case StateType::WON:
 			return std::make_unique<WonState>(renderContext.renderer);
 		case StateType::LOSE:
-			return std::make_unique<LoseState>(renderContext.renderer);//
+			return std::make_unique<LoseState>(renderContext.renderer);
 		case StateType::SELECT_HERO:
 			return std::make_unique<SelectState>(renderContext.renderer, rM, iM); 
 		default:

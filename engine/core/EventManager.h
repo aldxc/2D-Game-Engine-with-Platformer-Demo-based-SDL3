@@ -30,8 +30,8 @@ public:
 	// 订阅某个类型的事件,返回ID
 	SubscriptionId subscribe(EventType type, EventListener listener) noexcept;
 
-	// 取消订阅（需要保留返回的 ID，简单实现中可用 token，这里暂略）
-	void unsubscribe(const SubscriptionId& id) noexcept; // 需要精确匹配函数对象，较复杂，暂略
+	// 取消订阅（需要保留返回的 ID）
+	void unsubscribe(const SubscriptionId& id) noexcept; 
 
 	// 发送事件（放入队列）
 	void sendEvent(const Event& event) noexcept;

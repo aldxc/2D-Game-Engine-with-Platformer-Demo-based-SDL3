@@ -115,6 +115,7 @@ void Renderer::renderText(const std::string text, const SDL_FRect& rect, const S
 	float x = rect.x + (rect.w - w) / 2.0f;
 	float y = rect.y + (rect.h - h) / 2.0f;
 	TTF_DrawRendererText(text_.get(), x, y);
+
 	textCache_[text] = std::move(text_);
 }
 
