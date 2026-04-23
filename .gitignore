@@ -361,3 +361,29 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# SDL3 头文件
+include/SDL3/
+include/SDL3_image/
+include/SDL3_mixer/
+include/SDL3_ttf/
+
+# tmxlite 头文件
+include/tmxlite/
+
+# SDL3 预编译库与调试符号
+lib/SDL3*.lib
+lib/SDL3*.pdb
+
+# tmxlite 预编译库与调试符号
+lib/tmxlite*.lib
+lib/tmxlite*.pdb
+
+# SDL3_image 可选许可文件
+lib/optional/
+
+# tmxlite 源码
+engine/tmxlite/
+
+# tinyxml 源码(tmxlite 依赖)
+engine/tinyxml/
