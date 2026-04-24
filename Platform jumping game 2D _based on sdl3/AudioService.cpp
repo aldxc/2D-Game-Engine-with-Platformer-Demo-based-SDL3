@@ -21,31 +21,31 @@ namespace {
 	}
 }
 
-AudioService::AudioService(Audio& aM, Resource& rM, EventManager& eM) noexcept : audio_(aM) , resource_(rM), eventManager_(eM){
-	playBgmSubscriptionId_ = eventManager_.subscribe(EventType::AUDIO_PLAY_BGM, [this](const Event& event) {
+AudioService::AudioService(Audio& aM, Resource& rM, EventManager& eM) noexcept : m_audio(aM) , m_resource(rM), m_eventManager(eM){
+	m_playBgmSubscriptionId = m_eventManager.subscribe(EventType::AUDIO_PLAY_BGM, [this](const Event& event) {
 		if (event.hasData<BgmId>()) {
 			playBgm(event.getData<BgmId>());
 		}
 		});
-	playSfxSubscriptionId_ = eventManager_.subscribe(EventType::AUDIO_PLAY_SFX, [this](const Event& event) {
+	m_playSfxSubscriptionId = m_eventManager.subscribe(EventType::AUDIO_PLAY_SFX, [this](const Event& event) {
 		if (event.hasData<SfxId>()) {
 			playSfx(event.getData<SfxId>());
 		}
 		});
-	pauseBgmSubscriptionId_ = eventManager_.subscribe(EventType::AUDIO_PAUSE_BGM, [this](const Event& event) {
-		audio_.pauseBgm();
+	m_pauseBgmSubscriptionId = m_eventManager.subscribe(EventType::AUDIO_PAUSE_BGM, [this](const Event& event) {
+		m_audio.pauseBgm();
 		});
-	resumeBgmSubscriptionId_ = eventManager_.subscribe(EventType::AUDIO_RESUME_BGM, [this](const Event& event) {
-		audio_.resumeBgm();
+	m_resumeBgmSubscriptionId_ = m_eventManager.subscribe(EventType::AUDIO_RESUME_BGM, [this](const Event& event) {
+		m_audio.resumeBgm();
 		});
-	stopBgmSubscriptionId_ = eventManager_.subscribe(EventType::AUDIO_STOP_BGM, [this](const Event& event) {
+	m_stopBgmSubscriptionId = m_eventManager.subscribe(EventType::AUDIO_STOP_BGM, [this](const Event& event) {
 		// 停止背景音乐时重置当前BGM ID
-		currentBgmId_ = BgmId::NONE; 
-		audio_.stopBgm(); 
+		m_currentBgmId = BgmId::NONE; 
+		m_audio.stopBgm(); 
 		});
 
 	// 初始背景音乐为NONE
-	currentBgmId_ = BgmId::NONE; 
+	m_currentBgmId = BgmId::NONE; 
 }
 
 AudioService::~AudioService() noexcept{
@@ -53,31 +53,31 @@ AudioService::~AudioService() noexcept{
 }
 
 void AudioService::playBgm(BgmId id) noexcept{
-	if(id == currentBgmId_) {
+	if(id == m_currentBgmId) {
 		// 如果当前正在播放的BGM与请求的相同，则不重新加载和播放
 		return; 
 	}
-	currentBgmId_ = id; 
+	m_currentBgmId = id; 
 	// at方法安全，因为const通过[]访问不安全
-	audio_.playBgm(resource_.loadAudio(BgmFilePaths.at(id), audio_.getMixer()), true); 
+	m_audio.playBgm(m_resource.loadAudio(BgmFilePaths.at(id), m_audio.getMixer()), true); 
 }
 
 void AudioService::playSfx(SfxId id) noexcept{
 	if(id == SfxId::UI_BUTTON_CLICK) {
-		audio_.playUISfx(resource_.loadAudio(SfxFilePaths.at(id), audio_.getMixer()));
+		m_audio.playUISfx(m_resource.loadAudio(SfxFilePaths.at(id), m_audio.getMixer()));
 	} else {
-		audio_.playGameSfx(resource_.loadAudio(SfxFilePaths.at(id), audio_.getMixer()), getPriority(id)); // 
+		m_audio.playGameSfx(m_resource.loadAudio(SfxFilePaths.at(id), m_audio.getMixer()), getPriority(id)); // 
 	}
 }
 
 void AudioService::destroy() noexcept{
-	if (isDestory) {
+	if (m_isDestory) {
 		return;
 	}
-	eventManager_.unsubscribe(playBgmSubscriptionId_);
-	eventManager_.unsubscribe(playSfxSubscriptionId_);
-	eventManager_.unsubscribe(stopBgmSubscriptionId_);
-	eventManager_.unsubscribe(resumeBgmSubscriptionId_);
-	eventManager_.unsubscribe(pauseBgmSubscriptionId_);
-	isDestory = true;
+	m_eventManager.unsubscribe(m_playBgmSubscriptionId);
+	m_eventManager.unsubscribe(m_playSfxSubscriptionId);
+	m_eventManager.unsubscribe(m_stopBgmSubscriptionId);
+	m_eventManager.unsubscribe(m_resumeBgmSubscriptionId_);
+	m_eventManager.unsubscribe(m_pauseBgmSubscriptionId);
+	m_isDestory = true;
 }

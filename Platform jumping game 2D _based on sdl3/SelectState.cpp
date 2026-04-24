@@ -5,8 +5,8 @@
 #include "core/Rect.h"
 #include "Config.h"
 
-SelectState::SelectState(Renderer& renderer, Resource& rM, Input& iM) noexcept : State<StateType>(StateType::SELECT_HERO), renderer_(renderer), resourceManager_(rM), inputManager_(iM){
-	playerTexture_ = resourceManager_.loadTexture(Config::PLAYER_TEXTURE_PATH, renderer_.getSDLRenderer());
+SelectState::SelectState(Renderer& renderer, Resource& rM, Input& iM) noexcept : State<StateType>(StateType::SELECT_HERO), m_renderer(renderer), m_resourceManager(rM), m_inputManager(iM){
+	m_playerTexture = m_resourceManager.loadTexture(Config::PLAYER_TEXTURE_PATH, m_renderer.getSDLRenderer());
 
 	Animation::AnimationClip animationClip;
 	const auto src = Config::PLAYER_IDLE_SRC;
@@ -17,26 +17,26 @@ SelectState::SelectState(Renderer& renderer, Resource& rM, Input& iM) noexcept :
 	};
 	for(int i = 0; i < Config::SELECT_BUTTONS_NUM; ++i) {
 		animationClip.frames.push_back(Rect{ static_cast<float>(src[0]), static_cast<float>(src[1] + offsets[i]), static_cast<float>(src[2]), static_cast<float>(src[3])});
-		animations_[i].play(animationClip);
+		m_animations[i].play(animationClip);
 		animationClip.frames.clear(); 
-		animationStates_[i] = PlayerAnimationState::IDLE; 
+		m_animationStates[i] = PlayerAnimationState::IDLE; 
 	}
 }
 
 void SelectState::render() const noexcept{
-	renderer_.clearStaticTexture();
+	m_renderer.clearStaticTexture();
 
-	renderer_.clearDynamicTexture(); 
+	m_renderer.clearDynamicTexture(); 
 	for(int i = 0; i < Config::SELECT_BUTTONS_NUM; ++i) {
-		Rect currentFrameRect = animations_[i].getCurrentFrameRect();
-		renderer_.renderTexture(playerTexture_.get(), currentFrameRect, Config::SELECT_SHOW_RECT[i]);
+		Rect currentFrameRect = m_animations[i].getCurrentFrameRect();
+		m_renderer.renderTexture(m_playerTexture.get(), currentFrameRect, Config::SELECT_SHOW_RECT[i]);
 	}
 	// Æ¤·ô1
-	renderer_.renderRect(Config::SELECT_BUTTONS_RECT[0], renderer_.setColorAlpha(200, 100, 100, 255));
+	m_renderer.renderRect(Config::SELECT_BUTTONS_RECT[0], m_renderer.setColorAlpha(200, 100, 100, 255));
 	// Æ¤·ô2
-	renderer_.renderRect(Config::SELECT_BUTTONS_RECT[1], renderer_.setColorAlpha(200, 100, 100, 255));
+	m_renderer.renderRect(Config::SELECT_BUTTONS_RECT[1], m_renderer.setColorAlpha(200, 100, 100, 255));
 	// Æ¤·ô3
-	renderer_.renderRect(Config::SELECT_BUTTONS_RECT[2], renderer_.setColorAlpha(200, 100, 100, 255));
+	m_renderer.renderRect(Config::SELECT_BUTTONS_RECT[2], m_renderer.setColorAlpha(200, 100, 100, 255));
 }
 
 void SelectState::update(double dt) noexcept{
@@ -51,13 +51,13 @@ void SelectState::updateAnimationState(float dt) noexcept {
 		Config::PLAYER_3_Y_OFFSET
 	};
 	for(int i = 0; i < Config::SELECT_BUTTONS_NUM; ++i) {
-		if(animationStateChange(animationStates_[i], i)) {
-			switch (animationStates_[i]) {
+		if(animationStateChange(m_animationStates[i], i)) {
+			switch (m_animationStates[i]) {
 				case PlayerAnimationState::IDLE: {
 					Animation::AnimationClip animationClip;
 					const auto src = Config::PLAYER_IDLE_SRC;
 					animationClip.frames.push_back(Rect{ static_cast<float>(src[0]), static_cast<float>(src[1] + offsets[i]), static_cast<float>(src[2]), static_cast<float>(src[3])});
-					animations_[i].play(animationClip);
+					m_animations[i].play(animationClip);
 					break;	
 				}
 				case PlayerAnimationState::RUN: {
@@ -66,7 +66,7 @@ void SelectState::updateAnimationState(float dt) noexcept {
 					for(const auto& rect : src) {
 						animationClip.frames.push_back(Rect{ static_cast<float>(rect[0]), static_cast<float>(rect[1] + offsets[i]), static_cast<float>(rect[2]), static_cast<float>(rect[3])});
 					}
-					animations_[i].play(animationClip);
+					m_animations[i].play(animationClip);
 					break;
 				}
 				default: {
@@ -75,12 +75,12 @@ void SelectState::updateAnimationState(float dt) noexcept {
 				}
 			}
 		}
-		animations_[i].update(dt);
+		m_animations[i].update(dt);
 	}
 }
 
 bool SelectState::animationStateChange(PlayerAnimationState& animationState_, int index) noexcept {
-	auto [mouseX, mouseY] = inputManager_.getMousePosition();
+	auto [mouseX, mouseY] = m_inputManager.getMousePosition();
 	Rect bottonRect = Config::SELECT_BUTTONS_RECT[index];
 	if (bottonRect.hasIntersection({ mouseX, mouseY })) {
 		if (animationState_ != PlayerAnimationState::RUN) {

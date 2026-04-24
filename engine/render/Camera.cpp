@@ -7,72 +7,72 @@ bool Camera::init(float x, float y, float width, float height, float zoom) noexc
 }
 
 void Camera::setViewport(float x, float y, float width, float height, float zoom) noexcept {
-	viewX_ = x;
-	viewY_ = y;
-	viewWidth_ = width;
-	viewHeight_ = height;
-	zoom_ = zoom;
+	m_viewX = x;
+	m_viewY = y;
+	m_viewWidth = width;
+	m_viewHeight = height;
+	m_zoom = zoom;
 	// 死区设置为视口中心的50%区域，后续增加自定义死区设置功能
-	deadZone_ = { viewWidth_ * 0.25f, viewHeight_ * 0.25f, viewWidth_ * 0.5f, viewHeight_ * 0.5f }; 
+	m_deadZone = { m_viewWidth * 0.25f, m_viewHeight * 0.25f, m_viewWidth * 0.5f, m_viewHeight * 0.5f }; 
 }
 
 void Camera::setPosition(float x, float y) noexcept {
-	viewX_ = x;
-	viewY_ = y;
+	m_viewX = x;
+	m_viewY = y;
 }
 
 void Camera::setWorldBounds(float x, float y, float width, float height) noexcept{
-	worldBounds_ = { x, y, width, height };
-	useWorldBounds_ = true;
+	m_worldBounds = { x, y, width, height };
+	m_useWorldBounds = true;
 }
 
 void Camera::followTarget(const SDL_FRect& target, float dt, bool smooth, float followSpeed) noexcept{
-	if(target.x + target.w > viewX_ + deadZone_.x + deadZone_.w) {
-		float targetX = target.x + target.w - (viewX_ + deadZone_.x + deadZone_.w);
-		viewX_ += smooth ? (targetX * followSpeed * dt) : targetX;
-	} else if(target.x < viewX_ + deadZone_.x) {
-		float targetX = target.x - (viewX_ + deadZone_.x);
-		viewX_ += smooth ? (targetX * followSpeed * dt) : targetX;
+	if(target.x + target.w > m_viewX + m_deadZone.x + m_deadZone.w) {
+		float targetX = target.x + target.w - (m_viewX + m_deadZone.x + m_deadZone.w);
+		m_viewX += smooth ? (targetX * followSpeed * dt) : targetX;
+	} else if(target.x < m_viewX + m_deadZone.x) {
+		float targetX = target.x - (m_viewX + m_deadZone.x);
+		m_viewX += smooth ? (targetX * followSpeed * dt) : targetX;
 	}
 	// 在跟随目标后限制摄像机位置在世界边界内
 	clampToBounds();
 }
 
 void Camera::clampToBounds() noexcept{
-	if(useWorldBounds_) {
-		viewX_ = std::clamp(viewX_, worldBounds_.x, worldBounds_.x + worldBounds_.w - viewWidth_);
-		viewY_ = std::clamp(viewY_, worldBounds_.y, worldBounds_.y + worldBounds_.h - viewHeight_);
+	if(m_useWorldBounds) {
+		m_viewX = std::clamp(m_viewX, m_worldBounds.x, m_worldBounds.x + m_worldBounds.w - m_viewWidth);
+		m_viewY = std::clamp(m_viewY, m_worldBounds.y, m_worldBounds.y + m_worldBounds.h - m_viewHeight);
 	}
 }
 
 Rect Camera::worldToScreen(const SDL_FRect& worldRect) const noexcept{
 	Rect screenRect = {};
-	screenRect.setX((worldRect.x - viewX_) * zoom_);
-	screenRect.setY((worldRect.y - viewY_) * zoom_);
-	screenRect.setW(worldRect.w * zoom_);
-	screenRect.setH(worldRect.h * zoom_);
+	screenRect.setX((worldRect.x - m_viewX) * m_zoom);
+	screenRect.setY((worldRect.y - m_viewY) * m_zoom);
+	screenRect.setW(worldRect.w * m_zoom);
+	screenRect.setH(worldRect.h * m_zoom);
 
 	return screenRect;
 }
 
 SDL_FPoint Camera::worldToScreen(const SDL_FPoint& worldPos) const noexcept{
 	SDL_FPoint screenPos = {};
-	screenPos.x = (worldPos.x - viewX_) * zoom_;
-	screenPos.y = (worldPos.y - viewY_) * zoom_;
+	screenPos.x = (worldPos.x - m_viewX) * m_zoom;
+	screenPos.y = (worldPos.y - m_viewY) * m_zoom;
 	return screenPos;
 }
 
 bool Camera::isVisible(const Rect& worldRect) const noexcept{
-	if(worldRect.x() + worldRect.w() < viewX_ || worldRect.x() > viewX_ + viewWidth_ ||
-	   worldRect.y() + worldRect.h() < viewY_ || worldRect.y() > viewY_ + viewHeight_) {
+	if(worldRect.x() + worldRect.w() < m_viewX || worldRect.x() > m_viewX + m_viewWidth ||
+	   worldRect.y() + worldRect.h() < m_viewY || worldRect.y() > m_viewY + m_viewHeight) {
 		return false;
 	}
 	return true;
 }
 
 bool Camera::isVisible(const Vec2& worldPos) const noexcept{
-	if(worldPos.x() < viewX_ || worldPos.x() > viewX_ + viewWidth_ ||
-	   worldPos.y() < viewY_ || worldPos.y() > viewY_ + viewHeight_) {
+	if(worldPos.x() < m_viewX || worldPos.x() > m_viewX + m_viewWidth ||
+	   worldPos.y() < m_viewY || worldPos.y() > m_viewY + m_viewHeight) {
 		return false;
 	}
 	return true;

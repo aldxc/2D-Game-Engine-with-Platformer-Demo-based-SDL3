@@ -4,7 +4,7 @@
 template<class TUIType>
 class UI {
 public:
-	explicit UI(TUIType type) noexcept : type_(type) {}
+	explicit UI(TUIType type) noexcept : m_type(type) {}
 	virtual ~UI() = default;
 
 	UI(const UI&) = delete;
@@ -16,9 +16,9 @@ public:
 	virtual void update(double dt) noexcept = 0;
 	virtual void render() const noexcept = 0;
 
-	bool isType(TUIType type) const noexcept { return type_ == type; }
-	TUIType getType() const noexcept { return type_; }
+	bool isType(TUIType type) const noexcept { return m_type == type; }
+	TUIType getType() const noexcept { return m_type; }
 
 private:
-	TUIType type_;
+	TUIType m_type;
 };

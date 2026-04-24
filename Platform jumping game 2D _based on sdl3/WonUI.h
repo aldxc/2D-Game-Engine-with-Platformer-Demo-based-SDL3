@@ -18,9 +18,9 @@ public:
 	void render() const noexcept override final;
 private:
 	// ÒÀÀµ×é¼ş
-	Renderer& renderer_;
-	EventManager& eventManager_;
-	Input& inputManager_;
+	Renderer& m_renderer;
+	EventManager& m_eventManager;
+	Input& m_inputManager;
 
-	std::array<Botton, Config::WON_BUTTONS_NUM> bottons_; // pass the level next level  back to menu 
+	std::array<Botton, Config::WON_BUTTONS_NUM> m_bottons; // pass the level next level  back to menu 
 };

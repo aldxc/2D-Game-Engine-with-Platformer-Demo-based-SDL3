@@ -21,17 +21,17 @@ public:
 	// 销毁音频服务，取消订阅事件等清理工作
 	void destroy() noexcept; 
 private:
-	bool isDestory = false;
-	Audio& audio_;
-	Resource& resource_;
-	EventManager& eventManager_;
+	bool m_isDestory = false;
+	Audio& m_audio;
+	Resource& m_resource;
+	EventManager& m_eventManager;
 	// 当前播放的背景音乐ID，方便在暂停和恢复时使用
-	BgmId currentBgmId_ = BgmId::NONE; 
+	BgmId m_currentBgmId = BgmId::NONE; 
 
 	// 事件订阅ID，方便在销毁时取消订阅
-	SubscriptionId playBgmSubscriptionId_; 
-	SubscriptionId playSfxSubscriptionId_; 
-	SubscriptionId pauseBgmSubscriptionId_; 
-	SubscriptionId resumeBgmSubscriptionId_; 
-	SubscriptionId stopBgmSubscriptionId_; 
+	SubscriptionId m_playBgmSubscriptionId; 
+	SubscriptionId m_playSfxSubscriptionId; 
+	SubscriptionId m_pauseBgmSubscriptionId; 
+	SubscriptionId m_resumeBgmSubscriptionId_; 
+	SubscriptionId m_stopBgmSubscriptionId; 
 };

@@ -12,5 +12,5 @@ public:
 	void update(double dt) noexcept override final;
 	void render() const noexcept override final;
 private:
-	Renderer& renderer_;
+	Renderer& m_renderer;
 };

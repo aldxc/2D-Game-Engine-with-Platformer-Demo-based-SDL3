@@ -33,41 +33,41 @@ public:
 
 	void updateAnimationState(double dt) noexcept; // 根据当前状态更新动画状态
 
-	RigidBody& getRigidBody() noexcept { return rigidBody_; }
-	bool getRegisteredToPhysics() const noexcept { return isRegisteredToPhysics_; }
-	void setRegisteredToPhysics(bool registered) noexcept { isRegisteredToPhysics_ = registered; }
+	RigidBody& getRigidBody() noexcept { return m_rigidBody; }
+	bool getRegisteredToPhysics() const noexcept { return m_isRegisteredToPhysics; }
+	void setRegisteredToPhysics(bool registered) noexcept { m_isRegisteredToPhysics = registered; }
 	void kill() noexcept; 
-	bool IsDead() const noexcept { return !isAlive_; } 
+	bool IsDead() const noexcept { return !m_isAlive; } 
 	void takeHit(int dir) noexcept; 
-	std::vector<SfxId>& getSfxToPlay() noexcept { return sfxToplay_; }
+	std::vector<SfxId>& getSfxToPlay() noexcept { return m_sfxToplay; }
 private:
 	// 判断敌人状态是否发生变化
 	bool isStateChanged() noexcept; 
 private:
-	Renderer& renderer_;
+	Renderer& m_renderer;
 
-	RigidBody rigidBody_;
+	RigidBody m_rigidBody;
 	// 是否已经注册到物理引擎，控制敌人状态重置时的物理引擎注册逻辑
-	bool isRegisteredToPhysics_ = false; 
+	bool m_isRegisteredToPhysics = false; 
 
-	PlayerAnimationState currentAnimationState_ = PlayerAnimationState::IDLE;
-	Animation animation_;
-	bool isFacingRight_ = true;
-	bool isTrackingPlayer_ = false; // 是否正在跟踪玩家
-	bool isAlreadyTracking_ = false; // 是否已经到达位置，防止敌人跟踪到后抖动
-	bool isAlive_ = true; 
-	bool isHited_ = false; 
+	PlayerAnimationState m_currentAnimationState = PlayerAnimationState::IDLE;
+	Animation m_animation;
+	bool m_isFacingRight = true;
+	bool m_isTrackingPlayer = false; // 是否正在跟踪玩家
+	bool m_isAlreadyTracking = false; // 是否已经到达位置，防止敌人跟踪到后抖动
+	bool m_isAlive = true; 
+	bool m_isHited = false; 
 
-	std::shared_ptr<SDL_Texture> enemyTexture_ = nullptr;
-	int32_t hp_ = Config::ENEMY_HP; 
-	size_t maxHp_ = Config::ENEMY_HP; 
+	std::shared_ptr<SDL_Texture> m_enemyTexture = nullptr;
+	int32_t m_hp = Config::ENEMY_HP; 
+	size_t m_maxHp = Config::ENEMY_HP; 
 	// 悬崖检测计时器，控制敌人检测到悬崖时的回头频率，防止频繁回头导致的抖动
-	Timer trackingTimer_; 
+	Timer m_trackingTimer; 
 	// 死亡定时器，控制敌人死亡后的消失时间
-	Timer deathTimer_; 
+	Timer m_deathTimer; 
 	// 受击无敌事件（与攻击时间相同，防止一次攻击多次触发受伤逻辑）
-	Timer hitInvincibleTimer_; 
+	Timer m_hitInvincibleTimer; 
 
 	// 当前帧需要播放的音效列表，供外部系统调用后清空
-	std::vector<SfxId> sfxToplay_;
+	std::vector<SfxId> m_sfxToplay;
 };

@@ -35,15 +35,15 @@ public:
 
 	const Rect& getCurrentFrameRect() const noexcept;
 
-	int getCurrentFrameIndex() const noexcept { return currentFrameIndex_; }
+	int getCurrentFrameIndex() const noexcept { return m_currentFrameIndex; }
 	bool isFinished() const noexcept;
 private:
 	// 当前播放的动画剪辑
-	AnimationClip currentClip_; 
+	AnimationClip m_currentClip; 
 	// 当前帧索引
-	size_t currentFrameIndex_ = 0; 
+	size_t m_currentFrameIndex = 0; 
 	// 当前帧已播放的时间
-	double elapsed_ = 0.0f;
+	double m_elapsed = 0.0f;
 	// 动画是否已完成，非循环动画在播放完最后一帧后会设置为true，循环动画始终为false
-	bool finished_ = false; 
+	bool m_finished = false; 
 };

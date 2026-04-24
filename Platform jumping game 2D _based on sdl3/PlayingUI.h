@@ -16,9 +16,9 @@ public:
 	void update(double dt) noexcept override final;
 	void render() const noexcept override final;
 private:
-	Renderer& renderer_; // 渲染器引用，供UI内的渲染相关操作使用
-	EventManager& eventManager_; // 事件管理器引用，供UI内的事件相关操作使用
-	Input& inputManager_; // 输入管理器引用，供UI内的输入相关操作使用
+	Renderer& m_renderer; // 渲染器引用，供UI内的渲染相关操作使用
+	EventManager& m_eventManager; // 事件管理器引用，供UI内的事件相关操作使用
+	Input& m_inputManager; // 输入管理器引用，供UI内的输入相关操作使用
 	//test
-	std::array<Botton, Config::PLAYING_BUTTONS_NUM> bottons_; // 测试按钮
+	std::array<Botton, Config::PLAYING_BUTTONS_NUM> m_bottons; // 测试按钮
 };

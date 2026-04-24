@@ -27,20 +27,20 @@ private:
 
 private:
 	// 持有引擎组件的引用，供UI内的渲染、事件、输入和游戏状态相关操作使用
-	Renderer& renderer_; 
-	EventManager& eventManager_; 
-	Input& inputManager_;
-	GameSession& gameSession_; 
+	Renderer& m_renderer; 
+	EventManager& m_eventManager; 
+	Input& m_inputManager;
+	GameSession& m_gameSession; 
 
-	std::unique_ptr<UI<TUIType>> currentUI_;
-	std::vector<SubscriptionId> uiSubscriptionIds_{};
+	std::unique_ptr<UI<TUIType>> m_currentUI;
+	std::vector<SubscriptionId> m_uiSubscriptionIds{};
 };
 
 template<class TUIType, class TFactory>
 UIManager<TUIType, TFactory>::UIManager(TUIType initType, Input& iM, EventManager& eM, Renderer& r, GameSession& gS) noexcept
-	: inputManager_(iM), eventManager_(eM), renderer_(r), currentUI_(createUI(initType)), gameSession_(gS){
-	uiSubscriptionIds_.push_back(
-		eventManager_.subscribe(
+	: m_inputManager(iM), m_eventManager(eM), m_renderer(r), m_currentUI(createUI(initType)), m_gameSession(gS){
+	m_uiSubscriptionIds.push_back(
+		m_eventManager.subscribe(
 			EventType::UI_SHOW,
 			[this](const Event& event) {
 				if (event.hasData<TUIType>()) {
@@ -51,51 +51,51 @@ UIManager<TUIType, TFactory>::UIManager(TUIType initType, Input& iM, EventManage
 
 template<class TUIType, class TFactory>
 UIManager<TUIType, TFactory>::~UIManager() noexcept {
-	for (const auto& id : uiSubscriptionIds_) {
-		eventManager_.unsubscribe(id);
+	for (const auto& id : m_uiSubscriptionIds) {
+		m_eventManager.unsubscribe(id);
 	}
 }
 
 template<class TUIType, class TFactory>
 void UIManager<TUIType, TFactory>::update(double dt) noexcept {
-	if (currentUI_) {
-		currentUI_->update(dt);
+	if (m_currentUI) {
+		m_currentUI->update(dt);
 	}
 }
 
 template<class TUIType, class TFactory>
 void UIManager<TUIType, TFactory>::handleInput() noexcept {
-	if (currentUI_) {
-		currentUI_->handleInput();
+	if (m_currentUI) {
+		m_currentUI->handleInput();
 	}
 }
 
 template<class TUIType, class TFactory>
 void UIManager<TUIType, TFactory>::render() const noexcept {
 	//后续增加血条等需要频繁更新的UI元素时可以订阅事件来更新UI纹理，避免每帧都更新UI纹理带来的性能问题
-	renderer_.renderUITexture();
+	m_renderer.renderUITexture();
 }
 
 template<class TUIType, class TFactory>
 void UIManager<TUIType, TFactory>::show(TUIType type) noexcept {
-	if (currentUI_ && currentUI_->isType(type)) {
+	if (m_currentUI && m_currentUI->isType(type)) {
 		return;
 	}
 
-	currentUI_ = createUI(type);
+	m_currentUI = createUI(type);
 }
 
 template<class TUIType, class TFactory>
 std::unique_ptr<UI<TUIType>> UIManager<TUIType, TFactory>::createUI(TUIType type) noexcept {
-	currentUI_ = TFactory::create(type, inputManager_, eventManager_, renderer_, gameSession_);
+	m_currentUI = TFactory::create(type, m_inputManager, m_eventManager, m_renderer, m_gameSession);
 	// UI一般为静态元素，不需要频繁更新，现只在初始化中更新纹理
-	renderer_.clearUITexture();
+	m_renderer.clearUITexture();
 
-	if (currentUI_) {
-		currentUI_->render();
+	if (m_currentUI) {
+		m_currentUI->render();
 	}
 
-	renderer_.resetRenderTarget();
+	m_renderer.resetRenderTarget();
 
-	return std::move(currentUI_);
+	return std::move(m_currentUI);
 }

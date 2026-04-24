@@ -5,8 +5,8 @@
 #include "render/Camera.h"
 #include "resource/Resource.h"
 
-TileMap::TileMap(Renderer& renderer, Resource& rM)noexcept : renderer_(renderer){
-	tilesTexture_ = rM.loadTexture("resource/sheet.png", renderer_.getSDLRenderer());
+TileMap::TileMap(Renderer& renderer, Resource& rM)noexcept : m_renderer(renderer){
+	m_tilesTexture = rM.loadTexture("resource/sheet.png", m_renderer.getSDLRenderer());
 }
 
 void TileMap::update(float dt) noexcept {
@@ -18,9 +18,9 @@ void TileMap::update(float dt) noexcept {
 
 void TileMap::render(const Camera& camera) const noexcept {
 
-	renderer_.renderFillRect(SDL_FRect{ 0, 0,Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT }, SDL_Color({ 173, 216, 230, 255 }));
+	m_renderer.renderFillRect(SDL_FRect{ 0, 0,Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT }, SDL_Color({ 173, 216, 230, 255 }));
 
-	if (tiles_.empty() || tiles_[0].empty()) {
+	if (m_tiles.empty() || m_tiles[0].empty()) {
 		return;
 	}
 
@@ -35,10 +35,10 @@ void TileMap::render(const Camera& camera) const noexcept {
 	for (int i = rowStart; i <= rowEnd; ++i) {
 		for(int j = colStart; j <= colEnd; ++j) {
 			// 渲染视口内的瓦片
-			if (i < 0 || i >= static_cast<int>(tiles_.size()) || j < 0 || j >= static_cast<int>(tiles_[0].size())) {
+			if (i < 0 || i >= static_cast<int>(m_tiles.size()) || j < 0 || j >= static_cast<int>(m_tiles[0].size())) {
 				continue;
 			}
-			const Tile& tile = tiles_[i][j];
+			const Tile& tile = m_tiles[i][j];
 			if (tile.flags == 0) continue;
 			Rect srcRect = { static_cast<float>(tile.srcX), static_cast<float>(tile.srcY), Config::TILE_SRC_WIDTH, Config::TILE_SRC_HEIGHT };
 
@@ -51,8 +51,8 @@ void TileMap::render(const Camera& camera) const noexcept {
 				Config::TILE_SIZE,
 				Config::TILE_SIZE
 			};
-			renderer_.renderTexture(
-				tilesTexture_.get(),
+			m_renderer.renderTexture(
+				m_tilesTexture.get(),
 				srcRect,
 				dstRect
 			);
@@ -61,23 +61,23 @@ void TileMap::render(const Camera& camera) const noexcept {
 }
 
 void TileMap::setData(const std::vector<std::vector<Tile>>& tilesMap, const std::vector<Resource::ObjectDate>& objs) noexcept {
-	tiles_ = tilesMap;
-	mapObjects_ = objs;
+	m_tiles = tilesMap;
+	m_mapObjects = objs;
 	// 根据瓦片数据生成物理碰撞地图，后续增加更多的碰撞属性，例如半碰撞、可攀爬等
-	physicalCollisionMap_.clear();
-	physicalCollisionMap_.reserve(tiles_.size());
-	for (const auto& row : tiles_) {
+	m_physicalCollisionMap.clear();
+	m_physicalCollisionMap.reserve(m_tiles.size());
+	for (const auto& row : m_tiles) {
 		std::vector<physicalCollMap> collisionRow;
 		collisionRow.reserve(row.size());
 		for (const auto& tile : row) {
 			collisionRow.push_back(physicalCollMap{ Config::TILE_SIZE, tile.collision });
 		}
-		physicalCollisionMap_.push_back(collisionRow);
+		m_physicalCollisionMap.push_back(collisionRow);
 	}
 }
 
 bool TileMap::isCanClimb(const SDL_FRect& hitBox) const noexcept{
-	if (tiles_.empty() || tiles_[0].empty()) {
+	if (m_tiles.empty() || m_tiles[0].empty()) {
 		return false;
 	}
 
@@ -93,11 +93,11 @@ bool TileMap::isCanClimb(const SDL_FRect& hitBox) const noexcept{
 
 	for (int row = rowStart; row <= rowEnd; ++row) {
 		for (int col = colStart; col <= colEnd; ++col) {
-			if (row < 0 || row >= static_cast<int>(tiles_.size()) || col < 0 || col >= static_cast<int>(tiles_[row].size())) {
+			if (row < 0 || row >= static_cast<int>(m_tiles.size()) || col < 0 || col >= static_cast<int>(m_tiles[row].size())) {
 				continue;
 			}
 
-			if (static_cast<CollisionType>(tiles_[row][col].collision) == CollisionType::CLIMBABLE) {
+			if (static_cast<CollisionType>(m_tiles[row][col].collision) == CollisionType::CLIMBABLE) {
 				return true;
 			}
 		}
@@ -113,10 +113,10 @@ bool TileMap::isInDeadArea(const SDL_FRect& hitBox) const noexcept{
 	int rowEnd = static_cast<int>((hitBox.y + hitBox.h) / Config::TILE_SIZE);
 	for(int row = rowStart; row <= rowEnd; ++row) {
 		for(int col = colStart; col <= colEnd; ++col) {
-			if (row < 0 || row >= static_cast<int>(tiles_.size()) || col < 0 || col >= static_cast<int>(tiles_[row].size())) {
+			if (row < 0 || row >= static_cast<int>(m_tiles.size()) || col < 0 || col >= static_cast<int>(m_tiles[row].size())) {
 				continue;
 			}
-			if (static_cast<CollisionType>(tiles_[row][col].collision) == CollisionType::DEAD) {
+			if (static_cast<CollisionType>(m_tiles[row][col].collision) == CollisionType::DEAD) {
 				return true;
 			}
 		}
@@ -132,10 +132,10 @@ bool TileMap::isInTriggerArea(const SDL_FRect& hitBox) const noexcept{
 	int rowEnd = static_cast<int>((hitBox.y + hitBox.h) / Config::TILE_SIZE);
 	for (int row = rowStart; row <= rowEnd; ++row) {
 		for (int col = colStart; col <= colEnd; ++col) {
-			if (row < 0 || row >= static_cast<int>(tiles_.size()) || col < 0 || col >= static_cast<int>(tiles_[row].size())) {
+			if (row < 0 || row >= static_cast<int>(m_tiles.size()) || col < 0 || col >= static_cast<int>(m_tiles[row].size())) {
 				continue;
 			}
-			if (static_cast<CollisionType>(tiles_[row][col].collision) == CollisionType::HITED) {
+			if (static_cast<CollisionType>(m_tiles[row][col].collision) == CollisionType::HITED) {
 				return true;
 			}
 		}
@@ -145,12 +145,12 @@ bool TileMap::isInTriggerArea(const SDL_FRect& hitBox) const noexcept{
 
 void TileMap::cleanUpActiveObject() noexcept{
 	std::size_t index = 0;
-	while (index < mapObjects_.size()) {
-		if (mapObjects_[index].isAcitive) {
-			if (index != mapObjects_.size() - 1) {
-				mapObjects_[index] = std::move(mapObjects_.back());
+	while (index < m_mapObjects.size()) {
+		if (m_mapObjects[index].isAcitive) {
+			if (index != m_mapObjects.size() - 1) {
+				m_mapObjects[index] = std::move(m_mapObjects.back());
 			}
-			mapObjects_.pop_back();
+			m_mapObjects.pop_back();
 		}
 		else {
 			++index;
@@ -161,18 +161,18 @@ void TileMap::cleanUpActiveObject() noexcept{
 void TileMap::addAnimationFrame(size_t i, size_t j, const std::vector<std::pair<uint16_t, uint32_t>>& frames) noexcept{
 	size_t row = j / Config::TILE_SIZE;
 	size_t col = i / Config::TILE_SIZE;
-	size_t line = tiles_[0].size();
-	//animationFrames_[col * line + row] = std::make_pair(frames, Timer());
+	size_t line = m_tiles[0].size();
+	//m_animationFrames[col * line + row] = std::make_pair(frames, Timer());
 
-	if (i < tiles_.size() && j < tiles_[i].size()) { 
+	if (i < m_tiles.size() && j < m_tiles[i].size()) { 
 		//前八位为x坐标, 后八位为y坐标
-		tiles_[i][j].srcX = (frames.front().second & 0xFF) * Config::TILE_SRC_WIDTH; 
-		tiles_[i][j].srcY = ((frames.front().second >> 8) & 0xFF) * Config::TILE_SRC_HEIGHT; 
+		m_tiles[i][j].srcX = (frames.front().second & 0xFF) * Config::TILE_SRC_WIDTH; 
+		m_tiles[i][j].srcY = ((frames.front().second >> 8) & 0xFF) * Config::TILE_SRC_HEIGHT; 
 	}
 }
 
 void TileMap::updateTileAnimations(double dt) noexcept{
-	for(auto& [index, animData] : animationFrames_) {
+	for(auto& [index, animData] : m_animationFrames) {
 		animData.second.update(dt); // 更新定时器状态
 		if(!animData.second.isActive()) {
 			continue; // 如果动画已经结束或者未激活，跳过更新
@@ -187,12 +187,12 @@ void TileMap::updateTileAnimations(double dt) noexcept{
 			}
 		}
 
-		size_t col = tiles_[0].size();
+		size_t col = m_tiles[0].size();
 		size_t i = index / col;
 		size_t j = index % col;
-		if (i < tiles_.size() && j < tiles_[i].size()) { //前八位为x坐标, 后八位为y坐标
-			tiles_[i][j].srcX = (animData.first[currentFrameIndex].first & 0xFF) * Config::TILE_SRC_WIDTH; // 获取当前帧的源矩形X坐标
-			tiles_[i][j].srcY = ((animData.first[currentFrameIndex].first >> 8) & 0xFF) * Config::TILE_SRC_HEIGHT; // 获取当前帧的源矩形Y坐标
+		if (i < m_tiles.size() && j < m_tiles[i].size()) { //前八位为x坐标, 后八位为y坐标
+			m_tiles[i][j].srcX = (animData.first[currentFrameIndex].first & 0xFF) * Config::TILE_SRC_WIDTH; // 获取当前帧的源矩形X坐标
+			m_tiles[i][j].srcY = ((animData.first[currentFrameIndex].first >> 8) & 0xFF) * Config::TILE_SRC_HEIGHT; // 获取当前帧的源矩形Y坐标
 			// 这里可以根据需要添加更多的动画属性更新，例如碰撞属性等
 		}
 	}

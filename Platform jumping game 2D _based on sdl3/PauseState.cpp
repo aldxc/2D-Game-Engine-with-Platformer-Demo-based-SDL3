@@ -1,7 +1,7 @@
 #include "PauseState.h"
 #include "render/Renderer.h"
 
-PauseState::PauseState(Renderer& renderer) noexcept : State<StateType>(StateType::PAUSE), renderer_(renderer) {
+PauseState::PauseState(Renderer& renderer) noexcept : State<StateType>(StateType::PAUSE), m_renderer(renderer) {
 
 }
 

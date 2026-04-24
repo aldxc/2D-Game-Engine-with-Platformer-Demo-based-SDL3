@@ -20,12 +20,12 @@ public:
 	void updateAnimationState(float dt) noexcept; 
 	bool animationStateChange(PlayerAnimationState& animationState_, int index) noexcept; 
 private:
-	Renderer& renderer_;
-	Resource& resourceManager_;
-	Input& inputManager_;
+	Renderer& m_renderer;
+	Resource& m_resourceManager;
+	Input& m_inputManager;
 
-	std::shared_ptr<SDL_Texture> playerTexture_ = nullptr;
+	std::shared_ptr<SDL_Texture> m_playerTexture = nullptr;
 
-	std::array<Animation, 3> animations_;
-	std::array<PlayerAnimationState, 3> animationStates_;
+	std::array<Animation, 3> m_animations;
+	std::array<PlayerAnimationState, 3> m_animationStates;
 };

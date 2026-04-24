@@ -31,10 +31,10 @@ public:
 	// 销毁音频系统，释放资源
 	void destroy() noexcept; 
 	// 获取混音器实例
-	MIX_Mixer* getMixer() const noexcept { return mixer_.get(); } 
+	MIX_Mixer* getMixer() const noexcept { return m_mixer.get(); } 
 private:
 	// 标记音频系统是否已销毁，防止重复销毁或访问已销毁的资源
-	bool isDestroyed_ = false; 
+	bool m_isDestroyed = false; 
 	// 自定义删除器
 	struct MIX_MixerDeleter {
 		void operator()(MIX_Mixer* mixer) const {
@@ -58,11 +58,11 @@ private:
 		std::shared_ptr<MIX_Audio> audio; 
 	};  // 后续设计内存对齐
 	// SDL_mixer实例，负责管理音频系统
-	std::unique_ptr<MIX_Mixer, MIX_MixerDeleter> mixer_; 
+	std::unique_ptr<MIX_Mixer, MIX_MixerDeleter> m_mixer; 
 	// 当前播放的背景音乐轨道 
-	std::unique_ptr<MIX_Track, MIX_TrackDeleter> bgmTrack_; 
+	std::unique_ptr<MIX_Track, MIX_TrackDeleter> m_bgmTrack; 
 	// 当前播放的UI音效轨道
-	std::unique_ptr<MIX_Track, MIX_TrackDeleter> uiTrack_; 
+	std::unique_ptr<MIX_Track, MIX_TrackDeleter> m_uiTrack; 
 	// 预定义的音效轨道数组，提供固定数量的音效轨道
-	std::list<TrackSlot> sfxTracks_; 
+	std::list<TrackSlot> m_sfxTracks; 
 };

@@ -44,7 +44,7 @@ public:
 	void renderUITexture() const noexcept; 
 
 	// 获取底层renderer指针
-	SDL_Renderer* getSDLRenderer() const noexcept { return renderer_.get(); } 
+	SDL_Renderer* getSDLRenderer() const noexcept { return m_renderer.get(); } 
 
 	void reversePlayerFaceTexture(SDL_Texture* texture, const Rect& srcRect, const Rect& dstRect) const noexcept;
 	// 外界使用此函数设置颜色及alpha值，统一接口防止直接使用SDL_Color导致的混乱
@@ -83,14 +83,14 @@ private:
 		}
 	};
 private:
-	std::unique_ptr<SDL_Window, SDL_Deleter> window_;
-	std::unique_ptr<SDL_Renderer, SDL_RendererDeleter> renderer_;
-	std::unique_ptr<TTF_TextEngine, SDL_TextEngineDeleter> textEngine_;
-	std::unique_ptr<TTF_Font, SDL_FontDeleter> font_;
+	std::unique_ptr<SDL_Window, SDL_Deleter> m_window;
+	std::unique_ptr<SDL_Renderer, SDL_RendererDeleter> m_renderer;
+	std::unique_ptr<TTF_TextEngine, SDL_TextEngineDeleter> m_textEngine;
+	std::unique_ptr<TTF_Font, SDL_FontDeleter> m_font;
 	// 三个纹理集
-	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> UITexture_; 
-	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> staticTexture_; 
-	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> dynamicTexture_; 
+	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> m_UITexture; 
+	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> m_staticTexture; 
+	std::unique_ptr<SDL_Texture, SDL_TextureDeleter> m_dynamicTexture; 
 	// 文本缓存，键为文本内容，值为对应的TTF_Text对象，避免重复创建相同文本对象带来的性能问题
-	mutable std::unordered_map<std::string, std::unique_ptr<TTF_Text, TTF_TEXTDeleter>> textCache_; 
+	mutable std::unordered_map<std::string, std::unique_ptr<TTF_Text, TTF_TEXTDeleter>> m_textCache; 
 };

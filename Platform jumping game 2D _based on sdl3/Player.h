@@ -35,7 +35,7 @@ public:
 
 	void reset() noexcept;
 
-	void setCommand(const PlayerCommand& command) noexcept { command_ = command; }
+	void setCommand(const PlayerCommand& command) noexcept { m_command = command; }
 
 	// 更新玩家状态，包括位置、动画状态、攻击状态等，dt为帧间时间，单位秒
 	void update(double dt) noexcept override;
@@ -47,31 +47,31 @@ public:
 	void postPhysicsUpdate() noexcept;
 
 	// 获取玩家状态
-	float getVelocityX() const noexcept { return rigidBody_.velocity.x(); }
-	float getVelocityY() const noexcept { return rigidBody_.velocity.y(); }
-	bool isLanded() const noexcept { return rigidBody_.isLanded; }
-	bool getSprint() const noexcept { return isSprinting_; }
-	RigidBody& getRigidBody()noexcept { return rigidBody_; }
-	bool isAir() const noexcept { return !rigidBody_.isLanded; }
-	bool isAttacking() const noexcept { return isAttacking_; }
-	Rect getAttackHitBox() const noexcept { return attackHitBox_; }
-	void dead() noexcept { isDead_ = true; }
-	bool isDead() const noexcept { return isDead_; }
-	bool getWin() const noexcept { return isWinner_; }
-	std::vector<SfxId>& getSfxToPlay() noexcept { return sfxToPlay_; }
+	float getVelocityX() const noexcept { return m_rigidBody.velocity.x(); }
+	float getVelocityY() const noexcept { return m_rigidBody.velocity.y(); }
+	bool isLanded() const noexcept { return m_rigidBody.isLanded; }
+	bool getSprint() const noexcept { return m_isSprinting; }
+	RigidBody& getRigidBody()noexcept { return m_rigidBody; }
+	bool isAir() const noexcept { return !m_rigidBody.isLanded; }
+	bool isAttacking() const noexcept { return m_isAttacking; }
+	Rect getAttackHitBox() const noexcept { return m_attackHitBox; }
+	void dead() noexcept { m_isDead = true; }
+	bool isDead() const noexcept { return m_isDead; }
+	bool getWin() const noexcept { return m_isWinner; }
+	std::vector<SfxId>& getSfxToPlay() noexcept { return m_sfxToPlay; }
 
 	// 设置玩家状态
 	void judgeClimb(bool canClimb) noexcept;
 	void setHit() noexcept;
-	void setFaced(bool faced) noexcept { facingRight_ = faced; }
+	void setFaced(bool faced) noexcept { m_facingRight = faced; }
 
 	void setBirthPoint(const Rect& birthPoint) noexcept {
-		birthPoint_.setX(birthPoint.x());
-		birthPoint_.setY(birthPoint.y());
+		m_birthPoint.setX(birthPoint.x());
+		m_birthPoint.setY(birthPoint.y());
 	}
 
-	void setPlayerID(int id) noexcept { playerId_ = id; }
-	void setWin() noexcept { isWinner_ = true; setIsCollidable(false); }
+	void setPlayerID(int id) noexcept { m_playerId = id; }
+	void setWin() noexcept { m_isWinner = true; setIsCollidable(false); }
 
 private:
 	// 更新玩家的公共状态
@@ -85,80 +85,80 @@ private:
 
 private:
 	// 外部依赖
-	Renderer& renderer_;
+	Renderer& m_renderer;
 
 	// 资源
-	std::shared_ptr<SDL_Texture> playerTexture_ = nullptr;
-	std::shared_ptr<SDL_Texture> attackTexture_ = nullptr;
+	std::shared_ptr<SDL_Texture> m_playerTexture = nullptr;
+	std::shared_ptr<SDL_Texture> m_attackTexture = nullptr;
 
 	// 出生点坐标，玩家重置时会回到这个位置
-	Vec2 birthPoint_ = Vec2(0, 0);
+	Vec2 m_birthPoint = Vec2(0, 0);
 
 	// 输入与动画
-	PlayerCommand command_ = {};
-	PlayerAnimationState currentAnimationState_ = PlayerAnimationState::IDLE;
-	Animation animation_;
+	PlayerCommand m_command = {};
+	PlayerAnimationState m_currentAnimationState = PlayerAnimationState::IDLE;
+	Animation m_animation;
 
 	// 朝向与基础状态
-	bool facingRight_ = true;
-	bool isJumping_ = false;
-	bool jumpRequested_ = false;
-	bool isAttacking_ = false;
-	bool attackFacingRight_ = true;
-	bool isUP_ = false;
-	bool isDown_ = false;
-	bool isClimbing_ = false;
+	bool m_facingRight = true;
+	bool m_isJumping = false;
+	bool m_jumpRequested = false;
+	bool m_isAttacking = false;
+	bool m_attackFacingRight = true;
+	bool m_isUP = false;
+	bool m_isDown = false;
+	bool m_isClimbing = false;
 
 	// 有 bug，冲刺时可以改变方向，后续看是否需要修改还是保存当作机制
-	bool isSprinting_ = false;
+	bool m_isSprinting = false;
 
-	bool wasLanded_ = false;
-	bool isHited_ = false;
-	bool isDead_ = false;
-	bool isWinner_ = false;
+	bool m_wasLanded = false;
+	bool m_isHited = false;
+	bool m_isDead = false;
+	bool m_isWinner = false;
 
 	// 碰撞与运动相关
-	Rect attackHitBox_;
-	Vec2 sprintDirection_ = Vec2(0, 0);
-	RigidBody rigidBody_;
-	MoveMode moveMode_ = MoveMode::NORMAL;
+	Rect m_attackHitBox;
+	Vec2 m_sprintDirection = Vec2(0, 0);
+	RigidBody m_rigidBody;
+	MoveMode m_moveMode = MoveMode::NORMAL;
 
 	// 计时器
 	// 受击后无敌时间，单位秒
-	Timer hitTimer_;
+	Timer m_hitTimer;
 
-	Timer jumpTimer_;
+	Timer m_jumpTimer;
 
 	// 迟滞时间 - 土狼时间
-	Timer coyoteTimer_;
+	Timer m_coyoteTimer;
 
 	// 攻击持续时间
-	Timer attackTimer_;
+	Timer m_attackTimer;
 
 	// 冲刺持续时间
-	Timer sprintTimer_;
+	Timer m_sprintTimer;
 
 	// 平台穿透持续时间，允许玩家在按下下键和跳跃键的组合输入后短暂穿透平台，单位秒
-	Timer dropDownTimer_;
+	Timer m_dropDownTimer;
 
 	// 数值配置
-	float attackDuration_ = 0.3f;
+	float m_attackDuration = 0.3f;
 
 	// 最大冲刺次数，后续增加冲刺冷却时间等功能
-	int32_t sprintMaxCount_ = 2;
+	int32_t m_sprintMaxCount = 2;
 
 	// 当前冲刺次数
-	int32_t sprintCount_ = 0;
+	int32_t m_sprintCount = 0;
 
 	// 玩家编号
-	size_t playerId_ = 0;
+	size_t m_playerId = 0;
 
 	// 玩家生命值
-	int32_t hp_ = Config::PLAYER_HP;
+	int32_t m_hp = Config::PLAYER_HP;
 
 	// 玩家最大生命值
-	int32_t maxHp_ = Config::PLAYER_HP;
+	int32_t m_maxHp = Config::PLAYER_HP;
 
 	// 在当前帧需要播放的音效列表
-	std::vector<SfxId> sfxToPlay_;
+	std::vector<SfxId> m_sfxToPlay;
 };

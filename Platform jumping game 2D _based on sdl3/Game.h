@@ -28,16 +28,16 @@ public:
 	void update() noexcept;
 private:
 	//引擎系统资源维护在此处，注意声明顺序
-	RenderContext renderContext_; 
-	Renderer renderer_; 
-	Audio audioManager_; 
-	EventManager eventManager_; 
-	Input inputManager_; 
-	Resource resourceManager_; 
-	Physics physicsEngine_; 
-	Camera camera_; 
-	GameSession gameSession_; 
-	AudioService audioService_; 
+	RenderContext m_renderContext; 
+	Renderer m_renderer; 
+	Audio m_audioManager; 
+	EventManager m_eventManager; 
+	Input m_inputManager; 
+	Resource m_resourceManager; 
+	Physics m_physicsEngine; 
+	Camera m_camera; 
+	GameSession m_gameSession; 
+	AudioService m_audioService; 
 
 	using GameStateMachine = StateMachine<StateType, GameStateFactory>;
 	using GameUIManager = UIManager<UIType, GameUIFactory>;
@@ -50,23 +50,23 @@ private:
 	void updateCurrentFPS(double frameDt) noexcept; 
 private:
 	// 运行标志
-	bool isRunning_ = true;
+	bool m_isRunning = true;
 
-	std::unique_ptr<GameStateMachine> stateMachine_;
-	std::unique_ptr<GameUIManager> uiMananger_; 
-	SubscriptionId quitSubscriptionId_; 
+	std::unique_ptr<GameStateMachine> m_stateMachine;
+	std::unique_ptr<GameUIManager> m_uiMananger; 
+	SubscriptionId m_quitSubscriptionId; 
 
 	//全局时间，单位秒
-	double globalTime_ = 0.0f; 
+	double m_globalTime = 0.0f; 
 	//时间累积器，用于固定时间步长更新
-	double accumulator_ = 0.0f; 
+	double m_accumulator = 0.0f; 
 	//上次帧时间点
-	std::chrono::time_point<std::chrono::high_resolution_clock> lastFrameTime_; 
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastFrameTime; 
 	//最大帧率，控制游戏循环的频率，防止过高的帧率导致CPU占用过高
-	uint32_t MAX_FPS_ = 120; 
+	uint32_t m_MAX_FPS = 120; 
 
 	//FPS统计相关 平滑统计
-	uint32_t currentFPS_ = 0;
-	uint32_t fpsFrameCount_ = 0;
-	double fpsAccumulatedTime_ = 0.0;
+	uint32_t m_currentFPS = 0;
+	uint32_t m_fpsFrameCount = 0;
+	double m_fpsAccumulatedTime = 0.0;
 };

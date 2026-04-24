@@ -12,188 +12,188 @@
 #include "UIType.h"
 #include "GameSession.h"
 
-PlayingState::PlayingState(RenderContext& renderContext, Physics& pM, Input& iM, EventManager& eM, Resource& rM, GameSession& gS) noexcept : State<StateType>(StateType::PLAYING), renderContext_(renderContext), physics_(pM) , inputManager_(iM), eventManager_(eM), resourceManager_(rM), gameSession_(gS) {
-	currentLevel_ = 0; 
+PlayingState::PlayingState(RenderContext& renderContext, Physics& pM, Input& iM, EventManager& eM, Resource& rM, GameSession& gS) noexcept : State<StateType>(StateType::PLAYING), m_renderContext(renderContext), m_physics(pM) , m_inputManager(iM), m_eventManager(eM), m_resourceManager(rM), m_gameSession(gS) {
+	m_currentLevel = 0; 
 
-	player_ = std::make_unique<Player>(renderContext_.renderer, resourceManager_); 
-	player_->setPlayerID(gameSession_.getPlayerSkin());
+	m_player = std::make_unique<Player>(m_renderContext.renderer, m_resourceManager); 
+	m_player->setPlayerID(m_gameSession.getPlayerSkin());
 	// 将玩家的刚体注册到物理引擎中
-	physics_.registerRigidBody(player_->getRigidBody()); 
+	m_physics.registerRigidBody(m_player->getRigidBody()); 
 
-	enemyManager_ = std::make_unique<EnemyManager>(renderContext.renderer, rM, Config::ENEMYPOOL_SIZE);
+	m_enemyManager = std::make_unique<EnemyManager>(renderContext.renderer, rM, Config::ENEMYPOOL_SIZE);
 
 	// 读取地图数据创建TileMap对象，并重置玩家位置
-	loadLevel(Config::LEVEL_PATH[gameSession_.getCurrentLevel()]);
+	loadLevel(Config::LEVEL_PATH[m_gameSession.getCurrentLevel()]);
 
-	debugSubscriptionId_ = eventManager_.subscribe(
+	m_debugSubscriptionId = m_eventManager.subscribe(
 		EventType::DEBUG_TOGGLE_PLAYER_INFO,
 		[this](const Event&) {
-			showPlayerDebugInfo_ = !showPlayerDebugInfo_;
+			m_showPlayerDebugInfo = !m_showPlayerDebugInfo;
 		});
 
-	renderContext_.camera.setViewport(0, 0, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT); 
-	renderContext_.camera.setWorldBounds(0, 0, tileMap_->getMapWidth() * Config::TILE_SIZE, tileMap_->getMapHeight() * Config::TILE_SIZE);
+	m_renderContext.camera.setViewport(0, 0, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT); 
+	m_renderContext.camera.setWorldBounds(0, 0, m_tileMap->getMapWidth() * Config::TILE_SIZE, m_tileMap->getMapHeight() * Config::TILE_SIZE);
 }
 
 PlayingState::~PlayingState() noexcept {
-	eventManager_.unsubscribe(debugSubscriptionId_);
+	m_eventManager.unsubscribe(m_debugSubscriptionId);
 	// 注销玩家和敌人的刚体，确保它们不再参与物理计算
-	physics_.unregisterRigidBody(player_->getRigidBody()); 
-	for(const auto& enemy : enemyManager_->getActiveEnemies()) {
-		physics_.unregisterRigidBody(enemy->getRigidBody()); 
+	m_physics.unregisterRigidBody(m_player->getRigidBody()); 
+	for(const auto& enemy : m_enemyManager->getActiveEnemies()) {
+		m_physics.unregisterRigidBody(enemy->getRigidBody()); 
 	}
 }
 
 void PlayingState::render() const noexcept{
-	renderContext_.renderer.clearStaticTexture(); 
-	tileMap_->render(renderContext_.camera);
+	m_renderContext.renderer.clearStaticTexture(); 
+	m_tileMap->render(m_renderContext.camera);
 
-	renderContext_.renderer.clearDynamicTexture(); 
+	m_renderContext.renderer.clearDynamicTexture(); 
 
-	for (const auto& enemy : enemyManager_->getActiveEnemies()) {
-		enemy->render(renderContext_.camera);
+	for (const auto& enemy : m_enemyManager->getActiveEnemies()) {
+		enemy->render(m_renderContext.camera);
 	}
-	player_->render(renderContext_.camera);
+	m_player->render(m_renderContext.camera);
 
-	if (showPlayerDebugInfo_) {
-		player_->renderDebug(renderContext_.camera);
+	if (m_showPlayerDebugInfo) {
+		m_player->renderDebug(m_renderContext.camera);
 	}
 }
 
 void PlayingState::update(double dt) noexcept{
 	// 加入敌人
-	for (auto& obj : tileMap_->getObjects()) {
-		if (!renderContext_.camera.isVisible(Vec2{ obj.rect.x(), obj.rect.y() }) || obj.isAcitive) {
+	for (auto& obj : m_tileMap->getObjects()) {
+		if (!m_renderContext.camera.isVisible(Vec2{ obj.rect.x(), obj.rect.y() }) || obj.isAcitive) {
 			continue;
 		}
 		if (obj.data == "enemy") {
 			obj.isAcitive = true; 
-			enemyManager_->spawnEnemy(Rect{obj.rect.x(), obj.rect.y(), Config::ENEMY_WIDTH, Config::ENEMY_HEIGHT });
-			auto* enemy = enemyManager_->getActiveEnemies().back();
+			m_enemyManager->spawnEnemy(Rect{obj.rect.x(), obj.rect.y(), Config::ENEMY_WIDTH, Config::ENEMY_HEIGHT });
+			auto* enemy = m_enemyManager->getActiveEnemies().back();
 			if (!enemy->getRegisteredToPhysics()) {
-				physics_.registerRigidBody(enemyManager_->getActiveEnemies().back()->getRigidBody());
+				m_physics.registerRigidBody(m_enemyManager->getActiveEnemies().back()->getRigidBody());
 				enemy->setRegisteredToPhysics(true);
 			}
 		}else if(obj.data == "box") {
 			obj.isAcitive = true; 
-			tileMap_->addAnimationFrame(obj.rect.x(), obj.rect.y(), obj.animationFrames);
+			m_tileMap->addAnimationFrame(obj.rect.x(), obj.rect.y(), obj.animationFrames);
 		}else if(obj.data == "win") {
-			winPosition_ = Vec2{ obj.rect.x(), obj.rect.y() }; 
+			m_winPosition = Vec2{ obj.rect.x(), obj.rect.y() }; 
 			obj.isAcitive = true; 
 		}
 	}
 
 	// 顺序： 输入移动 - 重力 - 碰撞修正
-	player_->setCommand(Player::PlayerCommand{
-		inputManager_.getMoveLeftPressed(),
-		inputManager_.getMoveRightPressed(),
-		inputManager_.getJumpPressed(),
-		inputManager_.getAttackPressed(),
-		inputManager_.getUPPressed(),
-		inputManager_.getDownPressed(),
-		inputManager_.getSprintPressed(),
-		inputManager_.getFlashPressed()
+	m_player->setCommand(Player::PlayerCommand{
+		m_inputManager.getMoveLeftPressed(),
+		m_inputManager.getMoveRightPressed(),
+		m_inputManager.getJumpPressed(),
+		m_inputManager.getAttackPressed(),
+		m_inputManager.getUPPressed(),
+		m_inputManager.getDownPressed(),
+		m_inputManager.getSprintPressed(),
+		m_inputManager.getFlashPressed()
 		});
 	// 根据当前碰撞盒位置判断是否可以攀爬，并更新玩家的移动模式
-	player_->judgeClimb(tileMap_->isCanClimb(player_->getRigidBody().hitBox)); 
+	m_player->judgeClimb(m_tileMap->isCanClimb(m_player->getRigidBody().hitBox)); 
 
-	for (auto& enemy : enemyManager_->getActiveEnemies()) {
+	for (auto& enemy : m_enemyManager->getActiveEnemies()) {
 		// 根据玩家位置和地图碰撞信息调整敌人朝向，防止敌人卡在墙壁或掉落
-		enemy->setFacingRight(player_->getRigidBody().hitBox, tileMap_->getPhysicalCollisionMap()); 
+		enemy->setFacingRight(m_player->getRigidBody().hitBox, m_tileMap->getPhysicalCollisionMap()); 
         if (enemy->IsDead() && enemy->getRegisteredToPhysics()) {
 			// 将失活的敌人从物理引擎中注销
-			physics_.unregisterRigidBody(enemy->getRigidBody()); 
+			m_physics.unregisterRigidBody(enemy->getRigidBody()); 
 			enemy->setRegisteredToPhysics(false);
 		}
 		enemy->updateAnimationState(dt);
 	}
 
 	// 更新敌人管理器，处理敌人的生成、销毁等
-	enemyManager_->update(dt); 
+	m_enemyManager->update(dt); 
 
-	player_->update(dt);
+	m_player->update(dt);
 
 	// 更新物理系统，处理玩家的运动和碰撞
-	physics_.update(dt); 
+	m_physics.update(dt); 
 
 	resolveInteractions();
 
-	if (!player_->getWin()) {
+	if (!m_player->getWin()) {
 		// 处理物理系统中的碰撞检测和响应，根据地图的碰撞数据进行修正
-		physics_.resolveCollisions(tileMap_->getPhysicalCollisionMap(), dt, Config::EPSILON); 
+		m_physics.resolveCollisions(m_tileMap->getPhysicalCollisionMap(), dt, Config::EPSILON); 
 	}
 
 	// 在物理系统更新后调用，处理玩家状态的最终调整
-	player_->postPhysicsUpdate(); 
-	player_->updateAnimationState(dt);
+	m_player->postPhysicsUpdate(); 
+	m_player->updateAnimationState(dt);
 
 	// 摄像机跟随玩家，启用平滑跟随
-	renderContext_.camera.followTarget(player_->getRigidBody().hitBox, dt, true); 
-	tileMap_->update(dt); 
+	m_renderContext.camera.followTarget(m_player->getRigidBody().hitBox, dt, true); 
+	m_tileMap->update(dt); 
 	// 更新胜利计时器，处理胜利后玩家进行动作的时间控制
-	winTimer_.update(dt); 
+	m_winTimer.update(dt); 
 
-	if(player_->getWin() && !winTimer_.isActive()) {
+	if(m_player->getWin() && !m_winTimer.isActive()) {
 		// 更新游戏会话中的当前关卡编号
-		gameSession_.setCurrentLevel(currentLevel_ + 1); 
-		eventManager_.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::REPLACE, StateType::WON} }); 
-		eventManager_.sendEvent(Event{ EventType::UI_SHOW, UIType::WON }); 
+		m_gameSession.setCurrentLevel(m_currentLevel + 1); 
+		m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::REPLACE, StateType::WON} }); 
+		m_eventManager.sendEvent(Event{ EventType::UI_SHOW, UIType::WON }); 
 	}
 
 	// 处理玩家当前帧需要播放的音效
-	resolveSfx(player_->getSfxToPlay()); 
+	resolveSfx(m_player->getSfxToPlay()); 
 }
 
 void PlayingState::dropDead() noexcept{
 	// 将掉出地图外的标记为死亡
-	for (auto& enemy : enemyManager_->getActiveEnemies()) {
-		if (enemy->getRigidBody().hitBox.y() + enemy->getRigidBody().hitBox.h() > tileMap_->getMapHeight() * Config::TILE_SIZE) {
+	for (auto& enemy : m_enemyManager->getActiveEnemies()) {
+		if (enemy->getRigidBody().hitBox.y() + enemy->getRigidBody().hitBox.h() > m_tileMap->getMapHeight() * Config::TILE_SIZE) {
 			enemy->kill(); 
 		}
 	}
-	if(player_->getRigidBody().hitBox.y() + player_->getRigidBody().hitBox.h() > tileMap_->getMapHeight() * Config::TILE_SIZE) {
-		player_->dead(); 
+	if(m_player->getRigidBody().hitBox.y() + m_player->getRigidBody().hitBox.h() > m_tileMap->getMapHeight() * Config::TILE_SIZE) {
+		m_player->dead(); 
 	}
-	if(player_->isDead()) {
-		eventManager_.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::REPLACE, StateType::LOSE} });
-		eventManager_.sendEvent(Event{ EventType::UI_SHOW, UIType::LOSE });
+	if(m_player->isDead()) {
+		m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::REPLACE, StateType::LOSE} });
+		m_eventManager.sendEvent(Event{ EventType::UI_SHOW, UIType::LOSE });
 	}
 }
 
 void PlayingState::loadLevel(const std::string& filePath){
-	tileMap_ = Maploader::loadMap(filePath, resourceManager_, renderContext_.renderer);
-	for (auto& obj : tileMap_->getObjects()) {
+	m_tileMap = Maploader::loadMap(filePath, m_resourceManager, m_renderContext.renderer);
+	for (auto& obj : m_tileMap->getObjects()) {
 		if (obj.data == "birth") {
-			player_->setBirthPoint(obj.rect);
+			m_player->setBirthPoint(obj.rect);
 			obj.isAcitive = true;
 		}
 	}
-	player_->reset(); // 将玩家重置到出生点位置
+	m_player->reset(); // 将玩家重置到出生点位置
 }
 
 void PlayingState::resolveInteractions(){
 	// 简单的碰撞检测逻辑，后续增加更复杂的攻击判定和响应等功能
-	for (auto& enemy : enemyManager_->getActiveEnemies()) {
+	for (auto& enemy : m_enemyManager->getActiveEnemies()) {
 		// 碰撞玩家
-		if(physics_.isColliding(player_->getRigidBody().hitBox, enemy->getRigidBody().hitBox) && !enemy->IsDead() && player_->getIsCollidable()) {
+		if(m_physics.isColliding(m_player->getRigidBody().hitBox, enemy->getRigidBody().hitBox) && !enemy->IsDead() && m_player->getIsCollidable()) {
 			// 受击强制后退，无敌时间，后续添加掉血
-			int dir = player_->getRigidBody().hitBox.x() < enemy->getRigidBody().hitBox.x()  ? -1 : 1; 
-			player_->setHit();
-			player_->setFaced(dir < 0); // 根据敌人位置调整玩家朝向
-			player_->getRigidBody().acceleration.setX(0); // 强制停止
-			player_->getRigidBody().velocity.setX(dir * Config::PLAYER_HITBACK_VELOCITY);
+			int dir = m_player->getRigidBody().hitBox.x() < enemy->getRigidBody().hitBox.x()  ? -1 : 1; 
+			m_player->setHit();
+			m_player->setFaced(dir < 0); // 根据敌人位置调整玩家朝向
+			m_player->getRigidBody().acceleration.setX(0); // 强制停止
+			m_player->getRigidBody().velocity.setX(dir * Config::PLAYER_HITBACK_VELOCITY);
 		}
 		// 杀死敌人
-		if (player_->isAttacking() && !enemy->IsDead()) {
-			if (physics_.isColliding(player_->getAttackHitBox(), enemy->getRigidBody().hitBox)) {
-				int dir = player_->getRigidBody().hitBox.x() < enemy->getRigidBody().hitBox.x() ? 1 : -1;
+		if (m_player->isAttacking() && !enemy->IsDead()) {
+			if (m_physics.isColliding(m_player->getAttackHitBox(), enemy->getRigidBody().hitBox)) {
+				int dir = m_player->getRigidBody().hitBox.x() < enemy->getRigidBody().hitBox.x() ? 1 : -1;
 				enemy->takeHit(dir); // 设置敌人受击状态，后续增加敌人血量、死亡等功能
 				resolveSfx(enemy->getSfxToPlay());
 			}
 		}
 	}
-	for (auto& box : tileMap_->getAnimationFrames()) {
-		if (!box.second.second.isActive() && physics_.isColliding(player_->getRigidBody().hitBox, Rect{ static_cast<float>(box.first) / tileMap_->getMapCol(), static_cast<float>(box.first % tileMap_->getMapCol()), Config::TILE_SIZE, Config::TILE_SIZE })) {
+	for (auto& box : m_tileMap->getAnimationFrames()) {
+		if (!box.second.second.isActive() && m_physics.isColliding(m_player->getRigidBody().hitBox, Rect{ static_cast<float>(box.first) / m_tileMap->getMapCol(), static_cast<float>(box.first % m_tileMap->getMapCol()), Config::TILE_SIZE, Config::TILE_SIZE })) {
 			double totalTime = 0.0;
 			for (auto& frame : box.second.first) {
 				totalTime += frame.second / 1000.0; // 将持续时间从毫秒转换为秒
@@ -201,20 +201,20 @@ void PlayingState::resolveInteractions(){
 			box.second.second.start(totalTime * 1.2);
 		}
 	}
-	if (player_->getRigidBody().hitBox.hasIntersection(winPosition_) && !winTimer_.isActive()) {
-		player_->setWin(); // 设置玩家为胜利状态，后续增加胜利动画等功能
+	if (m_player->getRigidBody().hitBox.hasIntersection(m_winPosition) && !m_winTimer.isActive()) {
+		m_player->setWin(); // 设置玩家为胜利状态，后续增加胜利动画等功能
 		// 启动胜利计时器，玩家在胜利后进行一些动作
-		winTimer_.start(Config::CELEBRATE_DURATION); 
+		m_winTimer.start(Config::CELEBRATE_DURATION); 
 	}
-	if (tileMap_->isInTriggerArea(player_->getRigidBody().hitBox)) {
+	if (m_tileMap->isInTriggerArea(m_player->getRigidBody().hitBox)) {
 		// 进入触发区域，后续增加触发事件等功能
-		player_->setFaced(true); 
-		player_->setHit(); 
-		player_->getRigidBody().velocity.setX(-Config::PLAYER_HITBACK_VELOCITY); 
+		m_player->setFaced(true); 
+		m_player->setHit(); 
+		m_player->getRigidBody().velocity.setX(-Config::PLAYER_HITBACK_VELOCITY); 
 	}
-	if (tileMap_->isInDeadArea(player_->getRigidBody().hitBox)) {
+	if (m_tileMap->isInDeadArea(m_player->getRigidBody().hitBox)) {
 		// 进入死亡区域时标记玩家为死亡
-		player_->dead(); 
+		m_player->dead(); 
 	}
 
 	// 处理掉出地图外的玩家和敌人
@@ -225,6 +225,6 @@ void PlayingState::resolveSfx(std::vector<SfxId>& sfxs){
 	while (!sfxs.empty()) {
 		auto sfxId = sfxs.back();
 		sfxs.pop_back();
-		eventManager_.sendEvent(Event{ EventType::AUDIO_PLAY_SFX, sfxId }); 
+		m_eventManager.sendEvent(Event{ EventType::AUDIO_PLAY_SFX, sfxId }); 
 	}
 }
