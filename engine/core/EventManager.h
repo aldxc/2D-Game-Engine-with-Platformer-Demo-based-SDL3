@@ -46,9 +46,9 @@ public:
 	void clear() noexcept;
 private:
 	// 事件类型 -> 监听器列表
-	std::unordered_map<EventType, std::vector<ListenerEntry>> listeners_;
+	std::unordered_map<EventType, std::vector<ListenerEntry>> m_listeners;
 	// 事件队列
-	std::queue<Event> eventQueue_;
+	std::queue<Event> m_eventQueue;
 	//原子操作保证后续添加多线程时线程安全
-	static std::atomic<uint64_t> nextId_; 
+	static std::atomic<uint64_t> m_nextId; 
 };

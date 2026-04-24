@@ -4,7 +4,7 @@
 template<class TStateType>
 class State {
 public:
-	explicit State(TStateType init) noexcept : type_(init) {}
+	explicit State(TStateType init) noexcept : m_type(init) {}
 	virtual ~State() = default;
 
 	//禁用拷贝
@@ -16,9 +16,9 @@ public:
 	virtual void update(double dt) noexcept = 0;
 	virtual void render() const noexcept = 0;
 	// 比较接口
-	bool isType(TStateType type) const noexcept { return type_ == type; } 
+	bool isType(TStateType type) const noexcept { return m_type == type; } 
 	// 获取状态类型接口
-	TStateType getType() const noexcept { return type_; } 
+	TStateType getType() const noexcept { return m_type; } 
 
 	// 钩子函数，允许在状态切换时执行特定操作，暂时未使用
 	virtual void onEnter() noexcept {}
@@ -26,5 +26,5 @@ public:
 	virtual void onPause() noexcept {}
 	virtual void onResume() noexcept {}
 private:
-	TStateType type_;
+	TStateType m_type;
 };

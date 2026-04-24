@@ -23,28 +23,28 @@ public:
 	void update(double dt) noexcept;
 	void render() const noexcept;
 	// 获取当前状态类型
-	TStateType getTopStateType() const noexcept { return stateStack_.empty() ? TStateType{} : stateStack_.back()->getType(); } 
+	TStateType getTopStateType() const noexcept { return m_stateStack.empty() ? TStateType{} : m_stateStack.back()->getType(); } 
 
 private:
 	// 引擎核心系统的引用，供状态创建、管理和注入使用
-	RenderContext& renderContext_; 
-	EventManager& eventManager_; 
-	Physics& physics_; 
-	Input& inputManager_; 
-	Resource& resourceManager_;
-	GameSession& gameSession_;
+	RenderContext& m_renderContext; 
+	EventManager& m_eventManager; 
+	Physics& m_physics; 
+	Input& m_inputManager; 
+	Resource& m_resourceManager;
+	GameSession& m_gameSession;
 
 	std::unique_ptr<State<TStateType>> createState(TStateType stateType) noexcept;
 	// 状态栈，支持状态的压入和弹出
-	std::vector<std::unique_ptr<State<TStateType>>> stateStack_; 
-	SubscriptionId stateTransitionSubscriptionId_{};
+	std::vector<std::unique_ptr<State<TStateType>>> m_stateStack; 
+	SubscriptionId m_stateTransitionSubscriptionId{};
 };
 
 template<class TStateType, class TFactory>
 StateMachine<TStateType, TFactory>::StateMachine(TStateType initState, RenderContext& renderContext, Physics& pm, Input& iM, EventManager& eM, Resource& rM, GameSession& gS) noexcept
-	: renderContext_(renderContext), physics_(pm), inputManager_(iM), eventManager_(eM), resourceManager_(rM), gameSession_(gS) {
-	stateStack_.push_back(createState(initState));
-	stateTransitionSubscriptionId_ = eventManager_.subscribe(
+	: m_renderContext(renderContext), m_physics(pm), m_inputManager(iM), m_eventManager(eM), m_resourceManager(rM), m_gameSession(gS) {
+	m_stateStack.push_back(createState(initState));
+	m_stateTransitionSubscriptionId = m_eventManager.subscribe(
 		EventType::STATE_TRANSITION,
 		[this](const Event& event) {
 			if (event.hasData<StateRequest>()) {
@@ -54,29 +54,29 @@ StateMachine<TStateType, TFactory>::StateMachine(TStateType initState, RenderCon
 				case StateOperator::PUSH: {
 						// StateRequest中data字段存储了新的状态类型
 						TStateType newStateType = std::any_cast<TStateType>(req.data); 
-						stateStack_.push_back(createState(newStateType));
+						m_stateStack.push_back(createState(newStateType));
 						break;
 					}
 					case StateOperator::POP:{
-						if (!stateStack_.empty()) {
-							stateStack_.pop_back();
+						if (!m_stateStack.empty()) {
+							m_stateStack.pop_back();
 						}
 						break;
 					}
 					case StateOperator::REPLACE:{
 						// StateRequest中data字段存储了新的状态类型
 						TStateType newStateType = std::any_cast<TStateType>(req.data); 
-						if (!stateStack_.empty()) {
-							stateStack_.pop_back();
+						if (!m_stateStack.empty()) {
+							m_stateStack.pop_back();
 						}
-						stateStack_.push_back(createState(newStateType));
+						m_stateStack.push_back(createState(newStateType));
 						break;
 					}
 					case StateOperator::CLEAR_AND_PUSH:{
 						// StateRequest中data字段存储了新的状态类型
 						TStateType newStateType = std::any_cast<TStateType>(req.data); 
-						stateStack_.clear();
-						stateStack_.push_back(createState(newStateType));
+						m_stateStack.clear();
+						m_stateStack.push_back(createState(newStateType));
 						break;
 					}
 				}
@@ -86,28 +86,28 @@ StateMachine<TStateType, TFactory>::StateMachine(TStateType initState, RenderCon
 
 template<class TStateType, class TFactory>
 StateMachine<TStateType, TFactory>::~StateMachine() noexcept {
-	eventManager_.unsubscribe(stateTransitionSubscriptionId_);
+	m_eventManager.unsubscribe(m_stateTransitionSubscriptionId);
 }
 
 template<class TStateType, class TFactory>
 void StateMachine<TStateType, TFactory>::update(double dt) noexcept {
-	if (!stateStack_.empty()) {
-		stateStack_.back()->update(dt);
+	if (!m_stateStack.empty()) {
+		m_stateStack.back()->update(dt);
 	}
 }
 
 template<class TStateType, class TFactory>
 void StateMachine<TStateType, TFactory>::render() const noexcept {
-	for(const auto& state : stateStack_) {
+	for(const auto& state : m_stateStack) {
 		state->render();
 	}
 
-	renderContext_.renderer.resetRenderTarget(); 
-	renderContext_.renderer.renderStaticTexture(); 
-	renderContext_.renderer.renderDynamicTexture(); 
+	m_renderContext.renderer.resetRenderTarget(); 
+	m_renderContext.renderer.renderStaticTexture(); 
+	m_renderContext.renderer.renderDynamicTexture(); 
 }
 
 template<class TStateType, class TFactory>
 std::unique_ptr<State<TStateType>> StateMachine<TStateType, TFactory>::createState(TStateType stateType) noexcept {
-	return TFactory::create(stateType, renderContext_, physics_, inputManager_, eventManager_, resourceManager_, gameSession_);
+	return TFactory::create(stateType, m_renderContext, m_physics, m_inputManager, m_eventManager, m_resourceManager, m_gameSession);
 }

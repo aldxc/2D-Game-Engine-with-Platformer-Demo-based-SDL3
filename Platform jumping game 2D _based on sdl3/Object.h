@@ -17,21 +17,21 @@ public:
 	virtual void update(double dt) noexcept = 0;
 	//camera参数用于将对象的世界坐标转换为屏幕坐标进行渲染
 	virtual void render(const Camera& camera) const noexcept = 0; 
-	bool getIsActive() const noexcept { return isActive_; }
-	bool getIsDestroyed() const noexcept { return isDestroyed_; }
-	bool getIsCollidable() const noexcept { return isCollidable_; }
+	bool getIsActive() const noexcept { return m_isActive; }
+	bool getIsDestroyed() const noexcept { return m_isDestroyed; }
+	bool getIsCollidable() const noexcept { return m_isCollidable; }
 protected:
-	void setIsActive(bool active) noexcept { isActive_ = active; }
-	void setIsDestroyed(bool destroyed) noexcept { isDestroyed_ = destroyed; }
-	void setIsCollidable(bool coll) noexcept { isCollidable_ = coll; }
+	void setIsActive(bool active) noexcept { m_isActive = active; }
+	void setIsDestroyed(bool destroyed) noexcept { m_isDestroyed = destroyed; }
+	void setIsCollidable(bool coll) noexcept { m_isCollidable = coll; }
 	void reset() noexcept {
-		isActive_ = true;
-		isDestroyed_ = false;
-		isCollidable_ = true;
+		m_isActive = true;
+		m_isDestroyed = false;
+		m_isCollidable = true;
 	}
 private:
 
-	bool isActive_ = true;	   // 是否活跃，控制对象的更新和渲染
-	bool isDestroyed_ = false; // 是否被销毁，控制对象的生命周期
-	bool isCollidable_ = true; // 是否可碰撞，控制碰撞检测 // 这里暂时不区分不可碰撞和被销毁的对象
+	bool m_isActive = true;	   // 是否活跃，控制对象的更新和渲染
+	bool m_isDestroyed = false; // 是否被销毁，控制对象的生命周期
+	bool m_isCollidable = true; // 是否可碰撞，控制碰撞检测 // 这里暂时不区分不可碰撞和被销毁的对象
 };

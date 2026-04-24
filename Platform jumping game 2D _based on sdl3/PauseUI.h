@@ -18,9 +18,9 @@ public:
 	void render() const noexcept override final;
 private:
 	// ÒÀÀµ×é¼ş
-	Renderer& renderer_; 
-	Input& inputManager_; 
-	EventManager& eventManager_; 
+	Renderer& m_renderer; 
+	Input& m_inputManager; 
+	EventManager& m_eventManager; 
 
-	std::array<Botton, Config::PAUSE_BOTTONS_NUM> bottons_;
+	std::array<Botton, Config::PAUSE_BOTTONS_NUM> m_bottons;
 };

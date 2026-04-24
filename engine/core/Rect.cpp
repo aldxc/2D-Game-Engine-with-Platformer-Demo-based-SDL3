@@ -11,5 +11,5 @@ float Rect::distance(const Rect& rect) const noexcept{
 
 bool Rect::hasIntersection(const Vec2& point) const noexcept{
 	SDL_FPoint pointF = { point.x(), point.y() };
-	return SDL_PointInRectFloat(&pointF, &rect_);
+	return SDL_PointInRectFloat(&pointF, &m_rect);
 }

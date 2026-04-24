@@ -45,7 +45,7 @@ public:
 	static bool hasWallAhead(const SDL_FRect& hitBox, bool facingRight, const std::vector<std::vector<physicalCollMap>>& collmap) noexcept;
 private:
 	// 物理对象列表
-	std::vector<std::reference_wrapper<RigidBody>> rigidBodies_ = {}; 
+	std::vector<std::reference_wrapper<RigidBody>> m_rigidBodies = {}; 
 	// 重力加速度，单位为像素/秒²
-	float gravity_ = 0.0f; 
+	float m_gravity = 0.0f; 
 };

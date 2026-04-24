@@ -61,13 +61,13 @@ private:
 	void tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<uint64_t>>& tileIDToAnimationFrames) noexcept; 
 private:
 	// 资源缓存
-	std::unordered_map<std::string, std::shared_ptr<SDL_Texture>> textureCache_; 
+	std::unordered_map<std::string, std::shared_ptr<SDL_Texture>> m_textureCache; 
 	// tmx地图数据，后续将tmx转换成bin存储
-	tmx::Map mapData_; 
+	tmx::Map m_mapData; 
 	// GID - 源矩形左上角坐标的映射关系 
-	std::unordered_map<uint32_t, uint16_t> tileTypeToSrcRectXY_; 
+	std::unordered_map<uint32_t, uint16_t> m_tileTypeToSrcRectXY; 
 	//uint64_t的低16位存储srcX和srcY坐标（每个坐标8位）
-	std::unordered_map<uint32_t, uint8_t> tileTypeToCollision_; 
+	std::unordered_map<uint32_t, uint8_t> m_tileTypeToCollision; 
 	// 音频缓存
-	std::unordered_map<std::string, std::shared_ptr<MIX_Audio>> audioCache_;
+	std::unordered_map<std::string, std::shared_ptr<MIX_Audio>> m_audioCache;
 };

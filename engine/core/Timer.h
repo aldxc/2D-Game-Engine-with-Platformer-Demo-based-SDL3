@@ -23,25 +23,25 @@ public:
 	void update(double dt) noexcept;
 
 	// 检查定时器是否正在运行
-	bool isActive() const noexcept { return isActive_; } 
+	bool isActive() const noexcept { return m_isActive; } 
 
 	// 获取已经过去的时间，单位秒
-	double getElapsedTime() const noexcept { return elapsedTime_; } 
+	double getElapsedTime() const noexcept { return m_elapsedTime; } 
 
 	// 获取计时器时间
-	double getDurationTime() const noexcept { return duration_; }
+	double getDurationTime() const noexcept { return m_durationTime; }
 
 	// 后续增加:暂停、恢复、重置、回调函数等功能
 private:
 	// 定时器是否正在运行
-	bool isActive_ = false; 
+	bool m_isActive = false; 
 
 	// 定时器持续时间，单位秒
-	double duration_ = 0.0f; 
+	double m_durationTime = 0.0f; 
 
 	// 已经过去的时间，单位秒
-	double elapsedTime_ = 0.0f; 
+	double m_elapsedTime = 0.0f; 
 
 	// 定时器是否循环，默认为非循环
-	bool looped_ = false; 
+	bool m_looped = false; 
 };

@@ -65,13 +65,13 @@ bool Resource::loadMap(const std::string& filePath, std::vector<std::vector<uint
 
 
 bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<uint64_t>>& mapTiles, std::vector<ObjectDate>& objectData) noexcept {
-	if(!mapData_.load(filePath)) {
+	if(!m_mapData.load(filePath)) {
 		SDL_Log("Failed to load tmx map: %s", filePath.c_str());
 		return false;
 	}
 	// 获取地图的宽高信息，后续增加对无限地图中chunk数据的处理
-	auto col = mapData_.getTileCount().x; 
-	auto row = mapData_.getTileCount().y; 
+	auto col = m_mapData.getTileCount().x; 
+	auto row = m_mapData.getTileCount().y; 
 	// 存储动画瓦片的帧数据，key为GID，value为帧的GID列表和帧率 低32位存储帧率，剩余部分存储帧的GID列表，每个GID占32位
 	std::unordered_map<uint32_t, std::vector<uint64_t>> tileIDToAnimationFrames; 
 	// 将tmx地图数据转换成png纹理的源矩形和碰撞信息
@@ -80,7 +80,7 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 
 	mapTiles.assign(row, std::vector<uint64_t>(col, 0));
 
-	auto& layers = mapData_.getLayers();
+	auto& layers = m_mapData.getLayers();
 	for (auto& layer : layers) {
 		if (layer->getType() == tmx::Layer::Type::Tile) { //瓦片层
 			if (layer->getName() == "land") {
@@ -97,7 +97,7 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 				}
 
 				// layer 的瓦片数据是一个一维数组，按照行优先顺序存储，需要转换成二维数组
-				// 有限地图中layer 与 mapData_.getTileCount()中的宽高一致，无需考虑无限地图中的chunk数据
+				// 有限地图中layer 与 m_mapData.getTileCount()中的宽高一致，无需考虑无限地图中的chunk数据
 				//int width = tileLayer->getSize().x;
 				//int height = tileLayer->getSize().y;
 				for (size_t i = 0; i < row; ++i) {
@@ -110,7 +110,7 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 							continue; 
 						}
 						// 根据GID获取对应的源矩形坐标和碰撞信息，并存储在Tiles二维数组中
-						mapTiles[i][j] |= (tileTypeToSrcRectXY_[GID] | (static_cast<uint64_t>(1) << 24)); 
+						mapTiles[i][j] |= (m_tileTypeToSrcRectXY[GID] | (static_cast<uint64_t>(1) << 24)); 
 					}
 				}
 			}
@@ -136,7 +136,7 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 							continue; 
 						}
 						// 根据GID获取对应的源矩形坐标和碰撞信息，并存储在Tiles二维数组中
-						mapTiles[i][j] |= (static_cast<uint64_t>(tileTypeToCollision_[GID]) << 16); 
+						mapTiles[i][j] |= (static_cast<uint64_t>(m_tileTypeToCollision[GID]) << 16); 
 					}
 				}
 			}
@@ -164,7 +164,7 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 							for (const auto& frameData : tileIDToAnimationFrames[GID]) {
 								uint32_t frameGID = static_cast<uint32_t>(frameData & 0xFFFFFFFF); // 获取帧的GID
 								uint32_t frameDuration = static_cast<uint32_t>(frameData >> 32); // 获取帧的持续时间
-								objectData.back().animationFrames.emplace_back(tileTypeToSrcRectXY_[frameGID], frameDuration);
+								objectData.back().animationFrames.emplace_back(m_tileTypeToSrcRectXY[frameGID], frameDuration);
 							}
 						}
 					} else if (obj.getClass() == "point") {
@@ -180,7 +180,7 @@ bool Resource::loadTmxMap(const std::string& filePath, std::vector<std::vector<u
 }
 
 void Resource::tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<uint64_t>>& tileIDToAnimationFrames) noexcept {
-	for (const auto& tileset : mapData_.getTilesets()) {
+	for (const auto& tileset : m_mapData.getTilesets()) {
 		// 纹理集中的瓦片数据
 		const auto& specialtiles = tileset.getTiles();
 		for (const auto& tile : specialtiles) {
@@ -196,7 +196,7 @@ void Resource::tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<u
 		if (tileset.getName() == "sheet") { 
 			// tileset每行几个瓦片
 			size_t col = tileset.getColumnCount(); 
-			size_t tileSize = mapData_.getTileSize().x;
+			size_t tileSize = m_mapData.getTileSize().x;
 			uint32_t firstGID = tileset.getFirstGID();
 
 			// tileset里有多少瓦片
@@ -206,7 +206,7 @@ void Resource::tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<u
 				uint32_t tileID = firstGID + i;
 				uint8_t srcX = (i % col);
 				uint8_t srcY = (i / col);
-				tileTypeToSrcRectXY_[tileID] = (static_cast<uint16_t>(srcX) | static_cast<uint16_t>(srcY) << 8);
+				m_tileTypeToSrcRectXY[tileID] = (static_cast<uint16_t>(srcX) | static_cast<uint16_t>(srcY) << 8);
 			}
 		} else if (tileset.getName() == "logictile") { // logictile 获取瓦片碰撞信息
 			uint32_t firstGID = tileset.getFirstGID();
@@ -222,7 +222,7 @@ void Resource::tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<u
 							int collInt = prop.getIntValue();
 							collisionType = collInt; 
 						}
-						tileTypeToCollision_[tileID] = collisionType;
+						m_tileTypeToCollision[tileID] = collisionType;
 					}
 				}
 			}
@@ -231,8 +231,8 @@ void Resource::tmxToPngSrcRectAndColl(std::unordered_map<uint32_t, std::vector<u
 }
 
 std::shared_ptr<SDL_Texture> Resource::loadTexture(const std::string& filePath, SDL_Renderer* renderer) noexcept {
-	auto it = textureCache_.find(filePath);
-	if(it != textureCache_.end()) {
+	auto it = m_textureCache.find(filePath);
+	if(it != m_textureCache.end()) {
 		// 如果缓存中已经存在该纹理，直接返回
 		return it->second; 
 	}
@@ -247,7 +247,7 @@ std::shared_ptr<SDL_Texture> Resource::loadTexture(const std::string& filePath, 
 		if(tex) SDL_DestroyTexture(tex);
 		});
 	// 将新加载的纹理添加到缓存中
-	textureCache_[filePath] = texturePtr; 
+	m_textureCache[filePath] = texturePtr; 
 	//就近采样
 	SDL_SetTextureScaleMode(texturePtr.get(), SDL_SCALEMODE_NEAREST);
 
@@ -274,8 +274,8 @@ void Resource::loadGameData(const std::string& filePath, std::vector<int>& data)
 }
 
 std::shared_ptr<MIX_Audio> Resource::loadAudio(const std::string& filePath, MIX_Mixer* mixer) noexcept{
-	auto it = audioCache_.find(filePath);
-	if(it != audioCache_.end()) {
+	auto it = m_audioCache.find(filePath);
+	if(it != m_audioCache.end()) {
 		// 如果缓存中已经存在该音频，直接返回
 		return it->second; 
 	}
@@ -290,7 +290,7 @@ std::shared_ptr<MIX_Audio> Resource::loadAudio(const std::string& filePath, MIX_
 		if(aud) MIX_DestroyAudio(aud);
 		});
 	// 将新加载的音频添加到缓存中
-	audioCache_[filePath] = audioPtr; 
+	m_audioCache[filePath] = audioPtr; 
 
 	return audioPtr;
 }

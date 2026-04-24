@@ -19,10 +19,10 @@ public:
 	void render() const noexcept override final;
 private:
 	// ÒÀÀµ×é¼ş
-	Renderer& renderer_; 
-	EventManager& eventManager_; 
-	Input& inputManager_; 
-	GameSession& gameSession_; 
+	Renderer& m_renderer; 
+	EventManager& m_eventManager; 
+	Input& m_inputManager; 
+	GameSession& m_gameSession; 
 
-	std::array<Botton, Config::MENU_BOTTOMS_NUM> bottons_; // start continue settings quit
+	std::array<Botton, Config::MENU_BOTTOMS_NUM> m_bottons; // start continue settings quit
 };

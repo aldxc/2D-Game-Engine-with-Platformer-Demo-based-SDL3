@@ -6,35 +6,35 @@
 enum class TileColl : uint8_t { NONE = 0, HALF = 1, FULL = 2, CLIMBABLE = 3 };
 
 bool Physics::init(float gravity) noexcept{
-	gravity_ = gravity;
+	m_gravity = gravity;
 
 	return true;
 }
 
 void Physics::registerRigidBody(RigidBody& body) noexcept{
-	auto it = std::find_if(rigidBodies_.begin(), rigidBodies_.end(), [&body](const std::reference_wrapper<RigidBody>& rb) {
+	auto it = std::find_if(m_rigidBodies.begin(), m_rigidBodies.end(), [&body](const std::reference_wrapper<RigidBody>& rb) {
 		return &rb.get() == &body;
 	});
-	if(it != rigidBodies_.end()) {
+	if(it != m_rigidBodies.end()) {
 		return; // 已经注册过了，直接返回
 	}
-	rigidBodies_.push_back(body);
+	m_rigidBodies.push_back(body);
 }
 
 void Physics::unregisterRigidBody(RigidBody& body) noexcept{
-	auto it = std::find_if(rigidBodies_.begin(), rigidBodies_.end(), [&body](const std::reference_wrapper<RigidBody>& rb) {
+	auto it = std::find_if(m_rigidBodies.begin(), m_rigidBodies.end(), [&body](const std::reference_wrapper<RigidBody>& rb) {
 		return &rb.get() == &body;
 	});
-	if (it != rigidBodies_.end()) {
-		rigidBodies_.erase(it);
+	if (it != m_rigidBodies.end()) {
+		m_rigidBodies.erase(it);
 	}
 }
 
 void Physics::update(double dt) noexcept{
-	for (RigidBody& body : rigidBodies_) {
+	for (RigidBody& body : m_rigidBodies) {
 		// 只有在空中时才应用重力，着陆后重力不再影响速度，保持玩家在地面上的稳定状态
 		// 速度积分
-		body.velocity.setY(body.velocity.y() + (body.isLanded ? 0 : gravity_ * body.gravityScale * dt) + body.acceleration.y() * dt); 
+		body.velocity.setY(body.velocity.y() + (body.isLanded ? 0 : m_gravity * body.gravityScale * dt) + body.acceleration.y() * dt); 
 		body.velocity.setX(body.velocity.x() + body.acceleration.x() * dt); 
 
 		// 速度限制，防止物体移动过快导致穿透问题
@@ -53,7 +53,7 @@ void Physics::resolveCollisions(const std::vector<std::vector<physicalCollMap>>&
 		return; 
 	}
 
-	for (RigidBody& body : rigidBodies_) {
+	for (RigidBody& body : m_rigidBodies) {
 		// 这里可以添加物体之间的碰撞检测和响应逻辑，例如玩家与地图的碰撞检测等
 		const float tileSize = collmap[0][0].size; 
 		// 计算物体的下一个状态，初始为当前状态，根据速度积分进行预测

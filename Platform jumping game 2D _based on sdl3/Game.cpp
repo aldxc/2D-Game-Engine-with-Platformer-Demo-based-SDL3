@@ -6,7 +6,7 @@
 #include "render/Renderer.h"
 #include "physics/Physics.h"
 
-Game::Game() : renderContext_{ renderer_, camera_ }, gameSession_(resourceManager_), audioService_(audioManager_, resourceManager_, eventManager_){
+Game::Game() : m_renderContext{ m_renderer, m_camera }, m_gameSession(m_resourceManager), m_audioService(m_audioManager, m_resourceManager, m_eventManager){
 	if (!init()) {
 		SDL_Log("Failed to initialize game.");
 		return;
@@ -14,24 +14,24 @@ Game::Game() : renderContext_{ renderer_, camera_ }, gameSession_(resourceManage
 }
 
 Game::~Game() {
-	eventManager_.unsubscribe(quitSubscriptionId_);
+	m_eventManager.unsubscribe(m_quitSubscriptionId);
 }
 
 void Game::Run() noexcept {
-	while (isRunning_) {
+	while (m_isRunning) {
 		auto now = std::chrono::high_resolution_clock::now();
-		double frameDt = std::chrono::duration<double>(now - lastFrameTime_).count();
-		lastFrameTime_ = now;
+		double frameDt = std::chrono::duration<double>(now - m_lastFrameTime).count();
+		m_lastFrameTime = now;
 
 		if (frameDt > 0.25) {
 			frameDt = 0.25;
 		}
 
-		accumulator_ += frameDt;
+		m_accumulator += frameDt;
 
 		handleInput();
 		update();
-		uiMananger_->update(frameDt);
+		m_uiMananger->update(frameDt);
 
 		updateCurrentFPS(frameDt);
 
@@ -43,55 +43,55 @@ void Game::Run() noexcept {
 
 void Game::handleInput() noexcept {
 
-	if (inputManager_.getESCPressed()) {
+	if (m_inputManager.getESCPressed()) {
 		// 消费ESC键按下事件，避免持续按键导致的重复输入问题
-		inputManager_.consumeESCKeyPress(); 
-		if (stateMachine_->getTopStateType() == StateType::PLAYING) {
-			eventManager_.triggerEvent(Event{ EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK });
-			eventManager_.triggerEvent(Event{ EventType::AUDIO_PAUSE_BGM });
-			eventManager_.triggerEvent({ EventType::STATE_TRANSITION, StateRequest{ StateOperator::PUSH, StateType::PAUSE } });
-			eventManager_.triggerEvent({ EventType::UI_SHOW, UIType::PAUSE });
-		}else if(stateMachine_->getTopStateType() == StateType::PAUSE) {
-			eventManager_.triggerEvent(Event{ EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK });
-			eventManager_.triggerEvent(Event{ EventType::AUDIO_RESUME_BGM });
-			eventManager_.triggerEvent({ EventType::STATE_TRANSITION, StateRequest{ StateOperator::POP } });
-			eventManager_.triggerEvent({ EventType::UI_SHOW, UIType::PLAYING });
+		m_inputManager.consumeESCKeyPress(); 
+		if (m_stateMachine->getTopStateType() == StateType::PLAYING) {
+			m_eventManager.triggerEvent(Event{ EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK });
+			m_eventManager.triggerEvent(Event{ EventType::AUDIO_PAUSE_BGM });
+			m_eventManager.triggerEvent({ EventType::STATE_TRANSITION, StateRequest{ StateOperator::PUSH, StateType::PAUSE } });
+			m_eventManager.triggerEvent({ EventType::UI_SHOW, UIType::PAUSE });
+		}else if(m_stateMachine->getTopStateType() == StateType::PAUSE) {
+			m_eventManager.triggerEvent(Event{ EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK });
+			m_eventManager.triggerEvent(Event{ EventType::AUDIO_RESUME_BGM });
+			m_eventManager.triggerEvent({ EventType::STATE_TRANSITION, StateRequest{ StateOperator::POP } });
+			m_eventManager.triggerEvent({ EventType::UI_SHOW, UIType::PLAYING });
 		}
 	}
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_EVENT_QUIT) {
-			isRunning_ = false;
+			m_isRunning = false;
 			continue;
 		}
 
-		inputManager_.processInput(event, renderer_);
+		m_inputManager.processInput(event, m_renderer);
 	}
 
-	uiMananger_->handleInput();
-	eventManager_.update();
+	m_uiMananger->handleInput();
+	m_eventManager.update();
 }
 
 void Game::update() noexcept {
 	// 使用固定时间步长更新游戏逻辑，确保游戏在不同帧率下的行为一致
-	while (accumulator_ >= Config::DELTAFREAM) {
-		stateMachine_->update(Config::DELTAFREAM);
+	while (m_accumulator >= Config::DELTAFREAM) {
+		m_stateMachine->update(Config::DELTAFREAM);
 		//在每次逻辑更新后重置输入状态，确保输入状态只在当前逻辑帧内有效，避免输入状态在多帧之间持续导致的重复输入问题
-		inputManager_.resetInputState();
-		globalTime_ += Config::DELTAFREAM;
-		accumulator_ -= Config::DELTAFREAM;
+		m_inputManager.resetInputState();
+		m_globalTime += Config::DELTAFREAM;
+		m_accumulator -= Config::DELTAFREAM;
 	}
 }
 
 void Game::renderer() const noexcept {
-	renderer_.beginRender();
+	m_renderer.beginRender();
 
-	stateMachine_->render();
-	uiMananger_->render();
-	renderer_.renderText("FPS: " + std::to_string(std::min(currentFPS_, MAX_FPS_)) + "/" + std::to_string(MAX_FPS_), SDL_FRect{10, 10, 100, 30}, SDL_Color({255, 255, 255, 255}), 20);
+	m_stateMachine->render();
+	m_uiMananger->render();
+	m_renderer.renderText("FPS: " + std::to_string(std::min(m_currentFPS, m_MAX_FPS)) + "/" + std::to_string(m_MAX_FPS), SDL_FRect{10, 10, 100, 30}, SDL_Color({255, 255, 255, 255}), 20);
 
-	renderer_.restoreDefaultAndPresent();
+	m_renderer.restoreDefaultAndPresent();
 }
 
 bool Game::init() noexcept {
@@ -104,53 +104,53 @@ bool Game::init() noexcept {
 		return false;
 	}
 
-	if (!renderer_.init(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT, Config::DEFAULT_TEXT_SIZE)) {
+	if (!m_renderer.init(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT, Config::DEFAULT_TEXT_SIZE)) {
 		SDL_Log("Failed to initialize renderer.");
 		return false;
 	}
-	if(!audioManager_.init(Config::MAX_AUDIO_SFX_NUMS)) {
+	if(!m_audioManager.init(Config::MAX_AUDIO_SFX_NUMS)) {
 		SDL_Log("Failed to initialize audio manager.");
 		return false;
 	}
-	if (!eventManager_.init()) {
+	if (!m_eventManager.init()) {
 		SDL_Log("Failed to initialize event manager.");
 		return false;
 	}
-	if (!inputManager_.init()) {
+	if (!m_inputManager.init()) {
 		SDL_Log("Failed to initialize input manager.");
 		return false;
 	}
-	if(!resourceManager_.init()) {
+	if(!m_resourceManager.init()) {
 		SDL_Log("Failed to initialize resource manager.");
 		return false;
 	}
-	if(!physicsEngine_.init(Config::GRAVITY)) {
+	if(!m_physicsEngine.init(Config::GRAVITY)) {
 		SDL_Log("Failed to initialize physics engine.");
 		return false;
 	}
-	if (!camera_.init(0, 0, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT)) {
+	if (!m_camera.init(0, 0, Config::LOGIC_WIDTH, Config::LOGIC_HEIGHT)) {
 		SDL_Log("Failed to initialize camera.");
 		return false;
 	}
-	if(!gameSession_.init()) {
+	if(!m_gameSession.init()) {
 		SDL_Log("Failed to initialize game session.");
 		return false;
 	}
 
-	quitSubscriptionId_ = eventManager_.subscribe(EventType::APP_QUIT, [this](const Event&) {
-		isRunning_ = false;
+	m_quitSubscriptionId = m_eventManager.subscribe(EventType::APP_QUIT, [this](const Event&) {
+		m_isRunning = false;
 	});
 
-	stateMachine_ = std::make_unique<GameStateMachine>(StateType::MENU, renderContext_, physicsEngine_, inputManager_, eventManager_, resourceManager_, gameSession_);
-	uiMananger_ = std::make_unique<GameUIManager>(UIType::MENU, inputManager_, eventManager_, renderer_, gameSession_);
-	lastFrameTime_ = std::chrono::high_resolution_clock::now();
+	m_stateMachine = std::make_unique<GameStateMachine>(StateType::MENU, m_renderContext, m_physicsEngine, m_inputManager, m_eventManager, m_resourceManager, m_gameSession);
+	m_uiMananger = std::make_unique<GameUIManager>(UIType::MENU, m_inputManager, m_eventManager, m_renderer, m_gameSession);
+	m_lastFrameTime = std::chrono::high_resolution_clock::now();
 	auto mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
 	// 如果无法获取显示模式信息，默认使用较低的帧率限制
-	MAX_FPS_ = !mode ? 60 : std::min(Config::TARGET_RENDER_FPS, static_cast<uint32_t>(mode->refresh_rate)); 
+	m_MAX_FPS = !mode ? 60 : std::min(Config::TARGET_RENDER_FPS, static_cast<uint32_t>(mode->refresh_rate)); 
 
-	currentFPS_ = 0;
-	fpsAccumulatedTime_ = 0;
-	fpsAccumulatedTime_ = 0;
+	m_currentFPS = 0;
+	m_fpsAccumulatedTime = 0;
+	m_fpsAccumulatedTime = 0;
 
 	return true;
 }
@@ -169,13 +169,13 @@ void Game::LogicUpdateFrequencyControl(const std::chrono::time_point<std::chrono
 
 void Game::updateCurrentFPS(double frameDt) noexcept {
 	// 平滑统计FPS，避免过于频繁的波动，使用指数移动平均平滑FPS值
-	++fpsFrameCount_;
-	fpsAccumulatedTime_ += frameDt;
+	++m_fpsFrameCount;
+	m_fpsAccumulatedTime += frameDt;
 
-	if (fpsAccumulatedTime_ >= 0.25) {
-		currentFPS_ = static_cast<int>(fpsFrameCount_ / fpsAccumulatedTime_ + 0.5);
-		fpsFrameCount_ = 0;
-		fpsAccumulatedTime_ = 0.0;
+	if (m_fpsAccumulatedTime >= 0.25) {
+		m_currentFPS = static_cast<int>(m_fpsFrameCount / m_fpsAccumulatedTime + 0.5);
+		m_fpsFrameCount = 0;
+		m_fpsAccumulatedTime = 0.0;
 	}
 }
 

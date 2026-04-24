@@ -33,7 +33,7 @@ public:
 	SDL_FPoint worldToScreen(const SDL_FPoint& worldPos) const noexcept;
 
 	// 获取视口信息
-	Rect getViewport() const noexcept { return Rect{ viewX_, viewY_, viewWidth_, viewHeight_ }; }
+	Rect getViewport() const noexcept { return Rect{ m_viewX, m_viewY, m_viewWidth, m_viewHeight }; }
 	// 判断世界坐标矩形、坐标点是否在视口内
 	bool isVisible(const Rect& worldRect) const noexcept; 
 	bool isVisible(const Vec2& worldPos) const noexcept; 
@@ -44,24 +44,24 @@ public:
 	// 震动功能，提供震动强度、持续时间等参数，后续增加更多的震动效果，如基于距离衰减的震动、基于对象状态触发的震动等
 private:
 	// 视口位置、大小和缩放，单位为世界坐标
-	float viewX_ = 0.0f; 
-	float viewY_ = 0.0f; 
-	float zoom_ = 1.0f; 
-	float viewWidth_ = 0.0f;
-	float viewHeight_ = 0.0f; 
+	float m_viewX = 0.0f; 
+	float m_viewY = 0.0f; 
+	float m_zoom = 1.0f; 
+	float m_viewWidth = 0.0f;
+	float m_viewHeight = 0.0f; 
 
 	// 世界边界
-	SDL_FRect worldBounds_ = { 0.0f, 0.0f, 0.0f, 0.0f }; 
-	bool useWorldBounds_ = true; 
+	SDL_FRect m_worldBounds = { 0.0f, 0.0f, 0.0f, 0.0f }; 
+	bool m_useWorldBounds = true; 
 
 	// 是否跟随目标
-	bool followTarget_ = false; 
+	bool m_followTarget = false; 
 	// 是否平滑跟随
-	bool smoothFollow_ = false; 
+	bool m_smoothFollow = false; 
 	// 跟随速度，数值越大跟随越快
-	float followSpeed_ = 5.0f; 
+	float m_followSpeed = 5.0f; 
 	// 死区，目标在死区内时摄像机不移动
-	SDL_FRect deadZone_ = { 0.0f, 0.0f, 0.0f, 0.0f }; 
+	SDL_FRect m_deadZone = { 0.0f, 0.0f, 0.0f, 0.0f }; 
 
 	//震动相关，后续加入。。。
 };

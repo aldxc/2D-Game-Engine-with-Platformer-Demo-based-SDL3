@@ -17,11 +17,11 @@ public:
 
 	void clickBottom() const noexcept;
 	void render(Renderer& renderer) const noexcept;
-	const SDL_FRect& getRect() const noexcept { return rect_; }
+	const SDL_FRect& getRect() const noexcept { return m_rect; }
 private:
-	SDL_FRect rect_;
-    SDL_Color color_;
-	std::string text_;
-	int tsize_;
-	std::vector<ClickCallback> clickCallbacks_;
+	SDL_FRect m_rect;
+    SDL_Color m_color;
+	std::string m_text;
+	int m_tsize;
+	std::vector<ClickCallback> m_clickCallbacks;
 };

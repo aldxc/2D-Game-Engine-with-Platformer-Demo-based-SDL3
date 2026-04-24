@@ -3,14 +3,14 @@
 
 bool Input::init() noexcept {
 	// Ä¬ÈÏ¼üÅÌ°ó¶¨
-	keyBindings_[SDL_SCANCODE_LEFT] = InputAction::MOVE_LEFT;
-	keyBindings_[SDL_SCANCODE_RIGHT] = InputAction::MOVE_RIGHT;
-	keyBindings_[SDL_SCANCODE_C] = InputAction::JUMP;
-	keyBindings_[SDL_SCANCODE_Z] = InputAction::ATTACK;
-	keyBindings_[SDL_SCANCODE_UP] = InputAction::UP;
-	keyBindings_[SDL_SCANCODE_DOWN] = InputAction::DOWN;
-	keyBindings_[SDL_SCANCODE_X] = InputAction::SPRINT;
-	keyBindings_[SDL_SCANCODE_ESCAPE] = InputAction::PAUSE;
+	m_keyBindings[SDL_SCANCODE_LEFT] = InputAction::MOVE_LEFT;
+	m_keyBindings[SDL_SCANCODE_RIGHT] = InputAction::MOVE_RIGHT;
+	m_keyBindings[SDL_SCANCODE_C] = InputAction::JUMP;
+	m_keyBindings[SDL_SCANCODE_Z] = InputAction::ATTACK;
+	m_keyBindings[SDL_SCANCODE_UP] = InputAction::UP;
+	m_keyBindings[SDL_SCANCODE_DOWN] = InputAction::DOWN;
+	m_keyBindings[SDL_SCANCODE_X] = InputAction::SPRINT;
+	m_keyBindings[SDL_SCANCODE_ESCAPE] = InputAction::PAUSE;
 	resetInputState();
 	return true;
 }
@@ -21,12 +21,12 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 	if (SDL_EVENT_MOUSE_MOTION) {
 		float mouseX = 0.0f, mouseY = 0.0f;
 		SDL_RenderCoordinatesFromWindow(renderer.getSDLRenderer(), event.button.x, event.button.y, &mouseX, &mouseY);
-		mousePos_ = { mouseX, mouseY };
+		m_mousePos = { mouseX, mouseY };
 	}
 
 	switch (event.type) {
 	case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-		isMousePressed_ = true;
+		m_isMousePressed = true;
 		break;
 	}
 	case SDL_EVENT_KEY_DOWN: {
@@ -35,35 +35,35 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 			break; 
 		}
 
-		isKeyPressed_ = true;
-		const auto it = keyBindings_.find(event.key.scancode);
-		if (it == keyBindings_.end()) {
+		m_isKeyPressed = true;
+		const auto it = m_keyBindings.find(event.key.scancode);
+		if (it == m_keyBindings.end()) {
 			break; 
 		}
 		switch (it->second) {
 		case InputAction::MOVE_LEFT:
-			isMoveLeftPressed_ = true;
+			m_isMoveLeftPressed = true;
 			break;
 		case InputAction::MOVE_RIGHT:
-			isMoveRightPressed_ = true;
+			m_isMoveRightPressed = true;
 			break;
 		case InputAction::JUMP:
-			isJumpPressed_ = true;
+			m_isJumpPressed = true;
 			break;
 		case InputAction::ATTACK:
-			isAttackPressed_ = true;
+			m_isAttackPressed = true;
 			break;
 		case InputAction::UP:
-			isUPPressed_ = true;
+			m_isUPPressed = true;
 			break;
 		case InputAction::DOWN:
-			isDownPressed_ = true;
+			m_isDownPressed = true;
 			break;
 		case InputAction::SPRINT:
-			isSprintPressed_ = true;
+			m_isSprintPressed = true;
 			break;
 		case InputAction::PAUSE:
-			isESCPressed_ = true;
+			m_isESCPressed = true;
 			break;
 		default:
 			break;
@@ -71,30 +71,30 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 		break;
 	}
 	case SDL_EVENT_KEY_UP: {
-		const auto it = keyBindings_.find(event.key.scancode);
-		if (it == keyBindings_.end()) {
+		const auto it = m_keyBindings.find(event.key.scancode);
+		if (it == m_keyBindings.end()) {
 			break;
 		}
 
 		switch (it->second) {
 		case InputAction::MOVE_LEFT: {
-			isMoveLeftPressed_ = false;
+			m_isMoveLeftPressed = false;
 			break;
 		}
 		case InputAction::MOVE_RIGHT: {
-			isMoveRightPressed_ = false;
+			m_isMoveRightPressed = false;
 			break;
 		}
 		case InputAction::UP: {
-			isUPPressed_ = false;
+			m_isUPPressed = false;
 			break;
 		}
 		case InputAction::DOWN: {
-			isDownPressed_ = false;
+			m_isDownPressed = false;
 			break;
 		}
 		case InputAction::PAUSE: {
-			isESCPressed_ = false;
+			m_isESCPressed = false;
 			break;
 		}
 		default:
@@ -108,9 +108,9 @@ void Input::processInput(const SDL_Event& event, Renderer& renderer) noexcept{
 }
 
 void Input::resetInputState() noexcept{
-	isKeyPressed_ = false;
-	isMousePressed_ = false;
-	isJumpPressed_ = false;
-	isAttackPressed_ = false;
-	isSprintPressed_ = false;
+	m_isKeyPressed = false;
+	m_isMousePressed = false;
+	m_isJumpPressed = false;
+	m_isAttackPressed = false;
+	m_isSprintPressed = false;
 }
