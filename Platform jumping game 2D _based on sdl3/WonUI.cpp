@@ -23,7 +23,7 @@ WonUI::WonUI(Input& iM, EventManager& eM, Renderer& r) noexcept : UI<UIType>(UIT
 	m_bottons[2] = { backToMenuRect, "Back to MENU", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE,
 		{ [this]() {
 			m_eventManager.sendEvent(Event{EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK});
-			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::REPLACE, StateType::MENU} });
+			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::POP } });
 			m_eventManager.sendEvent(Event{ EventType::UI_SHOW, UIType::MENU }); }
 		}
 	};

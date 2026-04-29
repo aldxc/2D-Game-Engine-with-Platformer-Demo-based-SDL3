@@ -17,6 +17,9 @@ class Resource;
 class GameSession;
 
 struct GameStateFactory {
+	static constexpr bool isOverlayState(StateType stateType) noexcept {
+		return stateType == StateType::PAUSE;
+	}
 	static std::unique_ptr<State<StateType>> create(StateType stateType, RenderContext& renderContext, Physics& pM, Input& iM, EventManager& eM, Resource& rM, GameSession& gS) noexcept {
 		switch (stateType) {
 		case StateType::MENU:

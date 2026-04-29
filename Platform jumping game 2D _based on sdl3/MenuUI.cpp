@@ -19,7 +19,7 @@ MenuUI::MenuUI(Input& iM, EventManager& eM, Renderer& r, GameSession& gS) noexce
 		// 点击 Start 按钮的回调
 		{ [this]() {
 			m_eventManager.sendEvent(Event{EventType::AUDIO_PLAY_SFX, SfxId::UI_BUTTON_CLICK});
-			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::REPLACE, StateType::SELECT_HERO} });
+			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::PUSH, StateType::SELECT_HERO} });
 			m_eventManager.sendEvent(Event{ EventType::UI_SHOW, UIType::SELECT_STATE });
 			m_gameSession.reset();
 		}

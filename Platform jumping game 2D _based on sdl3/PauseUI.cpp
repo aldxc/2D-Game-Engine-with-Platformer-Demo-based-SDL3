@@ -19,14 +19,16 @@ PauseUI::PauseUI(Input& iM, EventManager& eM, Renderer& r) noexcept : UI<UIType>
 	m_bottons[1] = {restartRect, "Restart", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE,
 		{ [this]() {
 			m_eventManager.sendEvent(Event{EventType::AUDIO_STOP_BGM});
-			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::CLEAR_AND_PUSH, StateType::PLAYING} });
+			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::POP } });
+			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::REPLACE, StateType::PLAYING} });
 			m_eventManager.sendEvent(Event{ EventType::UI_SHOW, UIType::PLAYING });
 		} }
 	};
 	Rect menuRect = Rect{ (Config::LOGIC_WIDTH - Config::SELECT_BUTTON_WIDTH) / 2, 300, Config::SELECT_BUTTON_WIDTH, Config::SELECT_BUTTON_HEIGHT };
 	m_bottons[2] = { menuRect, "Back to MENU", SDL_Color({100, 200, 100, 255}), Config::DEFAULT_TEXT_SIZE,
 		{ [this]() {
-			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::CLEAR_AND_PUSH, StateType::MENU} });
+			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::POP } });
+			m_eventManager.sendEvent(Event{ EventType::STATE_TRANSITION, StateRequest{StateOperator::POP } });
 			m_eventManager.sendEvent(Event{ EventType::UI_SHOW, UIType::MENU });
 		} }
 	};

@@ -98,9 +98,18 @@ void StateMachine<TStateType, TFactory>::update(double dt) noexcept {
 
 template<class TStateType, class TFactory>
 void StateMachine<TStateType, TFactory>::render() const noexcept {
-	for(const auto& state : m_stateStack) {
-		state->render();
+	if (m_stateStack.empty()) return;
+
+	// Èç¹ûÕ»¶¥×´Ì¬ÊÇ¸²¸Ç×´Ì¬£¬ÏÈäÖÈ¾ÏÂÒ»¸ö×´Ì¬
+
+	const auto topIndex = m_stateStack.size() - 1;
+	const auto& topState = m_stateStack[topIndex];
+
+	if (m_stateStack.size() > 1 && TFactory::isOverlayState(topState->getType())) {
+		m_stateStack[topIndex - 1]->render();
 	}
+
+	topState->render();
 
 	m_renderContext.renderer.resetRenderTarget(); 
 	m_renderContext.renderer.renderStaticTexture(); 
