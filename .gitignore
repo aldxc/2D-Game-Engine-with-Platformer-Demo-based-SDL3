@@ -387,3 +387,7 @@ engine/tmxlite/
 
 # tinyxml 源码(tmxlite 依赖)
 engine/tinyxml/
+
+# 忽略所有 .dll .lib 文件
+*.dll
+*.lib
